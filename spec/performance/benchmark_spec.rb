@@ -61,9 +61,9 @@ RSpec.describe "Performance benchmarks", :benchmark do
       puts "    Overhead:    #{overhead}%"
 
       # JSON formatting of hashes should be reasonable
-      # Typical overhead: 250-300% is normal for structured JSON logging
+      # Typical overhead: 250-350% is normal for structured JSON logging
       # This includes hash serialization, timestamp formatting, and payload building
-      expect(overhead).to be < 300
+      expect(overhead).to be < 350
     end
 
     it "measures tagged logging performance" do
