@@ -178,14 +178,14 @@ RSpec.describe JsonLogging::Sanitizer do
     context "when Rails is available" do
       # Store filter_parameters in an array container that can be modified across tests
       let(:filter_params_container) { [[:password, :secret, /token/i]] }
-      
+
       before do
         # Mock Rails if not already defined
         unless defined?(Rails)
           rails_module = Module.new
           rails_app = double("application")
           rails_config = double("config")
-          
+
           allow(rails_config).to receive(:filter_parameters) { filter_params_container[0] }
           allow(rails_config).to receive(:filter_parameters=) { |value| filter_params_container[0] = value }
 

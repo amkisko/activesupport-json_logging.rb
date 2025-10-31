@@ -4,4 +4,3 @@ require "json_logging"
 
 # Ensure Railtie is loaded so Rails auto-discovers it
 require "activesupport/json_logging/railtie" if defined?(Rails)
-
