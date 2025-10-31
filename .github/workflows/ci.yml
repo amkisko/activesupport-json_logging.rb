@@ -51,12 +51,20 @@ jobs:
         # Set BUNDLE_GEMFILE for subsequent steps
         echo "BUNDLE_GEMFILE=gemfiles/${GEMFILE_NAME}.gemfile" >> $GITHUB_ENV
     
-    - name: Add Linux platform to lockfile
+    - name: Update lockfile for platform and Ruby version
       run: |
         GEMFILE_NAME=$(echo "${{ matrix.rails_version }}" | tr '-' '_')
         GEMFILE_PATH="gemfiles/${GEMFILE_NAME}.gemfile"
+        export BUNDLE_GEMFILE=${GEMFILE_PATH}
         if [ -f "${GEMFILE_PATH}.lock" ]; then
-          bundle lock --add-platform x86_64-linux --gemfile ${GEMFILE_PATH}
+          # Add Linux platform if needed
+          bundle lock --add-platform x86_64-linux --gemfile ${GEMFILE_PATH} 2>/dev/null || true
+          # Try to install - if it fails due to incompatible versions, regenerate lockfile
+          if ! bundle install --gemfile ${GEMFILE_PATH} 2>/dev/null; then
+            echo "Lockfile has incompatible versions, regenerating..."
+            rm -f "${GEMFILE_PATH}.lock"
+            bundle install --gemfile ${GEMFILE_PATH}
+          fi
         fi
     
     - name: Install dependencies
