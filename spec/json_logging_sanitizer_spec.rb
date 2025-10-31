@@ -176,14 +176,18 @@ RSpec.describe JsonLogging::Sanitizer do
     end
 
     context "when Rails is available" do
+      # Store filter_parameters in an array container that can be modified across tests
+      let(:filter_params_container) { [[:password, :secret, /token/i]] }
+      
       before do
         # Mock Rails if not already defined
         unless defined?(Rails)
           rails_module = Module.new
           rails_app = double("application")
           rails_config = double("config")
-
-          allow(rails_config).to receive(:filter_parameters).and_return([:password, :secret, /token/i])
+          
+          allow(rails_config).to receive(:filter_parameters) { filter_params_container[0] }
+          allow(rails_config).to receive(:filter_parameters=) { |value| filter_params_container[0] = value }
 
           allow(rails_app).to receive(:config).and_return(rails_config)
           allow(rails_module).to receive(:application).and_return(rails_app)
@@ -227,11 +231,14 @@ RSpec.describe JsonLogging::Sanitizer do
         hash = {password: "secret123", username: "user", api_token: "token123"}
         result = described_class.sanitize_hash(hash)
 
-        # Rails ParameterFilter should filter password and secret
-        # The result should have filtered values (Rails filters them to [FILTERED] or similar)
-        expect(result).not_to have_key(:password)
+        # Rails ParameterFilter keeps the key but replaces the value with [FILTERED]
+        expect(result).to have_key(:password)
+        expect(result[:password]).to eq("[FILTERED]")
         expect(result).to have_key(:username)
-        # api_token may or may not be filtered depending on exact filter config
+        expect(result[:username]).to eq("user")
+        # api_token is not in filter_parameters, so it should remain unchanged
+        expect(result).to have_key(:api_token)
+        expect(result[:api_token]).to eq("token123")
       end
 
       it "rescue errors and returns nil" do
