@@ -1,0 +1,99 @@
+#!/usr/bin/env ruby
+
+# Run appraisal tests locally
+# Usage:
+#   bin/appraisals                    # Run tests for all Rails versions
+#   bin/appraisals rails-7.0          # Run tests for Rails 7.0
+#   bin/appraisals rails-7.0 rails-8.0 # Run tests for specific versions
+#   bin/appraisals rails-7.0 rspec    # Run rspec for Rails 7.0
+#   bin/appraisals rails-7.0 rake spec # Run rake spec for Rails 7.0
+
+require "bundler/setup"
+
+APPRAISALS_FILE = File.join(File.dirname(File.dirname(File.expand_path(__FILE__))), "Appraisals")
+
+unless File.exist?(APPRAISALS_FILE)
+  $stderr.puts "Error: Cannot find Appraisals file at #{APPRAISALS_FILE}"
+  exit 1
+end
+
+AVAILABLE_APPRAISALS = File.read(APPRAISALS_FILE, encoding: "UTF-8")
+  .scan(/appraise\s+"([^"]+)"/)
+  .flatten
+  .freeze
+
+def usage
+  puts <<~USAGE
+    Usage: bin/appraisals [appraisal_name...] [command]
+
+    Examples:
+      bin/appraisals                          # Run rspec for all Rails versions
+      bin/appraisals rails-7.0                # Run rspec for Rails 7.0
+      bin/appraisals rails-7.0 rails-8.0      # Run rspec for Rails 7.0 and 8.0
+      bin/appraisals rails-7.0 rspec          # Run rspec for Rails 7.0
+      bin/appraisals rails-7.0 rake spec      # Run rake spec for Rails 7.0
+
+    Available appraisals: #{AVAILABLE_APPRAISALS.join(', ')}
+  USAGE
+  exit 1
+end
+
+def parse_args
+  args = ARGV.dup
+  
+  # Handle help flags
+  if args.include?("--help") || args.include?("-h")
+    usage
+  end
+  
+  return [AVAILABLE_APPRAISALS, ["rspec"]] if args.empty?
+
+  appraisals = []
+  command = []
+
+  args.each do |arg|
+    if AVAILABLE_APPRAISALS.include?(arg)
+      appraisals << arg
+    else
+      command << arg
+    end
+  end
+
+  appraisals = AVAILABLE_APPRAISALS if appraisals.empty?
+  command = ["rspec"] if command.empty?
+
+  [appraisals, command]
+end
+
+def run_appraisal(appraisal, command)
+  puts "\n" + "=" * 80
+  puts "Running #{appraisal} with: #{command.join(' ')}"
+  puts "=" * 80
+
+  cmd = ["bundle", "exec", "appraisal", appraisal] + command
+  system(*cmd)
+end
+
+appraisals, command = parse_args
+
+unless appraisals.all? { |a| AVAILABLE_APPRAISALS.include?(a) }
+  puts "Error: Invalid appraisal(s)"
+  usage
+end
+
+results = {}
+appraisals.each do |appraisal|
+  results[appraisal] = run_appraisal(appraisal, command)
+end
+
+puts "\n" + "=" * 80
+puts "Summary"
+puts "=" * 80
+appraisals.each do |appraisal|
+  status = results[appraisal] ? "✓ PASSED" : "✗ FAILED"
+  puts "#{appraisal}: #{status}"
+end
+
+exit 0 if results.values.all?
+exit 1
+

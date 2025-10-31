@@ -1,0 +1,6 @@
+.bundle
+pkg
+coverage
+.rspec_status
+.DS_Store
+tmp
