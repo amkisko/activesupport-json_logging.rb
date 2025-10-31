@@ -197,7 +197,7 @@ RSpec.describe "JsonLogging::JsonLogger with IsolatedExecutionState" do
       # Each thread should have its own tags
       expect(all_tags.length).to eq(5)
       all_tags.each do |thread_id, tags|
-        expect(tags).to include("ASYNC_#{thread_id}"), 
+        expect(tags).to include("ASYNC_#{thread_id}"),
           "Expected thread #{thread_id} to have ASYNC_#{thread_id} tag, but got #{tags.inspect}"
         expect(tags.length).to eq(1)
       end
