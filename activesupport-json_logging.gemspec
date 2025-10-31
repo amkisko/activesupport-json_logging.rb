@@ -18,15 +18,15 @@ Gem::Specification.new do |spec|
 
   spec.metadata = {
     "source_code_uri" => "https://github.com/amkisko/activesupport-json_logging.rb",
-    "changelog_uri" => "https://github.com/amkisko/activesupport-json_logging.rb",
+    "changelog_uri" => "https://github.com/amkisko/activesupport-json_logging.rb/blob/main/CHANGELOG.md",
     "bug_tracker_uri" => "https://github.com/amkisko/activesupport-json_logging.rb/issues"
   }
 
   spec.add_runtime_dependency "activesupport", ">= 6.0", "< 9.0"
   spec.add_runtime_dependency "railties", ">= 6.0", "< 9.0"
 
-  spec.add_development_dependency "rspec", ">= 3.12"
-  spec.add_development_dependency "rake", ">= 13.0"
+  spec.add_development_dependency "rspec", "~> 3.12"
+  spec.add_development_dependency "rake", "~> 13.0"
   spec.add_development_dependency "simplecov", "~> 0.21"
   spec.add_development_dependency "standard", "~> 1.0"
   spec.add_development_dependency "appraisal", "~> 2.4"
