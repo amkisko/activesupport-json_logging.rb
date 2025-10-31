@@ -1,0 +1,22 @@
+# Standard Ruby configuration
+# See https://github.com/standardrb/standard for more options
+
+# Ignore specific files/directories
+ignore:
+  - "bin/**/*"
+  - "tmp/**/*"
+  - "vendor/**/*"
+  - "coverage/**/*"
+  - "*.gem"
+  - "*.gemspec"
+
+# Exclude certain rules if needed
+# For example, if you want to allow longer lines:
+# rubocop:
+#   AllCops:
+#     MaxLineLength: 120
+# Disable frozen_string_literal to allow removal of those comments
+rubocop:
+  Style/FrozenStringLiteralComment:
+    Enabled: false
+
