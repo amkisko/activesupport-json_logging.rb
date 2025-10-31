@@ -33,18 +33,32 @@ jobs:
       uses: ruby/setup-ruby@v1
       with:
         ruby-version: ${{ matrix.ruby_version }}
-        bundler-cache: true
+        bundler-cache: false
+    
+    - name: Install appraisal gem
+      run: gem install appraisal --no-document
+    
+    - name: Generate appraisal gemfile
+      run: appraisal install ${{ matrix.rails_version }} || true
+    
+    - name: Set BUNDLE_GEMFILE
+      run: echo "BUNDLE_GEMFILE=gemfiles/${{ matrix.rails_version }}/Gemfile" >> $GITHUB_ENV
     
     - name: Install dependencies
-      run: |
-        bundle install
-        bundle exec appraisal install
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: ${{ matrix.ruby_version }}
+        bundler-cache: true
+        gemfile: gemfiles/${{ matrix.rails_version }}/Gemfile
     
     - name: Run tests
-      run: |
-        bundle exec appraisal ${{ matrix.rails_version }} rspec
+      run: bundle exec appraisal ${{ matrix.rails_version }} rspec
     
     - name: Run linter
+      if: matrix.ruby_version == '3.2'
+      env:
+        BUNDLE_GEMFILE: Gemfile
       run: |
+        bundle install
         bundle exec standardrb --format simple
 
