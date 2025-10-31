@@ -162,15 +162,32 @@ RSpec.describe "JsonLogging::JsonLogger with IsolatedExecutionState" do
       # Simulate async operations with multiple threads setting tags
       threads = []
       mutex = Mutex.new
-      all_tags = []
+      all_tags = {}
+      barrier = Mutex.new
+      condition = ConditionVariable.new
+      ready_count = 0
+      target_count = 5
 
       5.times do |i|
-        threads << Thread.new do
-          logger.tagged("ASYNC_#{i}") do
+        # Capture thread_id outside of Thread.new to avoid closure issues
+        thread_id = i
+        threads << Thread.new(thread_id) do |tid|
+          # Use barrier to ensure all threads start tagging at roughly the same time
+          barrier.synchronize do
+            ready_count += 1
+            condition.wait(barrier) while ready_count < target_count
+            condition.broadcast
+          end
+
+          logger.tagged("ASYNC_#{tid}") do
+            # Small delay to increase chance of race condition if isolation is broken
+            sleep 0.001
+            # Read tags while still in tagged block to verify isolation
+            current_tags_in_thread = logger.send(:current_tags).dup
             mutex.synchronize do
-              all_tags << logger.send(:current_tags).dup
+              all_tags[tid] = current_tags_in_thread
             end
-            logger.info("async message #{i}")
+            logger.info("async message #{tid}")
           end
         end
       end
@@ -179,8 +196,10 @@ RSpec.describe "JsonLogging::JsonLogger with IsolatedExecutionState" do
 
       # Each thread should have its own tags
       expect(all_tags.length).to eq(5)
-      all_tags.each_with_index do |tags, i|
-        expect(tags).to include("ASYNC_#{i}")
+      all_tags.each do |thread_id, tags|
+        expect(tags).to include("ASYNC_#{thread_id}"), 
+          "Expected thread #{thread_id} to have ASYNC_#{thread_id} tag, but got #{tags.inspect}"
+        expect(tags.length).to eq(1)
       end
 
       io.rewind
