@@ -51,6 +51,14 @@ jobs:
         # Set BUNDLE_GEMFILE for subsequent steps
         echo "BUNDLE_GEMFILE=gemfiles/${GEMFILE_NAME}.gemfile" >> $GITHUB_ENV
     
+    - name: Add Linux platform to lockfile
+      run: |
+        GEMFILE_NAME=$(echo "${{ matrix.rails_version }}" | tr '-' '_')
+        GEMFILE_PATH="gemfiles/${GEMFILE_NAME}.gemfile"
+        if [ -f "${GEMFILE_PATH}.lock" ]; then
+          bundle lock --add-platform x86_64-linux --gemfile ${GEMFILE_PATH}
+        fi
+    
     - name: Install dependencies
       uses: ruby/setup-ruby@v1
       with:
