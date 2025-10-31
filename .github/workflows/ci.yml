@@ -39,17 +39,23 @@ jobs:
       run: gem install appraisal --no-document
     
     - name: Generate appraisal gemfile
-      run: appraisal install ${{ matrix.rails_version }} || true
-    
-    - name: Set BUNDLE_GEMFILE
-      run: echo "BUNDLE_GEMFILE=gemfiles/${{ matrix.rails_version }}/Gemfile" >> $GITHUB_ENV
+      run: |
+        # Convert rails-6.0 to rails_6.0 format for gemfile name
+        GEMFILE_NAME=$(echo "${{ matrix.rails_version }}" | tr '-' '_')
+        appraisal install ${{ matrix.rails_version }} || true
+        # Verify gemfile was created
+        if [ ! -f "gemfiles/${GEMFILE_NAME}.gemfile" ]; then
+          echo "Error: gemfile not created at gemfiles/${GEMFILE_NAME}.gemfile"
+          exit 1
+        fi
+        # Set BUNDLE_GEMFILE for subsequent steps
+        echo "BUNDLE_GEMFILE=gemfiles/${GEMFILE_NAME}.gemfile" >> $GITHUB_ENV
     
     - name: Install dependencies
       uses: ruby/setup-ruby@v1
       with:
         ruby-version: ${{ matrix.ruby_version }}
         bundler-cache: true
-        gemfile: gemfiles/${{ matrix.rails_version }}/Gemfile
     
     - name: Run tests
       run: bundle exec appraisal ${{ matrix.rails_version }} rspec
