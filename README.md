@@ -1,6 +1,6 @@
 # activesupport-json_logging
 
-[![Gem Version](https://badge.fury.io/rb/activesupport-json_logging.svg)](https://badge.fury.io/rb/activesupport-json_logging) [![Test Status](https://github.com/amkisko/activesupport-json_logging.rb/actions/workflows/ci.yml/badge.svg)](https://github.com/amkisko/activesupport-json_logging.rb/actions/workflows/ci.yml) [![codecov](https://codecov.io/gh/amkisko/activesupport-json_logging.rb/graph/badge.svg?token=881AFPL643)](https://codecov.io/gh/amkisko/activesupport-json_logging.rb)
+[![Gem Version](https://badge.fury.io/rb/activesupport-json_logging.svg)](https://badge.fury.io/rb/activesupport-json_logging) [![Test Status](https://github.com/amkisko/activesupport-json_logging.rb/actions/workflows/ci.yml/badge.svg)](https://github.com/amkisko/activesupport-json_logging.rb/actions/workflows/ci.yml) [![codecov](https://codecov.io/gh/amkisko/activesupport-json_logging.rb/graph/badge.svg?token=UX80FTO0Y0)](https://codecov.io/gh/amkisko/activesupport-json_logging.rb)
 
 Structured JSON logging for Rails and ActiveSupport with a safe, single-line formatter.
 No dependencies beyond Rails and Activesupport.

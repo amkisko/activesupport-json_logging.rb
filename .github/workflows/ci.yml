@@ -75,8 +75,14 @@ jobs:
     - name: Run tests
       run: bundle exec appraisal ${{ matrix.rails_version }} rspec
     
+    - name: Upload coverage reports to Codecov
+      if: matrix.rails_version == 'rails-8.0'
+      uses: codecov/codecov-action@v5
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+    
     - name: Run linter
-      if: matrix.ruby_version == '3.2'
+      if: matrix.rails_version == 'rails-8.0'
       env:
         BUNDLE_GEMFILE: Gemfile
       run: |
