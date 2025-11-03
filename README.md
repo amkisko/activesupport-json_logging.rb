@@ -8,6 +8,7 @@ Supports Rails versions from 6 to 8.
 
 Sponsored by [Kisko Labs](https://www.kiskolabs.com).
 
+
 ## Installation
 
 Add to your Gemfile:
@@ -30,22 +31,6 @@ Rails.application.configure do
 end
 ```
 
-### Development: Using from Local Repository
-
-When developing the gem or testing changes in your application, you can point your Gemfile to a local path:
-
-```ruby
-# In your application's Gemfile
-gem "activesupport-json_logging", path: "../activesupport-json_logging.rb"
-```
-
-Then run:
-
-```bash
-bundle install
-```
-
-**Note:** When using `path:` in your Gemfile, Bundler will use the local gem directly. Changes you make to the gem code will be immediately available in your application without needing to rebuild or reinstall the gem. This is ideal for development and testing.
 
 ## What you get
 
@@ -511,6 +496,7 @@ Rails.application.config.filter_parameters += [
 
 The gem will automatically filter these from all log entries, including context data. Encrypted attributes (using Rails 7+ `encrypts`) are automatically filtered as well.
 
+
 ## Development
 
 ```bash
@@ -536,6 +522,47 @@ bundle exec appraisal rails-7.0 rspec
 bundle exec standardrb --fix
 ```
 
+### Development: Using from Local Repository
+
+When developing the gem or testing changes in your application, you can point your Gemfile to a local path:
+
+```ruby
+# In your application's Gemfile
+gem "activesupport-json_logging", path: "../activesupport-json_logging.rb"
+```
+
+Then run:
+
+```bash
+bundle install
+```
+
+**Note:** When using `path:` in your Gemfile, Bundler will use the local gem directly. Changes you make to the gem code will be immediately available in your application without needing to rebuild or reinstall the gem. This is ideal for development and testing.
+
+## Contributing
+
+Bug reports and pull requests are welcome on GitHub at https://github.com/amkisko/activesupport-json_logging.rb
+
+Contribution policy:
+- New features are not necessarily added to the gem
+- Pull request should have test coverage for affected parts
+- Pull request should have changelog entry
+
+Review policy:
+- It might take up to 2 calendar weeks to review and merge critical fixes
+- It might take up to 6 calendar months to review and merge pull request
+- It might take up to 1 calendar year to review an issue
+
+
+## Publishing
+
+```sh
+rm activesupport-json_logging-*.gem
+gem build activesupport-json_logging.gemspec
+gem push activesupport-json_logging-*.gem
+```
+
 ## License
 
-MIT
+The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
+
