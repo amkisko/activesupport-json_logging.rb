@@ -29,7 +29,7 @@ RSpec.describe "JsonLogging::JsonLogger with IsolatedExecutionState" do
       # Each thread should have its own tags
       lines.each do |line|
         payload = JSON.parse(line)
-        tags = payload.dig("context", "tags") || []
+        tags = payload["tags"] || []
         thread_id = tags.find { |t| t.start_with?("THREAD_") }
         expect(thread_id).not_to be_nil
         expect(tags.length).to eq(1)
@@ -73,7 +73,7 @@ RSpec.describe "JsonLogging::JsonLogger with IsolatedExecutionState" do
 
       io.rewind
       payload = JSON.parse(io.gets)
-      expect(payload.dig("context", "tags")).to eq(["OUTER", "INNER"])
+      expect(payload["tags"]).to eq(["OUTER", "INNER"])
     end
   end
 
@@ -140,7 +140,7 @@ RSpec.describe "JsonLogging::JsonLogger with IsolatedExecutionState" do
 
       io.rewind
       payload = JSON.parse(io.gets)
-      expect(payload.dig("context", "tags")).to eq(["COMPAT"])
+      expect(payload["tags"]).to eq(["COMPAT"])
     end
 
     it "maintains tag behavior across Rails versions" do
@@ -153,7 +153,7 @@ RSpec.describe "JsonLogging::JsonLogger with IsolatedExecutionState" do
 
       io.rewind
       payload = JSON.parse(io.gets)
-      expect(payload.dig("context", "tags")).to eq(["A", "B"])
+      expect(payload["tags"]).to eq(["A", "B"])
     end
   end
 
@@ -209,7 +209,7 @@ RSpec.describe "JsonLogging::JsonLogger with IsolatedExecutionState" do
       # Verify each log entry has correct tags
       lines.each do |line|
         payload = JSON.parse(line)
-        tags = payload.dig("context", "tags") || []
+        tags = payload["tags"] || []
         expect(tags.length).to eq(1)
         expect(tags.first).to match(/^ASYNC_\d+$/)
       end

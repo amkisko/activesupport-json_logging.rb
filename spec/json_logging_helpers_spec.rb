@@ -43,7 +43,15 @@ RSpec.describe JsonLogging::Helpers do
     end
 
     it "handles TimeWithZone objects (Rails)" do
-      skip "ActiveSupport::TimeWithZone not available" unless defined?(ActiveSupport::TimeWithZone)
+      begin
+        require "active_support/core_ext/time"
+      rescue LoadError
+        skip "ActiveSupport not available"
+      end
+
+      unless defined?(ActiveSupport::TimeWithZone)
+        skip "ActiveSupport::TimeWithZone not available"
+      end
 
       time_zone = ActiveSupport::TimeZone["America/New_York"]
       time = time_zone.parse("2020-01-15 14:30:45")

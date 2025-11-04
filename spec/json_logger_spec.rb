@@ -26,7 +26,7 @@ RSpec.describe JsonLogging::JsonLogger do
     end
     io.rewind
     payload = JSON.parse(io.gets)
-    expect(payload.dig("context", "tags")).to eq(["REQUEST", "123"])
+    expect(payload["tags"]).to eq(["REQUEST", "123"])
   end
 
   it "supports nested tags" do
@@ -37,7 +37,7 @@ RSpec.describe JsonLogging::JsonLogger do
     end
     io.rewind
     payload = JSON.parse(io.gets)
-    expect(payload.dig("context", "tags")).to eq(["OUTER", "INNER"])
+    expect(payload["tags"]).to eq(["OUTER", "INNER"])
   end
 
   it "merges tags with context" do
@@ -49,7 +49,23 @@ RSpec.describe JsonLogging::JsonLogger do
     io.rewind
     payload = JSON.parse(io.gets)
     expect(payload.dig("context", "user_id")).to eq(42)
-    expect(payload.dig("context", "tags")).to eq(["REQUEST"])
+    expect(payload["tags"]).to eq(["REQUEST"])
+  end
+
+  it "ignores tags key from user context - tags are at root level, separate from context" do
+    # User context should not be able to set tags - tags are system-controlled at root level
+    JsonLogging.with_context(tags: ["USER_TAG"], user_id: 42) do
+      logger.tagged("SYSTEM_TAG") do
+        logger.info("test")
+      end
+    end
+    io.rewind
+    payload = JSON.parse(io.gets)
+    # Only system tags should appear at root level
+    expect(payload["tags"]).to eq(["SYSTEM_TAG"])
+    expect(payload.dig("context", "user_id")).to eq(42)
+    # User's tags key should not appear in context
+    expect(payload["context"].keys).to match_array(["user_id"])
   end
 
   it "handles hash messages" do
@@ -98,8 +114,8 @@ RSpec.describe JsonLogging::JsonLogger do
       end
       io.rewind
       payload = JSON.parse(io.gets)
-      # Empty tags should not appear in context
-      expect(payload["context"]).to be_nil
+      # Empty tags should not appear
+      expect(payload["tags"]).to be_nil
     end
 
     it "handles tags with only empty strings and nil" do
@@ -108,8 +124,8 @@ RSpec.describe JsonLogging::JsonLogger do
       end
       io.rewind
       payload = JSON.parse(io.gets)
-      # All tags filtered out, so no tags in context
-      expect(payload.dig("context", "tags")).to be_nil
+      # All tags filtered out, so no tags
+      expect(payload["tags"]).to be_nil
     end
 
     it "handles tags with special characters" do
@@ -118,7 +134,7 @@ RSpec.describe JsonLogging::JsonLogger do
       end
       io.rewind
       payload = JSON.parse(io.gets)
-      expect(payload.dig("context", "tags")).to eq(["tag-with-dashes", "tag_with_underscores", "tag.with.dots"])
+      expect(payload["tags"]).to eq(["tag-with-dashes", "tag_with_underscores", "tag.with.dots"])
     end
 
     it "sanitizes tags with control characters" do
@@ -127,7 +143,7 @@ RSpec.describe JsonLogging::JsonLogger do
       end
       io.rewind
       payload = JSON.parse(io.gets)
-      tags = payload.dig("context", "tags")
+      tags = payload["tags"]
       expect(tags).to be_an(Array)
       # Control characters should be removed by sanitizer
       expect(tags.first).not_to include("\x00")
@@ -141,7 +157,7 @@ RSpec.describe JsonLogging::JsonLogger do
       end
       io.rewind
       payload = JSON.parse(io.gets)
-      tags = payload.dig("context", "tags")
+      tags = payload["tags"]
       expect(tags.length).to eq(100)
       expect(tags).to include("TAG1", "TAG50", "TAG100")
     end
@@ -152,7 +168,7 @@ RSpec.describe JsonLogging::JsonLogger do
       end
       io.rewind
       payload = JSON.parse(io.gets)
-      tags = payload.dig("context", "tags")
+      tags = payload["tags"]
       expect(tags).to include("tag-中文", "tag-🎉", "tag-Русский")
     end
 
@@ -162,7 +178,7 @@ RSpec.describe JsonLogging::JsonLogger do
       end
       io.rewind
       payload = JSON.parse(io.gets)
-      tags = payload.dig("context", "tags")
+      tags = payload["tags"]
       expect(tags).to eq(["123", "456.789"])
     end
 
@@ -172,7 +188,7 @@ RSpec.describe JsonLogging::JsonLogger do
       end
       io.rewind
       payload = JSON.parse(io.gets)
-      tags = payload.dig("context", "tags")
+      tags = payload["tags"]
       expect(tags).to eq(["true", "false"])
     end
   end

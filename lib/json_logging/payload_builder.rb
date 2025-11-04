@@ -29,14 +29,22 @@ module JsonLogging
         additional_context || {}
       end
 
-      deduped_additional = sanitized_context.reject { |k, _| payload.key?(k) }
+      # Filter out system-controlled keys from user context
+      # These keys should never be set by user context as they're controlled by the logger
+      system_controlled_keys = [:tags, "tags", :severity, "severity", :timestamp, "timestamp", :message, "message", :context, "context"]
+      user_context_filtered = sanitized_context.except(*system_controlled_keys)
+
+      # Also prevent overriding any existing payload keys (additional safety)
+      deduped_additional = user_context_filtered.reject { |k, _| payload.key?(k) }
       merged_context = existing_context.merge(deduped_additional)
 
+      # Put tags at root level, separate from context
+      # Merge with existing tags from payload (e.g., when logging a hash with tags: [...] at root)
       unless tags.empty?
-        existing_tags = Array(merged_context[:tags])
+        existing_tags = Array(payload[:tags] || payload["tags"])
         # Sanitize tag strings (remove control chars, truncate)
         sanitized_tags = tags.map { |tag| Sanitizer.sanitize_string(tag.to_s) }
-        merged_context[:tags] = (existing_tags + sanitized_tags).uniq
+        payload[:tags] = (existing_tags + sanitized_tags).uniq
       end
 
       payload[:context] = merged_context unless merged_context.empty?
