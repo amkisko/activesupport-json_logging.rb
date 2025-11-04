@@ -69,7 +69,7 @@ RSpec.describe "JsonLogging::JsonLogger with BroadcastLogger" do
       payload = JSON.parse(io1.gets)
       expect(payload["severity"]).to eq("INFO")
       expect(payload["message"]).to eq("processing request")
-      expect(payload.dig("context", "tags")).to eq(["REQUEST", "12345"])
+      expect(payload["tags"]).to eq(["REQUEST", "12345"])
     end
 
     it "supports nested tags" do
@@ -81,7 +81,7 @@ RSpec.describe "JsonLogging::JsonLogger with BroadcastLogger" do
 
       io1.rewind
       payload = JSON.parse(io1.gets)
-      expect(payload.dig("context", "tags")).to eq(["OUTER", "INNER"])
+      expect(payload["tags"]).to eq(["OUTER", "INNER"])
     end
 
     it "works with tags and context together" do
@@ -94,7 +94,7 @@ RSpec.describe "JsonLogging::JsonLogger with BroadcastLogger" do
       io1.rewind
       payload = JSON.parse(io1.gets)
       expect(payload.dig("context", "request_id")).to eq("abc-123")
-      expect(payload.dig("context", "tags")).to eq(["API"])
+      expect(payload["tags"]).to eq(["API"])
     end
   end
 
@@ -148,7 +148,7 @@ RSpec.describe "JsonLogging::JsonLogger with BroadcastLogger" do
       # when called through the same BroadcastLogger instance
       io1.rewind
       payload1 = JSON.parse(io1.gets)
-      expect(payload1.dig("context", "tags")).to eq(["TAG1", "TAG2"])
+      expect(payload1["tags"]).to eq(["TAG1", "TAG2"])
 
       # Second logger may not have tags if it's a separate instance
       # This is expected - BroadcastLogger delegates to each logger independently

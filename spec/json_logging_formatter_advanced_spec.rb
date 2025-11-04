@@ -94,7 +94,7 @@ RSpec.describe JsonLogging::FormatterWithTags do
     logger.tagged("REQUEST") do
       result = formatter.call("INFO", Time.now, nil, "test")
       payload = JSON.parse(result)
-      expect(payload.dig("context", "tags")).to eq(["REQUEST"])
+      expect(payload["tags"]).to eq(["REQUEST"])
     end
   end
 

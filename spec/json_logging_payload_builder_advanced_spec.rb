@@ -23,7 +23,7 @@ RSpec.describe JsonLogging::PayloadBuilder do
     it "sanitizes tag values" do
       payload = {message: "test"}
       result = described_class.merge_context(payload, additional_context: {}, tags: ["tag\x00with\x01control"])
-      expect(result.dig(:context, :tags).first).not_to include("\x00")
+      expect(result[:tags].first).not_to include("\x00")
     end
   end
 

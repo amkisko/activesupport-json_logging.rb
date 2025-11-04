@@ -314,10 +314,10 @@ logger.tagged("BCX").tagged("Jason").info("Stuff")
 # Wrap a TaggedLogging logger - works perfectly
 tagged_logger = ActiveSupport::TaggedLogging.new(Logger.new(STDOUT))
 json_logger = JsonLogging.new(tagged_logger)
-json_logger.tagged("TEST") { json_logger.info("message") }  # Tags appear in JSON context
+json_logger.tagged("TEST") { json_logger.info("message") }  # Tags appear at root level in JSON
 ```
 
-**Note:** If you wrap a `JsonLogging` logger with `ActiveSupport::TaggedLogging`, the TaggedLogging's text-based tags will appear as part of the message string in the JSON output, not as structured tags in the context. For best results, wrap loggers with `JsonLogging` last.
+**Note:** If you wrap a `JsonLogging` logger with `ActiveSupport::TaggedLogging`, the TaggedLogging's text-based tags will appear as part of the message string in the JSON output, not as structured tags at the root level. For best results, wrap loggers with `JsonLogging` last.
 
 ### JsonLogging::JsonLogger
 
@@ -344,7 +344,7 @@ formatter.call("INFO", Time.now, nil, "message")
 
 # With tags (useful for Puma or other standalone use cases)
 formatter = JsonLogging::Formatter.new(tags: ["Puma"])
-formatter.call("INFO", Time.now, nil, "message")  # Output includes "Puma" tag in context
+formatter.call("INFO", Time.now, nil, "message")  # Output includes "Puma" tag at root level
 
 # Multiple tags
 formatter = JsonLogging::Formatter.new(tags: ["Puma", "Worker"])
