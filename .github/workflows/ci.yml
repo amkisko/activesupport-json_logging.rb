@@ -12,21 +12,15 @@ jobs:
     strategy:
       matrix:
         include:
-          - rails_version: rails-6.0
-            ruby_version: "3.1"
           - rails_version: rails-6.1
-            ruby_version: "3.1"
-          - rails_version: rails-7.0
-            ruby_version: "3.1"
-          - rails_version: rails-7.1
             ruby_version: "3.1"
           - rails_version: rails-7.2
             ruby_version: "3.1"
-          - rails_version: rails-8.0
+          - rails_version: rails-8.1
             ruby_version: "3.2"
     
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v5
     
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
@@ -74,25 +68,11 @@ jobs:
     
     - name: Run tests
       run: bundle exec appraisal ${{ matrix.rails_version }} rspec
-    
-    - name: Upload coverage reports to Codecov
-      if: matrix.rails_version == 'rails-8.0'
-      uses: codecov/codecov-action@v5
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-    
-    - name: Run linter
-      if: matrix.rails_version == 'rails-8.0'
-      env:
-        BUNDLE_GEMFILE: Gemfile
-      run: |
-        bundle install
-        bundle exec standardrb --format simple
 
   coverage:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: "3.4"
