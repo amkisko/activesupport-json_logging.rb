@@ -36,7 +36,9 @@ RSpec.describe "Performance benchmarks", :benchmark do
       # Absolute time per log: ~0.005-0.008ms (negligible compared to I/O)
       # In real apps, I/O dominates (1-10ms disk, 5-50ms network), making this < 1% of total time
       # Allow up to 600% to account for benchmark variance and system load
-      expect(overhead).to be < 600
+      # TruffleRuby has higher overhead, so allow up to 1000%
+      max_overhead = RUBY_ENGINE == "truffleruby" ? 1000 : 600
+      expect(overhead).to be < max_overhead
     end
 
     it "compares JsonLogger with ActiveSupport::Logger for hash messages" do
@@ -65,7 +67,9 @@ RSpec.describe "Performance benchmarks", :benchmark do
       # Typical overhead: 250-350% is normal for structured JSON logging
       # This includes hash serialization, timestamp formatting, and payload building
       # Allow up to 450% to account for benchmark variance and system load
-      expect(overhead).to be < 450
+      # TruffleRuby has higher overhead, so allow up to 500%
+      max_overhead = RUBY_ENGINE == "truffleruby" ? 500 : 450
+      expect(overhead).to be < max_overhead
     end
 
     it "measures tagged logging performance" do
@@ -94,7 +98,9 @@ RSpec.describe "Performance benchmarks", :benchmark do
       # Tagging adds some overhead (thread-local storage, context merging)
       # Typical overhead: 60-70% is reasonable
       # Allow up to 150% to account for benchmark variance and system load
-      expect(overhead).to be < 150
+      # TruffleRuby has higher overhead, so allow up to 800%
+      max_overhead = RUBY_ENGINE == "truffleruby" ? 800 : 150
+      expect(overhead).to be < max_overhead
     end
 
     it "measures context performance" do
