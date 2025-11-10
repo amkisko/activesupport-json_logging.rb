@@ -67,6 +67,17 @@ logger.tagged("BCX").info("Stuff")
 logger.tagged("BCX", "Jason").info("Stuff")
 logger.tagged("BCX").tagged("Jason").info("Stuff")
 
+# Create a service-specific logger with permanent tags
+# All logs from this logger will include the "dotenv" tag
+dotenv_logger = logger.tagged("dotenv")
+dotenv_logger.info("Loading environment variables")  # Includes "dotenv" tag
+dotenv_logger.warn("Missing .env file")  # Includes "dotenv" tag
+
+# You can also create service loggers directly
+base_logger = JsonLogging.logger($stdout)
+service_logger = base_logger.tagged("my-service")
+service_logger.info("Service started")  # All logs tagged with "my-service"
+
 # Add context
 JsonLogging.with_context(user_id: 123) do
   logger.warn({event: "slow_query", duration_ms: 250})
@@ -88,6 +99,84 @@ This gem does **not** automatically configure your Rails app. You set it up manu
 - In Rails apps, the gem is automatically required via Railtie, so you typically don't need to manually `require "json_logging"` in initializers (though it's harmless if you do).
 - In Rails 7.1+, Rails automatically wraps your logger in `ActiveSupport::BroadcastLogger` to enable writing to multiple destinations (e.g., STDOUT and file simultaneously). This works seamlessly with our logger - your JSON logger will be wrapped and all method calls will delegate correctly. No special handling needed.
 - In Rails 7.1+, tag storage uses `ActiveSupport::IsolatedExecutionState` for improved thread/Fiber safety.
+
+### Service-specific loggers with tags
+
+You can create loggers with permanent tags for specific services or components. This is useful when you want all logs from a particular service to be tagged consistently:
+
+```ruby
+# Create a logger for DotEnv service with "dotenv" tag
+base_logger = JsonLogging.logger($stdout)
+dotenv_logger = base_logger.tagged("dotenv")
+
+# All logs from this logger will include the "dotenv" tag
+dotenv_logger.info("Loading .env file")
+dotenv_logger.warn("Missing .env.local file")
+dotenv_logger.error("Invalid environment variable format")
+
+# Example: Configure Dotenv::Rails to use tagged logger
+if defined?(Dotenv::Rails)
+  Dotenv::Rails.logger = base_logger.tagged("dotenv")
+end
+
+# Example: Create multiple service loggers
+redis_logger = base_logger.tagged("redis")
+sidekiq_logger = base_logger.tagged("sidekiq")
+api_logger = base_logger.tagged("api")
+
+# Each service logger maintains its tag across all log calls
+redis_logger.info("Connected to Redis")  # Tagged with "redis"
+sidekiq_logger.info("Job enqueued")      # Tagged with "sidekiq"
+api_logger.info("Request received")      # Tagged with "api"
+```
+
+### BroadcastLogger integration
+
+`ActiveSupport::BroadcastLogger` (Rails 7.1+) allows writing logs to multiple destinations simultaneously. `JsonLogging` works seamlessly with `BroadcastLogger`:
+
+```ruby
+# Create JSON loggers for different destinations
+stdout_logger = JsonLogging.logger($stdout)
+file_logger = JsonLogging.logger(Rails.root.join("log", "production.log"))
+
+# Wrap in BroadcastLogger to write to both destinations
+broadcast_logger = ActiveSupport::BroadcastLogger.new(stdout_logger)
+broadcast_logger.broadcast_to(file_logger)
+
+# All logging methods work through BroadcastLogger
+broadcast_logger.info("This goes to both STDOUT and file")
+broadcast_logger.warn({event: "warning", message: "Something happened"})
+
+# Tagged logging works through BroadcastLogger
+broadcast_logger.tagged("REQUEST", request_id) do
+  broadcast_logger.info("Processing request")  # Tagged logs go to both destinations
+end
+
+# Service-specific loggers work with BroadcastLogger
+# Note: Create service logger from underlying logger, then wrap in BroadcastLogger
+# (BroadcastLogger.tagged without block returns array due to delegation)
+base_logger = JsonLogging.logger($stdout)
+dotenv_logger = base_logger.tagged("dotenv")
+dotenv_broadcast = ActiveSupport::BroadcastLogger.new(dotenv_logger)
+dotenv_broadcast.broadcast_to(file_logger.tagged("dotenv"))  # Tag second destination too
+dotenv_broadcast.info("Environment loaded")  # Tagged and broadcast to all destinations
+
+# Rails 7.1+ automatically uses BroadcastLogger
+# Your configuration can be simplified:
+Rails.application.configure do
+  # Rails will automatically wrap this in BroadcastLogger
+  base_logger = ActiveSupport::Logger.new($stdout)
+  json_logger = JsonLogging.new(base_logger)
+  config.logger = json_logger  # Rails wraps this in BroadcastLogger automatically
+end
+```
+
+**Key points:**
+- All logger methods (`info`, `warn`, `error`, etc.) work through `BroadcastLogger`
+- Tagged logging (`tagged`) works correctly through `BroadcastLogger`
+- Service-specific tagged loggers work with `BroadcastLogger`
+- Each destination receives properly formatted JSON logs
+- No special configuration needed - just wrap your `JsonLogging` logger in `BroadcastLogger`
 
 ### Basic setup
 
@@ -506,7 +595,7 @@ The gem will automatically filter these from all log entries, including context 
 ```bash
 # Install dependencies
 bundle install
-bundle exec appraisal install
+bundle exec appraisal generate
 
 # Run tests for current Rails version
 bundle exec rspec
