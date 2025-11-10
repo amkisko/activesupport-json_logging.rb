@@ -36,5 +36,3 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "memory_profiler", "~> 1"
   spec.add_development_dependency "rbs", "~> 3"
 end
-
-
