@@ -44,6 +44,8 @@ end
 - `JsonLogging.with_context` to attach contextual fields per-thread
 - Smart message parsing (handles hashes, JSON strings, plain strings, and Exception objects)
 - Native `tagged` method support - use it just like Rails' tagged logger
+- Service-specific tagged loggers - create loggers with permanent tags using `logger.tagged("service")` without a block
+- Full compatibility with `ActiveSupport::BroadcastLogger` (Rails 7.1+)
 - Automatic Rails integration via Railtie (auto-requires the gem in Rails apps)
 
 ## Basic usage

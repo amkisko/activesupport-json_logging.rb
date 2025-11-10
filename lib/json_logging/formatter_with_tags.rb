@@ -8,7 +8,13 @@ module JsonLogging
     end
 
     def current_tags
-      @logger.send(:current_tags)
+      # If LocalTagStorage is extended on this formatter, use its tag_stack
+      # This matches Rails' TaggedLogging behavior where tag_stack attribute shadows the method
+      if respond_to?(:tag_stack, true) && instance_variable_defined?(:@tag_stack)
+        tag_stack.tags
+      else
+        @logger.send(:current_tags)
+      end
     end
 
     def call(severity, timestamp, progname, msg)
@@ -22,18 +28,42 @@ module JsonLogging
       build_fallback_output(severity, timestamp, msg, e)
     end
 
+    def push_tags(*tags)
+      # If LocalTagStorage is present, use it; otherwise use logger's thread-local storage
+      if respond_to?(:tag_stack, true) && instance_variable_defined?(:@tag_stack)
+        tag_stack.push_tags(tags)
+      else
+        @logger.send(:push_tags, tags)
+      end
+    end
+
     # Support tagged blocks for formatter
     def tagged(*tags)
       if block_given?
-        previous = @logger.send(:current_tags).dup
-        @logger.send(:push_tags, tags)
-        begin
-          yield @logger
-        ensure
-          @logger.send(:set_tags, previous)
+        # If LocalTagStorage is present, use it; otherwise use logger's thread-local storage
+        if respond_to?(:tag_stack, true) && instance_variable_defined?(:@tag_stack)
+          previous_count = tag_stack.tags.size
+          tag_stack.push_tags(tags)
+          begin
+            yield @logger
+          ensure
+            tag_stack.pop_tags(tag_stack.tags.size - previous_count)
+          end
+        else
+          previous = @logger.send(:current_tags).dup
+          @logger.send(:push_tags, tags)
+          begin
+            yield @logger
+          ensure
+            @logger.send(:set_tags, previous)
+          end
         end
       else
-        @logger.send(:push_tags, tags)
+        if respond_to?(:tag_stack, true) && instance_variable_defined?(:@tag_stack)
+          tag_stack.push_tags(tags)
+        else
+          @logger.send(:push_tags, tags)
+        end
         self
       end
     end

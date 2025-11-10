@@ -254,6 +254,95 @@ RSpec.describe "JsonLogging::JsonLogger with BroadcastLogger" do
     end
   end
 
+  describe "service-specific tagged loggers" do
+    it "creates a logger with permanent tags that work through BroadcastLogger" do
+      # Create a service-specific logger from underlying logger (not BroadcastLogger)
+      # BroadcastLogger.tagged without block returns array, so create from base logger
+      dotenv_logger_base = json_logger.tagged("dotenv")
+      dotenv_broadcast = ActiveSupport::BroadcastLogger.new(dotenv_logger_base)
+
+      # All logs from this logger should include the tag
+      dotenv_broadcast.info("Loading .env file")
+      dotenv_broadcast.warn("Missing .env.local file")
+      dotenv_broadcast.error("Invalid environment variable")
+
+      io1.rewind
+      lines = io1.readlines
+      expect(lines.length).to eq(3)
+
+      lines.each do |line|
+        payload = JSON.parse(line)
+        expect(payload["tags"]).to eq(["dotenv"])
+      end
+
+      # Verify each log entry has the correct message and tag
+      first_payload = JSON.parse(lines[0])
+      expect(first_payload["message"]).to eq("Loading .env file")
+      expect(first_payload["severity"]).to eq("INFO")
+      expect(first_payload["tags"]).to eq(["dotenv"])
+
+      second_payload = JSON.parse(lines[1])
+      expect(second_payload["message"]).to eq("Missing .env.local file")
+      expect(second_payload["severity"]).to eq("WARN")
+      expect(second_payload["tags"]).to eq(["dotenv"])
+    end
+
+    it "allows multiple service loggers with different tags" do
+      # Create service loggers from underlying logger (not BroadcastLogger)
+      redis_logger = json_logger.tagged("redis")
+      sidekiq_logger = json_logger.tagged("sidekiq")
+      api_logger = json_logger.tagged("api")
+
+      redis_logger.info("Connected to Redis")
+      sidekiq_logger.info("Job enqueued")
+      api_logger.info("Request received")
+
+      io1.rewind
+      lines = io1.readlines
+      expect(lines.length).to eq(3)
+
+      payloads = lines.map { |line| JSON.parse(line) }
+      tags = payloads.map { |p| p["tags"] }
+      expect(tags).to contain_exactly(["redis"], ["sidekiq"], ["api"])
+    end
+
+    it "works with service loggers and multiple broadcast destinations" do
+      json_logger2 = JsonLogging::JsonLogger.new(io2)
+
+      # Create service logger from the underlying logger, then wrap in BroadcastLogger
+      # (BroadcastLogger.tagged without block returns array due to delegation,
+      # so create service logger from base logger first)
+      dotenv_logger_base = json_logger.tagged("dotenv")
+      dotenv_broadcast = ActiveSupport::BroadcastLogger.new(dotenv_logger_base)
+      # Tag the second logger too so both destinations have the tag
+      dotenv_broadcast.broadcast_to(json_logger2.tagged("dotenv"))
+
+      dotenv_broadcast.info("Environment loaded")
+
+      # Both destinations should receive the tagged log
+      [io1, io2].each do |io|
+        io.rewind
+        payload = JSON.parse(io.gets)
+        expect(payload["tags"]).to eq(["dotenv"])
+        expect(payload["message"]).to eq("Environment loaded")
+      end
+    end
+
+    it "allows nested tags on service loggers" do
+      # Create service logger from underlying logger (not BroadcastLogger)
+      dotenv_logger = json_logger.tagged("dotenv")
+
+      # Service logger can still use additional tags
+      dotenv_logger.tagged("production") do
+        dotenv_logger.info("Loading production env")
+      end
+
+      io1.rewind
+      payload = JSON.parse(io1.gets)
+      expect(payload["tags"]).to eq(["dotenv", "production"])
+    end
+  end
+
   describe "Rails 7.1+ compatibility" do
     it "simulates Rails bootstrap behavior" do
       # Rails 7.1+ does this:

@@ -75,7 +75,9 @@ module JsonLogging
         # Return a new wrapped logger with tags applied (similar to TaggedLogging)
         logger = JsonLogging.new(self)
         # Extend formatter with LocalTagStorage to preserve current tags when creating nested loggers
+        # This matches Rails' TaggedLogging behavior
         logger.formatter.extend(LocalTagStorage)
+        # Push tags through formatter (matches Rails delegation pattern)
         logger.formatter.push_tags(*formatter.current_tags, *tags)
         logger
       end
@@ -132,7 +134,7 @@ module JsonLogging
       payload = PayloadBuilder.merge_context(
         payload,
         additional_context: JsonLogging.additional_context.compact,
-        tags: current_tags
+        tags: formatter.current_tags
       )
 
       payload.compact
@@ -159,19 +161,37 @@ module JsonLogging
   # Module for preserving current tags when creating nested tagged loggers
   # Similar to ActiveSupport::TaggedLogging::LocalTagStorage
   # When extended on a formatter, stores tags locally instead of using thread-local storage
+  # Uses tag_stack attribute accessor pattern to match Rails' TaggedLogging behavior
   module LocalTagStorage
+    attr_accessor :tag_stack
+
     def self.extended(base)
-      base.instance_variable_set(:@local_tags, [])
+      base.tag_stack = LocalTagStack.new
     end
 
-    def push_tags(*tags)
-      flat = tags.flatten.compact.map(&:to_s).reject(&:empty?)
-      return if flat.empty?
-      @local_tags = (@local_tags || []) + flat
-    end
+    # Simple tag stack implementation for local tag storage
+    # Similar to ActiveSupport::TaggedLogging::TagStack but simplified for JSON logging
+    class LocalTagStack
+      attr_reader :tags
 
-    def current_tags
-      @local_tags || []
+      def initialize
+        @tags = []
+      end
+
+      def push_tags(tags)
+        flat = Array(tags).flatten.compact.map(&:to_s).reject(&:empty?)
+        return [] if flat.empty?
+        @tags.concat(flat)
+        flat
+      end
+
+      def pop_tags(count = 1)
+        @tags.pop(count)
+      end
+
+      def clear
+        @tags.clear
+      end
     end
   end
 end

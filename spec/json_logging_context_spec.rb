@@ -1,4 +1,6 @@
 require "spec_helper"
+require "stringio"
+require "active_support/logger"
 
 RSpec.describe JsonLogging do
   describe ".with_context" do
@@ -115,6 +117,101 @@ RSpec.describe JsonLogging do
       obj = double(is_a?: false)
       result = JsonLogging.safe_hash(obj)
       expect(result).to eq({})
+    end
+  end
+
+  describe ".new" do
+    let(:io) { StringIO.new }
+    let(:base_logger) { ActiveSupport::Logger.new(io) }
+
+    it "wraps a standard logger with JSON formatting" do
+      logger = JsonLogging.new(base_logger)
+      logger.info("test message")
+
+      io.rewind
+      payload = JSON.parse(io.gets)
+      expect(payload["severity"]).to eq("INFO")
+      expect(payload["message"]).to eq("test message")
+    end
+
+    it "supports service-specific tagged loggers" do
+      logger = JsonLogging.new(base_logger)
+      dotenv_logger = logger.tagged("dotenv")
+
+      dotenv_logger.info("Loading .env file")
+      dotenv_logger.warn("Missing .env.local file")
+
+      io.rewind
+      lines = io.readlines
+      expect(lines.length).to eq(2)
+
+      lines.each do |line|
+        payload = JSON.parse(line)
+        expect(payload["tags"]).to eq(["dotenv"])
+      end
+    end
+
+    it "works with BroadcastLogger" do
+      skip "BroadcastLogger not available (requires Rails 7.1+)" unless defined?(ActiveSupport::BroadcastLogger)
+
+      logger = JsonLogging.new(base_logger)
+      broadcast_logger = ActiveSupport::BroadcastLogger.new(logger)
+
+      # Service-specific logger through BroadcastLogger
+      dotenv_logger = broadcast_logger.tagged("dotenv")
+      dotenv_logger.info("Environment loaded")
+
+      io.rewind
+      payload = JSON.parse(io.gets)
+      expect(payload["tags"]).to eq(["dotenv"])
+      expect(payload["message"]).to eq("Environment loaded")
+    end
+  end
+
+  describe ".logger" do
+    let(:io) { StringIO.new }
+
+    it "creates a logger and wraps it with JSON formatting" do
+      logger = JsonLogging.logger(io)
+      logger.info("test message")
+
+      io.rewind
+      payload = JSON.parse(io.gets)
+      expect(payload["severity"]).to eq("INFO")
+      expect(payload["message"]).to eq("test message")
+    end
+
+    it "supports service-specific tagged loggers" do
+      base_logger = JsonLogging.logger(io)
+      dotenv_logger = base_logger.tagged("dotenv")
+
+      dotenv_logger.info("Loading .env file")
+      dotenv_logger.warn("Missing .env.local file")
+
+      io.rewind
+      lines = io.readlines
+      expect(lines.length).to eq(2)
+
+      lines.each do |line|
+        payload = JSON.parse(line)
+        expect(payload["tags"]).to eq(["dotenv"])
+      end
+    end
+
+    it "works with BroadcastLogger" do
+      skip "BroadcastLogger not available (requires Rails 7.1+)" unless defined?(ActiveSupport::BroadcastLogger)
+
+      logger = JsonLogging.logger(io)
+      broadcast_logger = ActiveSupport::BroadcastLogger.new(logger)
+
+      # Service-specific logger through BroadcastLogger
+      dotenv_logger = broadcast_logger.tagged("dotenv")
+      dotenv_logger.info("Environment loaded")
+
+      io.rewind
+      payload = JSON.parse(io.gets)
+      expect(payload["tags"]).to eq(["dotenv"])
+      expect(payload["message"]).to eq("Environment loaded")
     end
   end
 end
