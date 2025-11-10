@@ -52,6 +52,67 @@ RSpec.describe JsonLogging::JsonLogger do
     expect(payload["tags"]).to eq(["REQUEST"])
   end
 
+  it "supports service-specific tagged loggers (tagged without block)" do
+    # Create a service-specific logger with permanent tags
+    dotenv_logger = logger.tagged("dotenv")
+
+    # All logs from this logger should include the tag
+    dotenv_logger.info("Loading .env file")
+    dotenv_logger.warn("Missing .env.local file")
+    dotenv_logger.error("Invalid environment variable")
+
+    io.rewind
+    lines = io.readlines
+    expect(lines.length).to eq(3)
+
+    lines.each do |line|
+      payload = JSON.parse(line)
+      expect(payload["tags"]).to eq(["dotenv"])
+    end
+
+    # Verify each log entry has the correct message and tag
+    first_payload = JSON.parse(lines[0])
+    expect(first_payload["message"]).to eq("Loading .env file")
+    expect(first_payload["severity"]).to eq("INFO")
+    expect(first_payload["tags"]).to eq(["dotenv"])
+
+    second_payload = JSON.parse(lines[1])
+    expect(second_payload["message"]).to eq("Missing .env.local file")
+    expect(second_payload["severity"]).to eq("WARN")
+    expect(second_payload["tags"]).to eq(["dotenv"])
+  end
+
+  it "allows multiple service loggers with different tags" do
+    redis_logger = logger.tagged("redis")
+    sidekiq_logger = logger.tagged("sidekiq")
+    api_logger = logger.tagged("api")
+
+    redis_logger.info("Connected to Redis")
+    sidekiq_logger.info("Job enqueued")
+    api_logger.info("Request received")
+
+    io.rewind
+    lines = io.readlines
+    expect(lines.length).to eq(3)
+
+    payloads = lines.map { |line| JSON.parse(line) }
+    tags = payloads.map { |p| p["tags"] }
+    expect(tags).to contain_exactly(["redis"], ["sidekiq"], ["api"])
+  end
+
+  it "allows nested tags on service loggers" do
+    dotenv_logger = logger.tagged("dotenv")
+
+    # Service logger can still use additional tags
+    dotenv_logger.tagged("production") do
+      dotenv_logger.info("Loading production env")
+    end
+
+    io.rewind
+    payload = JSON.parse(io.gets)
+    expect(payload["tags"]).to eq(["dotenv", "production"])
+  end
+
   it "ignores tags key from user context - tags are at root level, separate from context" do
     # User context should not be able to set tags - tags are system-controlled at root level
     JsonLogging.with_context(tags: ["USER_TAG"], user_id: 42) do
