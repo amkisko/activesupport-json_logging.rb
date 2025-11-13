@@ -1,0 +1,37 @@
+feature:
+  - head-branch: ["^feature", "feature"]
+patch:
+  - head-branch: ["^patch", "patch"]
+release:
+  - base-branch: main
+github config:
+  - changed-files:
+      - any-glob-to-any-file: .github/**
+config:
+  - changed-files:
+      - any-glob-to-any-file: ["config/**", "bin/**", "*"]
+ruby:
+  - changed-files:
+      - any-glob-to-any-file: "**/*.rb"
+spec:
+  - changed-files:
+      - any-glob-to-any-file: "spec/**"
+dart:
+  - changed-files:
+      - any-glob-to-any-file: "**/*.dart"
+javascript:
+  - changed-files:
+      - any-glob-to-any-file: ["**/*.js", "**/*.jsx"]
+typescript:
+  - changed-files:
+      - any-glob-to-any-file: ["**/*.ts", "**/*.tsx"]
+stylesheet:
+  - changed-files:
+      - any-glob-to-any-file: ["**/*.css", "**/*.scss", "**/*.sass"]
+documentation:
+  - changed-files:
+      - any-glob-to-any-file: ["docs/**/*", "**/*.md"]
+user scripts:
+  - changed-files:
+      - any-glob-to-any-file: "usr/**"
+
