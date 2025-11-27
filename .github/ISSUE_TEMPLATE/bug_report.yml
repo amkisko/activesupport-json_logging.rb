@@ -1,0 +1,30 @@
+name: Bug Report
+description: Create a report to help us improve.
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: "Please ensure your reporting is accurate and balanced. Verify details before submitting."
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What happened? Be specific and avoid generalizations.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction Steps
+      placeholder: "1. Go to...\n2. Click on..."
+    validations:
+      required: true
+  - type: checkboxes
+    id: automation_check
+    attributes:
+      label: Automation Safety
+      options:
+        - label: I certify that this report does not contain private keys or PII (Security Measures).
+          required: true
+
