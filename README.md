@@ -283,6 +283,8 @@ end
 
 If you use Lograge, configure it to feed raw hashes and let this gem handle JSON formatting. This example shows a complete setup including all Rails component loggers and common third-party libraries:
 
+**Important:** When using Lograge, `config.log_tags` does not work for adding fields to Lograge output. Instead, use `config.lograge.custom_options` to add custom fields to your request logs.
+
 ```ruby
 # config/initializers/lograge.rb
 # Note: require is optional in Rails apps (auto-loaded via Railtie)
@@ -295,8 +297,26 @@ Rails.application.configure do
   config.lograge.formatter = Lograge::Formatters::Raw.new
   config.lograge.keep_original_rails_log = ENV["DEBUG"] ? true : false
 
-  # Merge additional context into Lograge output
-  config.lograge.custom_options = ->(_event) { JsonLogging.additional_context }
+  # Add custom fields to Lograge output
+  # Note: config.log_tags does NOT work with Lograge - use custom_options instead
+  config.lograge.custom_options = ->(event) {
+    {
+      remote_ip: Current.remote_addr,
+      request_id: Current.request_id,
+      user_agent: Current.user_agent,
+      user_id: Current.user&.id
+    }
+  }
+
+  # Optionally merge additional context from JsonLogging.with_context
+  # config.lograge.custom_options = ->(event) {
+  #   {
+  #     remote_ip: Current.remote_addr,
+  #     request_id: Current.request_id,
+  #     user_agent: Current.user_agent,
+  #     user_id: Current.user&.id
+  #   }.merge(JsonLogging.additional_context)
+  # }
 
   # Build unified JSON logger
   logdev = Rails.env.production? ? Rails.root.join("log", "#{Rails.env}.log") : $stdout
@@ -306,7 +326,6 @@ Rails.application.configure do
 
   # Set the main Rails logger
   config.logger = json_logger
-  config.log_tags = [:request_id, :remote_ip]
 
   # Override Rails.logger to ensure it uses our formatter
   Rails.logger = json_logger
@@ -327,13 +346,6 @@ Rails.application.configure do
 
   # Disable verbose enqueue logs to reduce noise
   config.active_job.verbose_enqueue_logs = false
-
-  # Optional: Customize log tags based on request
-  # config.log_tags = [
-  #   :request_id,
-  #   ->(request) { request.remote_ip },
-  #   ->(request) { request.subdomain }
-  # ]
 end
 ```
 
