@@ -594,27 +594,10 @@ The gem will automatically filter these from all log entries, including context 
 
 ## Development
 
+Run release.rb script to prepare code for publishing, it has all the required checks and tests.
+
 ```bash
-# Install dependencies
-bundle install
-bundle exec appraisal generate
-
-# Run tests for current Rails version
-bundle exec rspec
-
-# Run tests for all Rails versions (6.0, 6.1, 7.0, 7.1, 7.2, 8.0)
-bin/appraisals
-
-# Run tests for specific Rails version
-bin/appraisals rails-7.0
-
-# Run tests for multiple versions
-bin/appraisals rails-7.0 rails-8.0
-
-# Or use appraisal directly
-bundle exec appraisal rails-7.0 rspec
-
-bundle exec standardrb --fix
+usr/bin/release.rb
 ```
 
 ### Development: Using from Local Repository
