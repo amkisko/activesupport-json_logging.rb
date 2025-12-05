@@ -1,6 +1,6 @@
 # activesupport-json_logging
 
-[![Gem Version](https://badge.fury.io/rb/activesupport-json_logging.svg)](https://badge.fury.io/rb/activesupport-json_logging) [![Test Status](https://github.com/amkisko/activesupport-json_logging.rb/actions/workflows/test.yml/badge.svg)](https://github.com/amkisko/activesupport-json_logging.rb/actions/workflows/test.yml) [![codecov](https://codecov.io/gh/amkisko/activesupport-json_logging.rb/graph/badge.svg?token=UX80FTO0Y0)](https://codecov.io/gh/amkisko/activesupport-json_logging.rb)
+[![Gem Version](https://badge.fury.io/rb/activesupport-json_logging.svg)](https://badge.fury.io/rb/activesupport-json_logging) [![Test Status](https://github.com/amkisko/activesupport-json_logging.rb/actions/workflows/test.yml/badge.svg)](https://github.com/amkisko/activesupport-json_logging.rb/actions/workflows/test.yml) [![codecov](https://codecov.io/gh/amkisko/activesupport-json_logging.rb/graph/badge.svg?token=UX80FTO0Y0)](https://codecov.io/gh/amkisko/activesupport-json_logging.rb) [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=amkisko_activesupport-json_logging.rb&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=amkisko_activesupport-json_logging.rb)
 
 Structured JSON logging for Rails and ActiveSupport with a safe, single-line formatter.
 No dependencies beyond Rails and Activesupport.
