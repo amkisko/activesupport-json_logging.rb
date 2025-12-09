@@ -16,16 +16,16 @@ end
 
 execute_command("bundle")
 execute_command("bundle exec appraisal generate")
-execute_command("bundle exec standardrb --fix")
+execute_command("bundle exec rubocop -a 2>&1 | tee tmp/rubocop.log")
 execute_command("bundle exec rbs validate")
-execute_command("bundle exec rspec")
+execute_command("bundle exec rspec 2>&1 | tee tmp/rspec.log")
 
 puts "Tests passed. Checking git status..."
 
 git_status = `git diff --shortstat 2>/dev/null`.strip
 unless git_status.empty?
   puts "\033[1;31mgit working directory not clean, please commit your changes first \033[0m"
-  puts "\033[1;33mNote: standardrb --fix may have modified files. Review and commit changes before releasing.\033[0m"
+  puts "\033[1;33mNote: rubocop -a may have modified files. Review and commit changes before releasing.\033[0m"
   exit 1
 end
 

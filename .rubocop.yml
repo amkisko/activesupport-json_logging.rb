@@ -1,0 +1,115 @@
+inherit_mode:
+  merge:
+    - Exclude
+
+require:
+  - standard
+
+plugins:
+  - standard-custom
+  - standard-performance
+  - rubocop-performance
+  - rubocop-rails
+  - rubocop-rspec
+  - rubocop-thread_safety
+
+inherit_gem:
+  standard: config/base.yml
+  standard-performance: config/base.yml
+  standard-custom: config/base.yml
+  standard-rails: config/base.yml
+
+AllCops:
+  SuggestExtensions: false
+  TargetRubyVersion: 3.4
+  NewCops: enable
+  Exclude:
+    - bin/**/*
+    - db/**/*
+
+    - vendor/**/*
+    - tmp/**/*
+    - log/**/*
+    - storage/**/*
+    - coverage/**/*
+    - uploads/**/*
+    - .git/**/*
+    - node_modules/**/*
+    - public/packs/**/*
+    - public/packs-test/**/*
+
+# RSpec-specific configuration
+RSpec/ExampleLength:
+  Max: 80
+
+RSpec/SpecFilePathFormat:
+  Enabled: false
+  Exclude:
+    - spec/**/*
+
+RSpec/HooksBeforeExamples:
+  Enabled: false
+
+RSpec/MultipleMemoizedHelpers:
+  Max: 16
+
+RSpec/NestedGroups:
+  Max: 4
+
+RSpec/RepeatedExample:
+  Enabled: false
+
+RSpec/DescribeClass:
+  Exclude: []
+
+RSpec/VerifiedDoubles:
+  Enabled: false
+
+# Custom cop overrides
+Style/AccessModifierDeclarations:
+  EnforcedStyle: inline
+
+Rails/ActiveRecordCallbacksOrder:
+  Enabled: false
+
+Style/FrozenStringLiteralComment:
+  Enabled: false
+
+Lint/UselessAssignment:
+  Enabled: false
+
+Rails/Exit:
+  Exclude:
+    - usr/**/*
+
+ThreadSafety/ClassAndModuleAttributes:
+  Enabled: false
+
+ThreadSafety/ClassInstanceVariable:
+  Enabled: false
+
+ThreadSafety/DirChdir:
+  Exclude:
+    - "*.gemspec"
+
+# Strict cops that should never be disabled
+Lint/Debugger:
+  Enabled: true
+  Exclude: []
+
+RSpec/Focus:
+  Enabled: true
+  Exclude: []
+
+Rails/Output:
+  Enabled: true
+  Exclude:
+    - usr/**/*
+
+Rails/FindEach:
+  Enabled: true
+  Exclude: []
+
+Rails/UniqBeforePluck:
+  Enabled: true
+  Exclude: []

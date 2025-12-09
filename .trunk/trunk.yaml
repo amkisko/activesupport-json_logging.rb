@@ -28,15 +28,6 @@ runtimes:
     - node@22.16.0
     - python@3.10.8
     - ruby@>=3.3.0
-tools:
-  definitions:
-    - name: standardrb
-      runtime: ruby
-      package: standard
-      shims: [standardrb]
-      extra_packages:
-        - standard-rails
-        - standard-performance
 # This is the section where you manage your linters. (https://docs.trunk.io/check/configuration)
 lint:
   disabled:
@@ -44,7 +35,7 @@ lint:
     - rufo
     - eslint
     - prettier
-    - rubocop
+    - standardrb
     - semgrep
     - oxipng
     - svgo
@@ -54,11 +45,21 @@ lint:
   definitions:
     - name: stylelint
       files: [css]
+    - name: rubocop
+      extra_packages:
+        - standard@1.52.0
+        - standard-custom@1.0.2
+        - standard-rails@1.5.0
+        - standard-performance@1.8.0
+        - standard-rspec@0.3.1
+        - rubocop-rails@2.34.2
+        - rubocop-rspec@3.8.0
+        - rubocop-thread_safety@0.7.3
   ignore:
-    - linters: [standardrb, stylelint, biome]
+    - linters: [ALL]
       paths:
         - bin/**
-        - db/*
+        - db/schema.rb
         - vendor/**
         - tmp/**
         - log/**
@@ -66,16 +67,16 @@ lint:
         - coverage/**
         - uploads/**
   enabled:
-    - biome@2.3.5
-    - standardrb
-    - stylelint@16.25.0
+    - biome@2.3.8
+    - rubocop@1.81.7
+    - stylelint@16.26.1
     - yamllint@1.37.1
     - gitleaks@8.29.0
     - actionlint@1.7.8
-    - checkov@3.2.493
+    - checkov@3.2.495
     - dotenv-linter@4.0.0
     - git-diff-check
-    - markdownlint@0.45.0
+    - markdownlint@0.46.0
     - osv-scanner@2.2.4
     - shellcheck@0.11.0
     - trivy@0.67.2
@@ -86,4 +87,3 @@ actions:
     - trunk-fmt-pre-commit
   enabled:
     - trunk-upgrade-available
-
