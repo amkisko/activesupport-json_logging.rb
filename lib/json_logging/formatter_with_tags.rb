@@ -10,8 +10,8 @@ module JsonLogging
     def current_tags
       # If LocalTagStorage is extended on this formatter, use its tag_stack
       # This matches Rails' TaggedLogging behavior where tag_stack attribute shadows the method
-      if respond_to?(:tag_stack, true) && instance_variable_defined?(:@tag_stack)
-        tag_stack.tags
+      if (stack = current_tag_stack)
+        stack.tags
       else
         @logger.send(:current_tags)
       end
@@ -30,8 +30,8 @@ module JsonLogging
 
     def push_tags(*tags)
       # If LocalTagStorage is present, use it; otherwise use logger's thread-local storage
-      if respond_to?(:tag_stack, true) && instance_variable_defined?(:@tag_stack)
-        tag_stack.push_tags(tags)
+      if (stack = current_tag_stack)
+        stack.push_tags(tags)
       else
         @logger.send(:push_tags, tags)
       end
@@ -40,14 +40,12 @@ module JsonLogging
     # Support tagged blocks for formatter
     def tagged(*tags)
       if block_given?
-        # If LocalTagStorage is present, use it; otherwise use logger's thread-local storage
-        if respond_to?(:tag_stack, true) && instance_variable_defined?(:@tag_stack)
-          previous_count = tag_stack.tags.size
-          tag_stack.push_tags(tags)
+        if (stack = current_tag_stack)
+          pushed_count = stack.push_tags(tags).size
           begin
             yield @logger
           ensure
-            tag_stack.pop_tags(tag_stack.tags.size - previous_count)
+            stack.pop_tags(pushed_count)
           end
         else
           previous = @logger.send(:current_tags).dup
@@ -59,8 +57,8 @@ module JsonLogging
           end
         end
       else
-        if respond_to?(:tag_stack, true) && instance_variable_defined?(:@tag_stack)
-          tag_stack.push_tags(tags)
+        if (stack = current_tag_stack)
+          stack.push_tags(tags)
         else
           @logger.send(:push_tags, tags)
         end
@@ -69,6 +67,23 @@ module JsonLogging
     end
 
     private
+
+    # Returns the current tag_stack to use, checking in order:
+    # 1. This formatter's tag_stack (if LocalTagStorage is extended)
+    # 2. Logger's formatter's tag_stack (if it has LocalTagStorage)
+    # 3. nil (fall back to thread-local storage)
+    def current_tag_stack
+      if respond_to?(:tag_stack, true) && instance_variable_defined?(:@tag_stack)
+        tag_stack
+      elsif logger_formatter_has_tag_stack?
+        @logger.formatter.tag_stack
+      end
+    end
+
+    def logger_formatter_has_tag_stack?
+      @logger.formatter.respond_to?(:tag_stack, true) &&
+        @logger.formatter.instance_variable_defined?(:@tag_stack)
+    end
 
     def build_fallback_output(severity, timestamp, msg, error)
       timestamp_str = Helpers.normalize_timestamp(timestamp)
