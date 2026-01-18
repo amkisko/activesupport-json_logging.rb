@@ -166,7 +166,7 @@ RSpec.describe JsonLogging::JsonLogger do
     let(:logger) { described_class.new(io) }
 
     it "uses formatter for formatting", :aggregate_failures do
-      result = logger.format_message("INFO", Time.zone.now, nil, "test")
+      result = logger.format_message("INFO", Time.now, nil, "test")
       expect(result).to be_a(String)
       payload = JSON.parse(result)
       expect(payload["severity"]).to eq("INFO")

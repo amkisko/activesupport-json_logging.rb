@@ -175,7 +175,7 @@ RSpec.describe JsonLogging::JsonLogger do
       expect(json_formatter).to be_a(JsonLogging::FormatterWithTags)
 
       # Test that the formatter works correctly
-      result = json_formatter.call(Logger::INFO, Time.zone.now, nil, "direct call")
+      result = json_formatter.call(Logger::INFO, Time.now, nil, "direct call")
       parsed = JSON.parse(result.strip)
       # When called directly, severity is integer (Logger::INFO = 1)
       # But in practice, JsonLogger converts it via severity_name before calling formatter
@@ -302,7 +302,7 @@ RSpec.describe JsonLogging::JsonLogger do
       expect(lines.length).to eq(3)
 
       payloads = lines.map { |line| JSON.parse(line) }
-      tags = payloads.pluck("tags")
+      tags = payloads.map { |p| p["tags"] }
       expect(tags).to contain_exactly(["redis"], ["sidekiq"], ["api"])
     end
 

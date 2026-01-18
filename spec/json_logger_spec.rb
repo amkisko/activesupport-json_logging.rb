@@ -96,7 +96,7 @@ RSpec.describe JsonLogging::JsonLogger do
     expect(lines.length).to eq(3)
 
     payloads = lines.map { |line| JSON.parse(line) }
-    tags = payloads.pluck("tags")
+    tags = payloads.map { |p| p["tags"] }
     expect(tags).to contain_exactly(["redis"], ["sidekiq"], ["api"])
   end
 
