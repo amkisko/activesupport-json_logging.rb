@@ -4,7 +4,7 @@ module JsonLogging
 
     # Normalize timestamp to ISO8601 with microseconds
     def normalize_timestamp(timestamp)
-      (timestamp || Time.now).utc.iso8601(6)
+      (timestamp || Time.zone.now).utc.iso8601(6)
     end
 
     # Safely convert object to string, never raises
