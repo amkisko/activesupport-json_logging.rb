@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    activesupport-json_logging (1.2.0)
+    activesupport-json_logging (1.2.1)
       activesupport (>= 6.0, < 9.0)
       railties (>= 6.0, < 9.0)
 
