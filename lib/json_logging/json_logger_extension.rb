@@ -50,7 +50,7 @@ module JsonLogging
       msg ||= "<uninitialized>"
 
       fallback = {
-        timestamp: Helpers.normalize_timestamp(Time.now),
+        timestamp: Helpers.normalize_timestamp(Helpers.current_time),
         severity: severity_name(severity),
         message: Sanitizer.sanitize_string(Helpers.safe_string(msg)),
         logger_error: {
@@ -129,7 +129,7 @@ module JsonLogging
       payload = PayloadBuilder.build_base_payload(
         msg,
         severity: severity_name(severity),
-        timestamp: Helpers.normalize_timestamp(Time.now)
+        timestamp: Helpers.normalize_timestamp(Helpers.current_time)
       )
       payload = PayloadBuilder.merge_context(
         payload,
@@ -186,6 +186,8 @@ module JsonLogging
       end
 
       def pop_tags(count = 1)
+        return [] if count <= 0
+
         @tags.pop(count)
       end
 
