@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.2.1 (2026-01-18)
+
+- Refactor tag stack handling in JsonLogging formatter for improved maintainability
+- Refactor timestamp handling in JsonLogging helpers to support Time.zone
+- Add Ruby 4.0 support in gemspec and Appraisal configurations
+
 ## 1.2.0 (2025-11-07)
 
 - Add support for service-specific tagged loggers: create loggers with permanent tags using `logger.tagged("service")` without a block
