@@ -7,17 +7,17 @@ RSpec.describe JsonLogging::JsonLogger do
   describe "initialization" do
     it "initializes with logdev only" do
       logger = described_class.new(io)
-      expect(logger).to be_a(JsonLogging::JsonLogger)
+      expect(logger).to be_a(described_class)
     end
 
     it "initializes with logdev and shift_age" do
       logger = described_class.new(io, 7)
-      expect(logger).to be_a(JsonLogging::JsonLogger)
+      expect(logger).to be_a(described_class)
     end
 
     it "initializes with logdev, shift_age, and shift_size" do
       logger = described_class.new(io, 7, 1_048_576)
-      expect(logger).to be_a(JsonLogging::JsonLogger)
+      expect(logger).to be_a(described_class)
     end
 
     it "uses default stdout when no args" do
@@ -64,7 +64,7 @@ RSpec.describe JsonLogging::JsonLogger do
       expect(payload["message"]).to eq("progname message")
     end
 
-    it "handles all severity levels" do
+    it "handles all severity levels", :aggregate_failures do
       %w[debug info warn error fatal].each do |level|
         logger.public_send(level, "test #{level}")
       end
@@ -84,7 +84,7 @@ RSpec.describe JsonLogging::JsonLogger do
       expect(payload["severity"]).to eq("999")
     end
 
-    it "uses severity_name for all standard severity levels" do
+    it "uses severity_name for all standard severity levels", :aggregate_failures do
       logger = described_class.new(io)
 
       # Test all standard severities
@@ -96,7 +96,7 @@ RSpec.describe JsonLogging::JsonLogger do
       expect(logger.send(:severity_name, Logger::UNKNOWN)).to eq("UNKNOWN")
     end
 
-    it "converts unknown severity to string" do
+    it "converts unknown severity to string", :aggregate_failures do
       logger = described_class.new(io)
       expect(logger.send(:severity_name, 999)).to eq("999")
       expect(logger.send(:severity_name, -1)).to eq("-1")
@@ -152,7 +152,7 @@ RSpec.describe JsonLogging::JsonLogger do
       expect(result).to eq([])
     end
 
-    it "handles mixed key types" do
+    it "handles mixed key types", :aggregate_failures do
       hash = {:symbol => "a", "string" => "b", 123 => "c", Symbol => "d"}
       result = logger.send(:stringify_keys, hash)
       expect(result.keys).to all(be_a(String))
@@ -165,8 +165,8 @@ RSpec.describe JsonLogging::JsonLogger do
   describe "#format_message" do
     let(:logger) { described_class.new(io) }
 
-    it "uses formatter for formatting" do
-      result = logger.format_message("INFO", Time.now, nil, "test")
+    it "uses formatter for formatting", :aggregate_failures do
+      result = logger.format_message("INFO", Time.zone.now, nil, "test")
       expect(result).to be_a(String)
       payload = JSON.parse(result)
       expect(payload["severity"]).to eq("INFO")
@@ -176,30 +176,30 @@ RSpec.describe JsonLogging::JsonLogger do
   describe "#tagged" do
     let(:logger) { described_class.new(io) }
 
-    it "returns new logger when no block given (TaggedLogging-compatible)" do
+    it "returns new logger when no block given (TaggedLogging-compatible)", :aggregate_failures do
       result = logger.tagged("TAG")
       expect(result).not_to eq(logger)
-      expect(result).to be_a(JsonLogging::JsonLogger)
+      expect(result).to be_a(described_class)
       # Original logger should not have tags modified
       expect(logger.send(:current_tags)).to eq([])
       # New logger should have tags
       expect(result.formatter.current_tags).to eq(["TAG"])
     end
 
-    it "handles empty tags gracefully when no block given" do
+    it "handles empty tags gracefully when no block given", :aggregate_failures do
       result = logger.tagged("", nil, [])
       expect(result).not_to eq(logger)
       # Empty tags should result in empty tags array
       expect(result.formatter.current_tags).to eq([])
     end
 
-    it "handles nested arrays in tags when no block given" do
+    it "handles nested arrays in tags when no block given", :aggregate_failures do
       result = logger.tagged(["A", "B"], "C")
       expect(result).not_to eq(logger)
       expect(result.formatter.current_tags).to eq(["A", "B", "C"])
     end
 
-    it "modifies tags in place when block is given" do
+    it "modifies tags in place when block is given", :aggregate_failures do
       logger.tagged("TAG") do
         expect(logger.send(:current_tags)).to eq(["TAG"])
       end
@@ -211,7 +211,7 @@ RSpec.describe JsonLogging::JsonLogger do
   describe "error handling in add" do
     let(:logger) { described_class.new(io) }
 
-    it "handles JSON serialization errors" do
+    it "handles JSON serialization errors", :aggregate_failures do
       # Force an error in stringify_keys
       allow(logger).to receive(:stringify_keys).and_raise(StandardError.new("json error"))
       logger.info("test")
