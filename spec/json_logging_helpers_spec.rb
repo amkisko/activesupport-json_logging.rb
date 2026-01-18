@@ -11,22 +11,22 @@ RSpec.describe JsonLogging::Helpers do
     end
 
     it "converts local time to UTC", :aggregate_failures do
-      time = Time.zone.local(2020, 1, 15, 14, 30, 45)
+      time = Time.local(2020, 1, 15, 14, 30, 45)
       result = described_class.normalize_timestamp(time)
       expect(result).to end_with("Z")
       expect(result).to match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}Z$/)
     end
 
     it "handles nil by using current time", :aggregate_failures do
-      before = Time.zone.now
+      before = Time.now
       result = described_class.normalize_timestamp(nil)
-      after = Time.zone.now
+      after = Time.now
 
       expect(result).to be_a(String)
       expect(result).to match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}Z$/)
 
       # Parse back and verify it's within the time window
-      parsed = Time.zone.parse(result)
+      parsed = Time.parse(result)
       expect(parsed).to be_between(before, after)
     end
 

@@ -64,7 +64,7 @@ RSpec.describe JsonLogging::JsonLogger do
       lines.each do |line|
         payload = JSON.parse(line)
         thread_id = payload.dig("context", "thread_id")
-        expect(thread_id).to be_in([0, 1])
+        expect([0, 1].include?(thread_id)).to be true
       end
     end
 

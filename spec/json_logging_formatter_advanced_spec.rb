@@ -14,7 +14,7 @@ RSpec.describe JsonLogging::Formatter do
   it "handles errors in formatting", :aggregate_failures do
     # Mock an error in PayloadBuilder
     allow(JsonLogging::PayloadBuilder).to receive(:build_base_payload).and_raise(StandardError.new("builder error"))
-    result = formatter.call("ERROR", Time.zone.now, nil, "test")
+    result = formatter.call("ERROR", Time.now, nil, "test")
     payload = JSON.parse(result)
     expect(payload["severity"]).to eq("ERROR")
     expect(payload).to have_key("formatter_error")
@@ -32,7 +32,7 @@ RSpec.describe JsonLogging::Formatter do
   describe "#build_fallback_output" do
     it "creates fallback output with all required fields", :aggregate_failures do
       error = StandardError.new("test error")
-      result = formatter.send(:build_fallback_output, "ERROR", Time.zone.now, "test message", error)
+      result = formatter.send(:build_fallback_output, "ERROR", Time.now, "test message", error)
       payload = JSON.parse(result)
 
       expect(payload).to have_key("timestamp")
@@ -53,14 +53,14 @@ RSpec.describe JsonLogging::Formatter do
 
     it "handles nil message in fallback" do
       error = StandardError.new("error")
-      result = formatter.send(:build_fallback_output, "INFO", Time.zone.now, nil, error)
+      result = formatter.send(:build_fallback_output, "INFO", Time.now, nil, error)
       payload = JSON.parse(result)
       expect(payload["message"]).to eq("")
     end
 
     it "sanitizes error message in fallback", :aggregate_failures do
       error = StandardError.new("error\x00with\x01control")
-      result = formatter.send(:build_fallback_output, "ERROR", Time.zone.now, "msg", error)
+      result = formatter.send(:build_fallback_output, "ERROR", Time.now, "msg", error)
       payload = JSON.parse(result)
       expect(payload["formatter_error"]["message"]).not_to include("\x00")
       expect(payload["formatter_error"]["message"]).not_to include("\x01")
@@ -72,7 +72,7 @@ RSpec.describe JsonLogging::Formatter do
       allow(error).to receive(:message).and_return(nil)
 
       # When message is nil, safe_string converts it to ""
-      result = formatter.send(:build_fallback_output, "ERROR", Time.zone.now, "msg", error)
+      result = formatter.send(:build_fallback_output, "ERROR", Time.now, "msg", error)
       payload = JSON.parse(result)
       expect(payload["formatter_error"]["message"]).to be_a(String)
       expect(payload["formatter_error"]["message"]).to eq("")
@@ -94,7 +94,7 @@ RSpec.describe JsonLogging::FormatterWithTags do
 
   it "includes tags in output" do
     logger.tagged("REQUEST") do
-      result = formatter.call("INFO", Time.zone.now, nil, "test")
+      result = formatter.call("INFO", Time.now, nil, "test")
       payload = JSON.parse(result)
       expect(payload["tags"]).to eq(["REQUEST"])
     end
@@ -108,7 +108,7 @@ RSpec.describe JsonLogging::FormatterWithTags do
 
   it "handles errors gracefully" do
     allow(JsonLogging::PayloadBuilder).to receive(:build_base_payload).and_raise(StandardError.new("error"))
-    result = formatter.call("ERROR", Time.zone.now, nil, "test")
+    result = formatter.call("ERROR", Time.now, nil, "test")
     payload = JSON.parse(result)
     expect(payload).to have_key("formatter_error")
   end
@@ -116,7 +116,7 @@ RSpec.describe JsonLogging::FormatterWithTags do
   describe "#build_fallback_output" do
     it "creates fallback output with all required fields", :aggregate_failures do
       error = StandardError.new("test error")
-      result = formatter.send(:build_fallback_output, "ERROR", Time.zone.now, "test message", error)
+      result = formatter.send(:build_fallback_output, "ERROR", Time.now, "test message", error)
       payload = JSON.parse(result)
 
       expect(payload).to have_key("timestamp")
@@ -137,14 +137,14 @@ RSpec.describe JsonLogging::FormatterWithTags do
 
     it "handles nil message in fallback" do
       error = StandardError.new("error")
-      result = formatter.send(:build_fallback_output, "INFO", Time.zone.now, nil, error)
+      result = formatter.send(:build_fallback_output, "INFO", Time.now, nil, error)
       payload = JSON.parse(result)
       expect(payload["message"]).to eq("")
     end
 
     it "sanitizes error message in fallback", :aggregate_failures do
       error = StandardError.new("error\x00with\x01control")
-      result = formatter.send(:build_fallback_output, "ERROR", Time.zone.now, "msg", error)
+      result = formatter.send(:build_fallback_output, "ERROR", Time.now, "msg", error)
       payload = JSON.parse(result)
       expect(payload["formatter_error"]["message"]).not_to include("\x00")
       expect(payload["formatter_error"]["message"]).not_to include("\x01")
@@ -160,7 +160,7 @@ RSpec.describe JsonLogging::FormatterWithTags do
       allow(error).to receive(:message).and_return(message_obj)
 
       # The formatter uses Helpers.safe_string which catches this
-      result = formatter.send(:build_fallback_output, "ERROR", Time.zone.now, "msg", error)
+      result = formatter.send(:build_fallback_output, "ERROR", Time.now, "msg", error)
       payload = JSON.parse(result)
       expect(payload["formatter_error"]["message"]).to eq("<unprintable>")
     end

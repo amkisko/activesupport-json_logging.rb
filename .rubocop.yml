@@ -113,3 +113,9 @@ Rails/FindEach:
 Rails/UniqBeforePluck:
   Enabled: true
   Exclude: []
+
+Rails/TimeZone:
+  Enabled: false
+
+Rails/Pluck:
+  Enabled: false
