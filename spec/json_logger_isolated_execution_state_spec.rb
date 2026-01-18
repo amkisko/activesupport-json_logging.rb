@@ -3,15 +3,16 @@ require "stringio"
 
 # Test IsolatedExecutionState integration (Rails 7.1+)
 # Verifies thread/Fiber isolation for tags and backward compatibility
-RSpec.describe "JsonLogging::JsonLogger with IsolatedExecutionState" do
+RSpec.describe JsonLogging::JsonLogger do
   let(:io) { StringIO.new }
-  let(:logger) { JsonLogging::JsonLogger.new(io) }
+  let(:logger) { described_class.new(io) }
 
   describe "thread isolation" do
-    it "isolates tags per thread" do
+    it "isolates tags per thread", :aggregate_failures do
       threads = []
 
       3.times do |i|
+        # rubocop:disable ThreadSafety/NewThread
         threads << Thread.new do
           logger.tagged("THREAD_#{i}") do
             logger.info("message from thread #{i}")
@@ -19,6 +20,7 @@ RSpec.describe "JsonLogging::JsonLogger with IsolatedExecutionState" do
             sleep 0.01
           end
         end
+        # rubocop:enable ThreadSafety/NewThread
       end
 
       threads.each(&:join)
@@ -39,15 +41,17 @@ RSpec.describe "JsonLogging::JsonLogger with IsolatedExecutionState" do
       expect(lines.length).to eq(3)
     end
 
-    it "isolates context per thread" do
+    it "isolates context per thread", :aggregate_failures do
       threads = []
 
       2.times do |i|
+        # rubocop:disable ThreadSafety/NewThread
         threads << Thread.new do
           JsonLogging.with_context(thread_id: i) do
             logger.info("test #{i}")
           end
         end
+        # rubocop:enable ThreadSafety/NewThread
       end
 
       threads.each(&:join)
@@ -60,7 +64,7 @@ RSpec.describe "JsonLogging::JsonLogger with IsolatedExecutionState" do
       lines.each do |line|
         payload = JSON.parse(line)
         thread_id = payload.dig("context", "thread_id")
-        expect([0, 1]).to include(thread_id)
+        expect(thread_id).to be_in([0, 1])
       end
     end
 
@@ -78,7 +82,7 @@ RSpec.describe "JsonLogging::JsonLogger with IsolatedExecutionState" do
   end
 
   describe "IsolatedExecutionState vs Thread.current" do
-    it "uses IsolatedExecutionState when available (Rails 7.1+)" do
+    it "uses IsolatedExecutionState when available (Rails 7.1+)", :aggregate_failures do
       if defined?(ActiveSupport::IsolatedExecutionState)
         logger.tagged("TEST") do
           # Tags should be stored in IsolatedExecutionState
@@ -95,7 +99,7 @@ RSpec.describe "JsonLogging::JsonLogger with IsolatedExecutionState" do
       end
     end
 
-    it "falls back to Thread.current for Rails 6-7.0" do
+    it "falls back to Thread.current for Rails 6-7.0", :aggregate_failures do
       # When IsolatedExecutionState is not available, should use Thread.current
       logger.tagged("FALLBACK") do
         tags = logger.send(:current_tags)
@@ -158,7 +162,7 @@ RSpec.describe "JsonLogging::JsonLogger with IsolatedExecutionState" do
   end
 
   describe "async code compatibility" do
-    it "handles concurrent tag operations" do
+    it "handles concurrent tag operations", :aggregate_failures do
       # Simulate async operations with multiple threads setting tags
       threads = []
       mutex = Mutex.new
@@ -171,6 +175,7 @@ RSpec.describe "JsonLogging::JsonLogger with IsolatedExecutionState" do
       5.times do |i|
         # Capture thread_id outside of Thread.new to avoid closure issues
         thread_id = i
+        # rubocop:disable ThreadSafety/NewThread
         threads << Thread.new(thread_id) do |tid|
           # Use barrier to ensure all threads start tagging at roughly the same time
           barrier.synchronize do
@@ -190,6 +195,7 @@ RSpec.describe "JsonLogging::JsonLogger with IsolatedExecutionState" do
             logger.info("async message #{tid}")
           end
         end
+        # rubocop:enable ThreadSafety/NewThread
       end
 
       threads.each(&:join)

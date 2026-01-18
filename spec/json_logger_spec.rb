@@ -5,7 +5,7 @@ RSpec.describe JsonLogging::JsonLogger do
   let(:io) { StringIO.new }
   let(:logger) { described_class.new(io) }
 
-  it "writes single-line JSON per call" do
+  it "writes single-line JSON per call", :aggregate_failures do
     logger.info("hello")
     io.rewind
     line = io.gets
@@ -40,7 +40,7 @@ RSpec.describe JsonLogging::JsonLogger do
     expect(payload["tags"]).to eq(["OUTER", "INNER"])
   end
 
-  it "merges tags with context" do
+  it "merges tags with context", :aggregate_failures do
     JsonLogging.with_context(user_id: 42) do
       logger.tagged("REQUEST") do
         logger.info("test")
@@ -52,7 +52,7 @@ RSpec.describe JsonLogging::JsonLogger do
     expect(payload["tags"]).to eq(["REQUEST"])
   end
 
-  it "supports service-specific tagged loggers (tagged without block)" do
+  it "supports service-specific tagged loggers (tagged without block)", :aggregate_failures do
     # Create a service-specific logger with permanent tags
     dotenv_logger = logger.tagged("dotenv")
 
@@ -82,7 +82,7 @@ RSpec.describe JsonLogging::JsonLogger do
     expect(second_payload["tags"]).to eq(["dotenv"])
   end
 
-  it "allows multiple service loggers with different tags" do
+  it "allows multiple service loggers with different tags", :aggregate_failures do
     redis_logger = logger.tagged("redis")
     sidekiq_logger = logger.tagged("sidekiq")
     api_logger = logger.tagged("api")
@@ -96,7 +96,7 @@ RSpec.describe JsonLogging::JsonLogger do
     expect(lines.length).to eq(3)
 
     payloads = lines.map { |line| JSON.parse(line) }
-    tags = payloads.map { |p| p["tags"] }
+    tags = payloads.pluck("tags")
     expect(tags).to contain_exactly(["redis"], ["sidekiq"], ["api"])
   end
 
@@ -113,7 +113,7 @@ RSpec.describe JsonLogging::JsonLogger do
     expect(payload["tags"]).to eq(["dotenv", "production"])
   end
 
-  it "ignores tags key from user context - tags are at root level, separate from context" do
+  it "ignores tags key from user context - tags are at root level, separate from context", :aggregate_failures do
     # User context should not be able to set tags - tags are system-controlled at root level
     JsonLogging.with_context(tags: ["USER_TAG"], user_id: 42) do
       logger.tagged("SYSTEM_TAG") do
@@ -126,10 +126,10 @@ RSpec.describe JsonLogging::JsonLogger do
     expect(payload["tags"]).to eq(["SYSTEM_TAG"])
     expect(payload.dig("context", "user_id")).to eq(42)
     # User's tags key should not appear in context
-    expect(payload["context"].keys).to match_array(["user_id"])
+    expect(payload["context"].keys).to contain_exactly("user_id")
   end
 
-  it "handles hash messages" do
+  it "handles hash messages", :aggregate_failures do
     logger.info({event: "test", value: 123})
     io.rewind
     payload = JSON.parse(io.gets)
@@ -137,7 +137,7 @@ RSpec.describe JsonLogging::JsonLogger do
     expect(payload["value"]).to eq(123)
   end
 
-  it "never raises from add method" do
+  it "never raises from add method", :aggregate_failures do
     # Test that even problematic objects get logged safely
     # The sanitizer converts objects to strings, so JSON serialization succeeds
     bad_obj = Object.new
@@ -198,7 +198,7 @@ RSpec.describe JsonLogging::JsonLogger do
       expect(payload["tags"]).to eq(["tag-with-dashes", "tag_with_underscores", "tag.with.dots"])
     end
 
-    it "sanitizes tags with control characters" do
+    it "sanitizes tags with control characters", :aggregate_failures do
       logger.tagged("tag\x00with\x01control") do
         logger.info("test")
       end
@@ -211,7 +211,7 @@ RSpec.describe JsonLogging::JsonLogger do
       expect(tags.first).not_to include("\x01")
     end
 
-    it "handles very large tag arrays" do
+    it "handles very large tag arrays", :aggregate_failures do
       large_tags = (1..100).map { |i| "TAG#{i}" }
       logger.tagged(*large_tags) do
         logger.info("test")

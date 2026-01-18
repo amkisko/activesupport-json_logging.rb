@@ -3,10 +3,10 @@ require "stringio"
 
 # Test BroadcastLogger integration (Rails 7.1+)
 # BroadcastLogger wraps loggers to enable writing to multiple destinations
-RSpec.describe "JsonLogging::JsonLogger with BroadcastLogger" do
-  let(:io1) { StringIO.new }
-  let(:io2) { StringIO.new }
-  let(:json_logger) { JsonLogging::JsonLogger.new(io1) }
+RSpec.describe JsonLogging::JsonLogger do
+  let(:primary_io) { StringIO.new }
+  let(:secondary_io) { StringIO.new }
+  let(:json_logger) { described_class.new(primary_io) }
   let(:broadcast_logger) do
     if defined?(ActiveSupport::BroadcastLogger)
       ActiveSupport::BroadcastLogger.new(json_logger)
@@ -20,11 +20,11 @@ RSpec.describe "JsonLogging::JsonLogger with BroadcastLogger" do
   end
 
   describe "basic logging through BroadcastLogger" do
-    it "delegates to JsonLogger and produces JSON output" do
+    it "delegates to JsonLogger and produces JSON output", :aggregate_failures do
       broadcast_logger.info("test message")
 
-      io1.rewind
-      line = io1.gets
+      primary_io.rewind
+      line = primary_io.gets
       expect(line).not_to be_nil
 
       payload = JSON.parse(line)
@@ -33,13 +33,13 @@ RSpec.describe "JsonLogging::JsonLogger with BroadcastLogger" do
       expect(payload["timestamp"]).to be_a(String)
     end
 
-    it "works with all severity levels" do
+    it "works with all severity levels", :aggregate_failures do
       %w[debug info warn error fatal].each do |level|
         broadcast_logger.public_send(level, "test #{level}")
       end
 
-      io1.rewind
-      lines = io1.readlines
+      primary_io.rewind
+      lines = primary_io.readlines
       expect(lines.length).to eq(5)
 
       lines.each do |line|
@@ -49,24 +49,24 @@ RSpec.describe "JsonLogging::JsonLogger with BroadcastLogger" do
       end
     end
 
-    it "handles hash messages correctly" do
+    it "handles hash messages correctly", :aggregate_failures do
       broadcast_logger.info({event: "user_login", user_id: 123})
 
-      io1.rewind
-      payload = JSON.parse(io1.gets)
+      primary_io.rewind
+      payload = JSON.parse(primary_io.gets)
       expect(payload["event"]).to eq("user_login")
       expect(payload["user_id"]).to eq(123)
     end
   end
 
   describe "tagged logging through BroadcastLogger" do
-    it "delegates tagged method to JsonLogger" do
+    it "delegates tagged method to JsonLogger", :aggregate_failures do
       broadcast_logger.tagged("REQUEST", "12345") do
         broadcast_logger.info("processing request")
       end
 
-      io1.rewind
-      payload = JSON.parse(io1.gets)
+      primary_io.rewind
+      payload = JSON.parse(primary_io.gets)
       expect(payload["severity"]).to eq("INFO")
       expect(payload["message"]).to eq("processing request")
       expect(payload["tags"]).to eq(["REQUEST", "12345"])
@@ -79,44 +79,44 @@ RSpec.describe "JsonLogging::JsonLogger with BroadcastLogger" do
         end
       end
 
-      io1.rewind
-      payload = JSON.parse(io1.gets)
+      primary_io.rewind
+      payload = JSON.parse(primary_io.gets)
       expect(payload["tags"]).to eq(["OUTER", "INNER"])
     end
 
-    it "works with tags and context together" do
+    it "works with tags and context together", :aggregate_failures do
       JsonLogging.with_context(request_id: "abc-123") do
         broadcast_logger.tagged("API") do
           broadcast_logger.info("api call")
         end
       end
 
-      io1.rewind
-      payload = JSON.parse(io1.gets)
+      primary_io.rewind
+      payload = JSON.parse(primary_io.gets)
       expect(payload.dig("context", "request_id")).to eq("abc-123")
       expect(payload["tags"]).to eq(["API"])
     end
   end
 
   describe "multiple destinations (like Rails 7.1+ does)" do
-    let(:json_logger2) { JsonLogging::JsonLogger.new(io2) }
+    let(:json_logger2) { described_class.new(secondary_io) }
 
     before do
       # Add second logger to broadcast (simulating Rails writing to both STDOUT and file)
       broadcast_logger.broadcast_to(json_logger2)
     end
 
-    it "writes to all destinations in the broadcast" do
+    it "writes to all destinations in the broadcast", :aggregate_failures do
       broadcast_logger.info("broadcast test")
 
       # Check first destination
-      io1.rewind
-      payload1 = JSON.parse(io1.gets)
+      primary_io.rewind
+      payload1 = JSON.parse(primary_io.gets)
       expect(payload1["message"]).to eq("broadcast test")
 
       # Check second destination
-      io2.rewind
-      payload2 = JSON.parse(io2.gets)
+      secondary_io.rewind
+      payload2 = JSON.parse(secondary_io.gets)
       expect(payload2["message"]).to eq("broadcast test")
 
       # Both should have same content (timestamps may differ by microseconds)
@@ -125,10 +125,10 @@ RSpec.describe "JsonLogging::JsonLogger with BroadcastLogger" do
       expect(payload2["timestamp"]).to match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+Z$/)
     end
 
-    it "maintains JSON format in all destinations" do
+    it "maintains JSON format in all destinations", :aggregate_failures do
       broadcast_logger.info({event: "test", value: 42})
 
-      [io1, io2].each do |io|
+      [primary_io, secondary_io].each do |io|
         io.rewind
         payload = JSON.parse(io.gets)
         expect(payload["event"]).to eq("test")
@@ -136,7 +136,7 @@ RSpec.describe "JsonLogging::JsonLogger with BroadcastLogger" do
       end
     end
 
-    it "preserves tags in all destinations" do
+    it "preserves tags in all destinations", :aggregate_failures do
       # Tags should work through BroadcastLogger delegation
       # Note: Each logger instance has its own tag storage, but BroadcastLogger
       # delegates the tagged call, so tags should be set on the JsonLogger instance
@@ -146,15 +146,15 @@ RSpec.describe "JsonLogging::JsonLogger with BroadcastLogger" do
 
       # Tags are stored per-logger instance, so both loggers should have them
       # when called through the same BroadcastLogger instance
-      io1.rewind
-      payload1 = JSON.parse(io1.gets)
+      primary_io.rewind
+      payload1 = JSON.parse(primary_io.gets)
       expect(payload1["tags"]).to eq(["TAG1", "TAG2"])
 
       # Second logger may not have tags if it's a separate instance
       # This is expected - BroadcastLogger delegates to each logger independently
       # In practice, Rails uses one logger instance, so this is fine
-      io2.rewind
-      payload2 = JSON.parse(io2.gets)
+      secondary_io.rewind
+      payload2 = JSON.parse(secondary_io.gets)
       # JSON should still be valid, tags may or may not be present
       expect(payload2["severity"]).to eq("WARN")
       expect(payload2["message"]).to eq("tagged broadcast")
@@ -162,7 +162,7 @@ RSpec.describe "JsonLogging::JsonLogger with BroadcastLogger" do
   end
 
   describe "formatter access" do
-    it "allows access to formatter through BroadcastLogger" do
+    it "allows access to formatter through BroadcastLogger", :aggregate_failures do
       # BroadcastLogger may or may not have a formatter set initially
       # (behavior varies by Rails version)
       broadcast_logger.formatter
@@ -175,7 +175,7 @@ RSpec.describe "JsonLogging::JsonLogger with BroadcastLogger" do
       expect(json_formatter).to be_a(JsonLogging::FormatterWithTags)
 
       # Test that the formatter works correctly
-      result = json_formatter.call(Logger::INFO, Time.now, nil, "direct call")
+      result = json_formatter.call(Logger::INFO, Time.zone.now, nil, "direct call")
       parsed = JSON.parse(result.strip)
       # When called directly, severity is integer (Logger::INFO = 1)
       # But in practice, JsonLogger converts it via severity_name before calling formatter
@@ -199,7 +199,7 @@ RSpec.describe "JsonLogging::JsonLogger with BroadcastLogger" do
   end
 
   describe "logger level management" do
-    it "delegates level setting to JsonLogger" do
+    it "delegates level setting to JsonLogger", :aggregate_failures do
       broadcast_logger.level = Logger::WARN
       expect(json_logger.level).to eq(Logger::WARN)
 
@@ -208,8 +208,8 @@ RSpec.describe "JsonLogging::JsonLogger with BroadcastLogger" do
       broadcast_logger.info("info message")
       broadcast_logger.warn("warn message")
 
-      io1.rewind
-      lines = io1.readlines
+      primary_io.rewind
+      lines = primary_io.readlines
       expect(lines.length).to eq(1) # Only warn message
 
       payload = JSON.parse(lines.first)
@@ -223,7 +223,7 @@ RSpec.describe "JsonLogging::JsonLogger with BroadcastLogger" do
   end
 
   describe "edge cases" do
-    it "handles errors gracefully through BroadcastLogger" do
+    it "handles errors gracefully through BroadcastLogger", :aggregate_failures do
       # Even if one logger in broadcast fails, our JsonLogger should handle it
       bad_obj = Object.new
       def bad_obj.to_json
@@ -232,21 +232,21 @@ RSpec.describe "JsonLogging::JsonLogger with BroadcastLogger" do
 
       expect { broadcast_logger.info(bad_obj) }.not_to raise_error
 
-      io1.rewind
-      payload = JSON.parse(io1.gets)
+      primary_io.rewind
+      payload = JSON.parse(primary_io.gets)
       expect(payload["severity"]).to eq("INFO")
       # Should have logged a fallback message
       expect(payload).to have_key("message")
     end
 
     it "works when BroadcastLogger wraps multiple JsonLoggers" do
-      io3 = StringIO.new
-      json_logger3 = JsonLogging::JsonLogger.new(io3)
+      tertiary_io = StringIO.new
+      json_logger3 = described_class.new(tertiary_io)
       broadcast_logger.broadcast_to(json_logger3)
 
       broadcast_logger.info("multi-logger test")
 
-      [io1, io3].each do |io|
+      [primary_io, tertiary_io].each do |io|
         io.rewind
         payload = JSON.parse(io.gets)
         expect(payload["message"]).to eq("multi-logger test")
@@ -255,7 +255,7 @@ RSpec.describe "JsonLogging::JsonLogger with BroadcastLogger" do
   end
 
   describe "service-specific tagged loggers" do
-    it "creates a logger with permanent tags that work through BroadcastLogger" do
+    it "creates a logger with permanent tags that work through BroadcastLogger", :aggregate_failures do
       # Create a service-specific logger from underlying logger (not BroadcastLogger)
       # BroadcastLogger.tagged without block returns array, so create from base logger
       dotenv_logger_base = json_logger.tagged("dotenv")
@@ -266,8 +266,8 @@ RSpec.describe "JsonLogging::JsonLogger with BroadcastLogger" do
       dotenv_broadcast.warn("Missing .env.local file")
       dotenv_broadcast.error("Invalid environment variable")
 
-      io1.rewind
-      lines = io1.readlines
+      primary_io.rewind
+      lines = primary_io.readlines
       expect(lines.length).to eq(3)
 
       lines.each do |line|
@@ -287,7 +287,7 @@ RSpec.describe "JsonLogging::JsonLogger with BroadcastLogger" do
       expect(second_payload["tags"]).to eq(["dotenv"])
     end
 
-    it "allows multiple service loggers with different tags" do
+    it "allows multiple service loggers with different tags", :aggregate_failures do
       # Create service loggers from underlying logger (not BroadcastLogger)
       redis_logger = json_logger.tagged("redis")
       sidekiq_logger = json_logger.tagged("sidekiq")
@@ -297,17 +297,17 @@ RSpec.describe "JsonLogging::JsonLogger with BroadcastLogger" do
       sidekiq_logger.info("Job enqueued")
       api_logger.info("Request received")
 
-      io1.rewind
-      lines = io1.readlines
+      primary_io.rewind
+      lines = primary_io.readlines
       expect(lines.length).to eq(3)
 
       payloads = lines.map { |line| JSON.parse(line) }
-      tags = payloads.map { |p| p["tags"] }
+      tags = payloads.pluck("tags")
       expect(tags).to contain_exactly(["redis"], ["sidekiq"], ["api"])
     end
 
-    it "works with service loggers and multiple broadcast destinations" do
-      json_logger2 = JsonLogging::JsonLogger.new(io2)
+    it "works with service loggers and multiple broadcast destinations", :aggregate_failures do
+      json_logger2 = described_class.new(secondary_io)
 
       # Create service logger from the underlying logger, then wrap in BroadcastLogger
       # (BroadcastLogger.tagged without block returns array due to delegation,
@@ -320,7 +320,7 @@ RSpec.describe "JsonLogging::JsonLogger with BroadcastLogger" do
       dotenv_broadcast.info("Environment loaded")
 
       # Both destinations should receive the tagged log
-      [io1, io2].each do |io|
+      [primary_io, secondary_io].each do |io|
         io.rewind
         payload = JSON.parse(io.gets)
         expect(payload["tags"]).to eq(["dotenv"])
@@ -337,14 +337,14 @@ RSpec.describe "JsonLogging::JsonLogger with BroadcastLogger" do
         dotenv_logger.info("Loading production env")
       end
 
-      io1.rewind
-      payload = JSON.parse(io1.gets)
+      primary_io.rewind
+      payload = JSON.parse(primary_io.gets)
       expect(payload["tags"]).to eq(["dotenv", "production"])
     end
   end
 
   describe "Rails 7.1+ compatibility" do
-    it "simulates Rails bootstrap behavior" do
+    it "simulates Rails bootstrap behavior", :aggregate_failures do
       # Rails 7.1+ does this:
       # 1. Creates logger
       # 2. Wraps in BroadcastLogger
@@ -357,8 +357,8 @@ RSpec.describe "JsonLogging::JsonLogger with BroadcastLogger" do
 
       # Should still produce JSON
       rails_broadcast.info("rails test")
-      io1.rewind
-      payload = JSON.parse(io1.gets)
+      primary_io.rewind
+      payload = JSON.parse(primary_io.gets)
       expect(payload["message"]).to eq("rails test")
       expect(payload["severity"]).to eq("INFO")
     end

@@ -4,12 +4,13 @@ require "stringio"
 require "active_support/logger"
 
 # Performance benchmarks comparing JsonLogging with standard Rails logger
+# rubocop:disable RSpec/DescribeClass, RSpec/NoExpectationExample
 RSpec.describe "Performance benchmarks", :benchmark do
   let(:iterations) { 10_000 }
   let(:io) { StringIO.new }
 
   describe "logging performance" do
-    it "compares JsonLogger with ActiveSupport::Logger for simple messages" do
+    it "compares JsonLogger with ActiveSupport::Logger for simple messages", :aggregate_failures do
       json_logger = JsonLogging::JsonLogger.new(io.dup)
       std_logger = ActiveSupport::Logger.new(io.dup)
 
@@ -38,7 +39,7 @@ RSpec.describe "Performance benchmarks", :benchmark do
       # Benchmark results are informational only - variance is expected due to system load
     end
 
-    it "compares JsonLogger with ActiveSupport::Logger for hash messages" do
+    it "compares JsonLogger with ActiveSupport::Logger for hash messages", :aggregate_failures do
       json_logger = JsonLogging::JsonLogger.new(io.dup)
       std_logger = ActiveSupport::Logger.new(io.dup)
 
@@ -66,7 +67,7 @@ RSpec.describe "Performance benchmarks", :benchmark do
       # Benchmark results are informational only - variance is expected due to system load
     end
 
-    it "measures tagged logging performance" do
+    it "measures tagged logging performance", :aggregate_failures do
       json_logger = JsonLogging::JsonLogger.new(io.dup)
 
       tagged_time = Benchmark.realtime do
@@ -94,7 +95,7 @@ RSpec.describe "Performance benchmarks", :benchmark do
       # Benchmark results are informational only - variance is expected due to system load
     end
 
-    it "measures context performance" do
+    it "measures context performance", :aggregate_failures do
       json_logger = JsonLogging::JsonLogger.new(io.dup)
 
       with_context_time = Benchmark.realtime do
@@ -121,7 +122,7 @@ RSpec.describe "Performance benchmarks", :benchmark do
       # Benchmark results are informational only - variance is expected due to system load
     end
 
-    it "measures sanitization overhead" do
+    it "measures sanitization overhead", :aggregate_failures do
       json_logger = JsonLogging::JsonLogger.new(io.dup)
 
       # Large hash with nested structures
@@ -169,7 +170,7 @@ RSpec.describe "Performance benchmarks", :benchmark do
       # Benchmark results are informational only - variance is expected due to system load
     end
 
-    it "measures memory allocations" do
+    it "measures memory allocations", :aggregate_failures do
       require "memory_profiler"
 
       json_logger = JsonLogging::JsonLogger.new(io.dup)
@@ -197,3 +198,4 @@ RSpec.describe "Performance benchmarks", :benchmark do
     end
   end
 end
+# rubocop:enable RSpec/DescribeClass, RSpec/NoExpectationExample
