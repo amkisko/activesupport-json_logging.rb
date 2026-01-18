@@ -19,6 +19,8 @@ jobs:
             ruby_version: "3.2"
           - gemfile: rails8ruby34
             ruby_version: "3.4"
+          - gemfile: rails8ruby4
+            ruby_version: "4.0"
           - gemfile: rails8truffleruby
             ruby_version: "truffleruby"
     
@@ -50,10 +52,12 @@ jobs:
         continue-on-error: true
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-      - uses: codecov/test-results-action@v1
+      - uses: codecov/codecov-action@v5
         if: ${{ !cancelled() }}
         continue-on-error: true
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
+          report_type: test_results
           files: coverage/junit-coverage.xml
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
