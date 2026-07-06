@@ -212,8 +212,7 @@ RSpec.describe JsonLogging::JsonLogger do
     let(:logger) { described_class.new(io) }
 
     it "handles JSON serialization errors", :aggregate_failures do
-      # Force an error in stringify_keys
-      allow(logger).to receive(:stringify_keys).and_raise(StandardError.new("json error"))
+      allow(JsonLogging::LineEncoder).to receive(:build_line).and_raise(StandardError.new("json error"))
       logger.info("test")
       io.rewind
       payload = JSON.parse(io.gets)
@@ -222,8 +221,7 @@ RSpec.describe JsonLogging::JsonLogger do
     end
 
     it "handles uninitialized msg in error path" do
-      # Force error before msg is set - use add directly
-      allow(logger).to receive(:build_payload).and_raise(StandardError.new("error"))
+      allow(JsonLogging::LineEncoder).to receive(:build_line).and_raise(StandardError.new("error"))
       logger.add(Logger::INFO, nil, nil)
       io.rewind
       payload = JSON.parse(io.gets)

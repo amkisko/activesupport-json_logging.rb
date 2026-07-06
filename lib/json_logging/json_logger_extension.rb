@@ -2,15 +2,6 @@ module JsonLogging
   # Module that extends any Logger with JSON formatting capabilities
   # This is used by JsonLogging.new to wrap standard loggers
   module JsonLoggerExtension
-    SEVERITY_NAMES = {
-      ::Logger::DEBUG => "DEBUG",
-      ::Logger::INFO => "INFO",
-      ::Logger::WARN => "WARN",
-      ::Logger::ERROR => "ERROR",
-      ::Logger::FATAL => "FATAL",
-      ::Logger::UNKNOWN => "UNKNOWN"
-    }.freeze
-
     def formatter
       @formatter_with_tags ||= begin
         formatter_with_tags = FormatterWithTags.new(self)
@@ -19,46 +10,29 @@ module JsonLogging
       end
     end
 
-    def formatter=(formatter)
-      # Always use FormatterWithTags to ensure JSON formatting
+    def formatter=(_ignored)
+      # Custom formatters are ignored; JSON output requires FormatterWithTags.
       formatter_with_tags = @formatter_with_tags || FormatterWithTags.new(self)
       instance_variable_set(:@formatter, formatter_with_tags)
       @formatter_with_tags = formatter_with_tags
     end
 
-    def add(severity, message = nil, progname = nil)
+    def add(severity, message = nil, progname = nil, &block)
       return true if severity < level
 
-      msg = if message.nil?
-        if block_given?
-          yield
-        else
-          progname
-        end
-      else
-        message
-      end
-
-      payload = build_payload(severity, progname, msg)
-
-      stringified = stringify_keys(payload)
-      @logdev&.write("#{stringified.to_json}\n")
+      msg = nil
+      msg = extract_log_message(message, progname, &block)
+      line = LineEncoder.build_line(
+        msg: msg,
+        severity: severity,
+        timestamp: Helpers.normalize_timestamp(Helpers.current_time),
+        tags: formatter.current_tags,
+        additional_context: JsonLogging.additional_context.compact
+      )
+      @logdev&.write(line)
       true
     rescue => e
-      # Never fail logging - write a fallback entry
-      # Initialize msg if it wasn't set due to error
-      msg ||= "<uninitialized>"
-
-      fallback = {
-        timestamp: Helpers.normalize_timestamp(Helpers.current_time),
-        severity: severity_name(severity),
-        message: Sanitizer.sanitize_string(Helpers.safe_string(msg)),
-        logger_error: {
-          class: Sanitizer.sanitize_string(e.class.name),
-          message: Sanitizer.sanitize_string(Helpers.safe_string(e.message))
-        }
-      }
-      @logdev&.write("#{fallback.compact.to_json}\n")
+      write_add_fallback(severity, msg, e)
       true
     end
 
@@ -90,6 +64,28 @@ module JsonLogging
     end
 
     private
+
+    def extract_log_message(message, progname, &block)
+      if message.nil?
+        block ? block.call : progname
+      else
+        message
+      end
+    end
+
+    def write_add_fallback(severity, msg, error)
+      msg ||= "<uninitialized>"
+      fallback = {
+        timestamp: Helpers.normalize_timestamp(Helpers.current_time),
+        severity: Severity.name_for(severity),
+        message: Sanitizer.sanitize_string(Helpers.safe_string(msg)),
+        logger_error: {
+          class: Sanitizer.sanitize_string(error.class.name),
+          message: Sanitizer.sanitize_string(Helpers.safe_string(error.message))
+        }
+      }
+      @logdev&.write(LineEncoder.to_json_line(fallback))
+    end
 
     def tags_key
       @tags_key ||= :"json_logging_tags_#{object_id}"
@@ -125,36 +121,12 @@ module JsonLogging
       set_tags([])
     end
 
-    def build_payload(severity, _progname, msg)
-      payload = PayloadBuilder.build_base_payload(
-        msg,
-        severity: severity_name(severity),
-        timestamp: Helpers.normalize_timestamp(Helpers.current_time)
-      )
-      payload = PayloadBuilder.merge_context(
-        payload,
-        additional_context: JsonLogging.additional_context.compact,
-        tags: formatter.current_tags
-      )
-
-      payload.compact
-    end
-
     def severity_name(severity)
-      SEVERITY_NAMES[severity] || severity.to_s
+      Severity.name_for(severity)
     end
 
-    def stringify_keys(hash)
-      case hash
-      when Hash
-        hash.each_with_object({}) do |(k, v), result|
-          result[k.to_s] = stringify_keys(v)
-        end
-      when Array
-        hash.map { |v| stringify_keys(v) }
-      else
-        hash
-      end
+    def stringify_keys(obj)
+      LineEncoder.deep_stringify_structure(obj)
     end
   end
 

@@ -177,9 +177,7 @@ RSpec.describe JsonLogging::JsonLogger do
       # Test that the formatter works correctly
       result = json_formatter.call(Logger::INFO, Time.now, nil, "direct call")
       parsed = JSON.parse(result.strip)
-      # When called directly, severity is integer (Logger::INFO = 1)
-      # But in practice, JsonLogger converts it via severity_name before calling formatter
-      expect(parsed["severity"]).to eq(Logger::INFO) # Integer when called directly
+      expect(parsed["severity"]).to eq("INFO")
       expect(parsed["message"]).to eq("direct call")
       expect(parsed["timestamp"]).to be_a(String)
 

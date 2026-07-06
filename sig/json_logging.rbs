@@ -1,0 +1,3 @@
+module JsonLogging
+  VERSION: String
+end
