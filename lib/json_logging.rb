@@ -7,6 +7,7 @@ require_relative "json_logging/helpers"
 require_relative "json_logging/sanitizer"
 require_relative "json_logging/message_parser"
 require_relative "json_logging/payload_builder"
+require_relative "json_logging/line_encoder"
 require_relative "json_logging/formatter"
 require_relative "json_logging/formatter_with_tags"
 require_relative "json_logging/json_logger_extension"
@@ -14,13 +15,24 @@ require_relative "json_logging/json_logger"
 
 module JsonLogging
   THREAD_CONTEXT_KEY = :__json_logging_context
+  @additional_context_warned = Set.new
+
+  def self.context_storage
+    if defined?(ActiveSupport::IsolatedExecutionState)
+      ActiveSupport::IsolatedExecutionState
+    else
+      Thread.current
+    end
+  end
+  private_class_method :context_storage
 
   def self.with_context(extra_context)
-    original = Thread.current[THREAD_CONTEXT_KEY]
-    Thread.current[THREAD_CONTEXT_KEY] = (original || {}).merge(safe_hash(extra_context))
+    storage = context_storage
+    original = storage[THREAD_CONTEXT_KEY]
+    storage[THREAD_CONTEXT_KEY] = (original || {}).merge(safe_hash(extra_context))
     yield
   ensure
-    Thread.current[THREAD_CONTEXT_KEY] = original
+    storage[THREAD_CONTEXT_KEY] = original
   end
 
   # Returns the current thread-local context when called without arguments,
@@ -42,8 +54,9 @@ module JsonLogging
     end
 
     begin
-      base_context = (Thread.current[THREAD_CONTEXT_KEY] || {}).dup
-    rescue
+      base_context = (context_storage[THREAD_CONTEXT_KEY] || {}).dup
+    rescue => e
+      warn_additional_context_once(:dup, "thread context dup failed", e)
       base_context = {}
     end
 
@@ -51,7 +64,8 @@ module JsonLogging
     if transformer.is_a?(Proc)
       begin
         transformer.call(base_context)
-      rescue
+      rescue => e
+        warn_additional_context_once(:transformer, "additional_context transformer failed", e)
         base_context
       end
     else
@@ -68,6 +82,14 @@ module JsonLogging
   rescue
     {}
   end
+
+  def self.warn_additional_context_once(key, message, error)
+    return if @additional_context_warned.include?(key)
+
+    @additional_context_warned.add(key)
+    warn "[activesupport-json_logging] #{message} (#{error.class}: #{error.message})"
+  end
+  private_class_method :warn_additional_context_once
 
   # Returns an `ActiveSupport::Logger` that has already been wrapped with JSON logging concern.
   #
@@ -97,6 +119,17 @@ module JsonLogging
   #   logger.tagged("BCX") { logger.info("Stuff") }  # Logs with tags
   #   logger.tagged("BCX").info("Stuff")  # Logs with tags (non-block form)
   def self.new(logger)
+    logger = prepare_logger_clone(logger)
+    logger.extend(JsonLoggerExtension)
+    formatter_with_tags = FormatterWithTags.new(logger)
+    logger.instance_variable_set(:@formatter_with_tags, formatter_with_tags)
+    # Custom formatters are not supported: JSON output requires FormatterWithTags.
+    logger.formatter = formatter_with_tags
+
+    logger
+  end
+
+  def self.prepare_logger_clone(logger)
     logger = logger.clone
     if logger.formatter
       logger.formatter = logger.formatter.clone
@@ -114,11 +147,7 @@ module JsonLogging
       end
     end
 
-    logger.extend(JsonLoggerExtension)
-    formatter_with_tags = FormatterWithTags.new(logger)
-    logger.instance_variable_set(:@formatter_with_tags, formatter_with_tags)
-    logger.formatter = formatter_with_tags
-
     logger
   end
+  private_class_method :prepare_logger_clone
 end

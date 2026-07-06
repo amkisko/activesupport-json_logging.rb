@@ -68,14 +68,28 @@ RSpec.describe JsonLogging do
       end
 
       # Set context manually using the same key the implementation uses
-      key = :__json_logging_context
-      Thread.current[key] = context_hash
+      key = JsonLogging::THREAD_CONTEXT_KEY
+      JsonLogging.send(:context_storage)[key] = context_hash
 
       # Should rescue and return empty hash
       expect(described_class.additional_context).to eq({})
 
       # Clean up
-      Thread.current[key] = nil
+      JsonLogging.send(:context_storage)[key] = nil
+    end
+
+    it "uses isolated execution state when available", :aggregate_failures do
+      skip "ActiveSupport::IsolatedExecutionState not available" unless defined?(ActiveSupport::IsolatedExecutionState)
+
+      key = JsonLogging::THREAD_CONTEXT_KEY
+      JsonLogging.send(:context_storage)[key] = {leaked: true}
+
+      described_class.with_context(request_id: "abc") do
+        expect(described_class.additional_context[:request_id]).to eq("abc")
+      end
+
+      expect(JsonLogging.send(:context_storage)[key]).to eq({leaked: true})
+      JsonLogging.send(:context_storage)[key] = nil
     end
 
     it "handles context with compact correctly", :aggregate_failures do
