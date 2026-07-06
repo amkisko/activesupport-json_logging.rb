@@ -42,6 +42,7 @@ lint:
     - trufflehog
     - shfmt
     - hadolint
+    - trivy
   definitions:
     - name: stylelint
       files: [css]
@@ -79,7 +80,6 @@ lint:
     - markdownlint@0.46.0
     - osv-scanner@2.2.4
     - shellcheck@0.11.0
-    - trivy@0.67.2
 actions:
   disabled:
     - trunk-announce

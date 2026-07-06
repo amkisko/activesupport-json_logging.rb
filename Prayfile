@@ -1,0 +1,27 @@
+prayfile "1"
+
+source "amkisko", git: "https://github.com/amkisko/prayers", distribution: "prayers"
+
+target :agents do
+  output "AGENTS.md"
+  folder ".agents/skills"
+end
+
+agent "amkisko/working-rules", "~> 1.0", source: "amkisko", exports: ["working-rules"]
+agent "amkisko/docs-conventions", "~> 1.0", source: "amkisko", exports: ["docs-conventions"]
+agent "amkisko/dependency-issues", "~> 1.0", source: "amkisko", exports: ["dependency-issues"]
+agent "amkisko/dependency-policy", "~> 1.0", source: "amkisko", exports: ["dependency-policy", "skill"]
+agent "amkisko/ruby-conventions", "~> 1.0", source: "amkisko", exports: ["ruby-conventions"]
+agent "amkisko/minimal-implementation", "~> 1.0", source: "amkisko", exports: ["minimal-implementation"]
+agent "amkisko/finite-state-machines", "~> 1.0", source: "amkisko", exports: ["finite-state-machines"]
+agent "amkisko/branch-naming", "~> 1.0", source: "amkisko", exports: ["branch-naming"]
+agent "amkisko/preferred-stack", "~> 1.0", source: "amkisko", exports: ["preferred-stack"]
+agent "amkisko/writing-prose", "~> 1.0", source: "amkisko", exports: ["writing-prose"]
+agent "amkisko/rejected-changes", "~> 1.0", source: "amkisko", exports: ["rejected-changes"]
+agent "amkisko/publish-checks", "~> 1.0", source: "amkisko", exports: ["publish-checks"]
+agent "amkisko/collaboration-workflow", "~> 1.0", source: "amkisko", exports: ["collaboration-workflow"]
+agent "amkisko/getting-started", "~> 1.0", source: "amkisko", exports: ["getting-started"]
+agent "amkisko/engineering-audit", "~> 1.0", source: "amkisko", exports: ["skill"]
+agent "amkisko/changelog-update", "~> 1.0", source: "amkisko", exports: ["skill"]
+
+render mode: :managed, conflict: :fail, churn: :minimal

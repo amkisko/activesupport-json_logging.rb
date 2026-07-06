@@ -1,0 +1,5 @@
+track_under:
+  - lib
+reject_patterns:
+  - "/lib/json_logging/version.rb"
+minimum_line_percent: 85

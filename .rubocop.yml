@@ -119,3 +119,22 @@ Rails/TimeZone:
 
 Rails/Pluck:
   Enabled: false
+
+Metrics/ModuleLength:
+  Enabled: true
+  CountAsOne: [array, hash, heredoc, method_call]
+  Max: 200
+Metrics/ClassLength:
+  Enabled: true
+  CountAsOne: [array, hash, heredoc, method_call]
+  Max: 200
+Metrics/CyclomaticComplexity:
+  Enabled: true
+  Max: 18
+Metrics/PerceivedComplexity:
+  Enabled: true
+  Max: 18
+Metrics/AbcSize:
+  Enabled: true
+  Max: 35
+  CountRepeatedAttributes: false

@@ -37,7 +37,7 @@ jobs:
         bundler-cache: true
     
     - name: Run tests
-      run: bundle exec rspec
+      run: bundle exec polyrun parallel-rspec --workers 5 --merge-failures
 
   coverage:
     runs-on: ubuntu-latest
@@ -47,7 +47,7 @@ jobs:
         with:
           ruby-version: "3.4"
           bundler-cache: true
-      - run: bundle exec rspec
+      - run: POLYRUN_COVERAGE=1 bundle exec polyrun parallel-rspec --workers 5 --merge-failures
       - uses: codecov/codecov-action@v5
         continue-on-error: true
         env:

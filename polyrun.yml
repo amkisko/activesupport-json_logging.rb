@@ -1,0 +1,17 @@
+version: 1
+
+coverage:
+  output_path: coverage
+  formats:
+    - html
+    - cobertura
+    - console
+
+hooks:
+  before_suite:
+    - bundle exec rubocop
+    - bundle exec rbs validate
+
+partition:
+  paths_build:
+    all_glob: spec/**/*_spec.rb

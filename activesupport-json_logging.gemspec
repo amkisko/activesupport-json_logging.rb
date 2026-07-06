@@ -12,7 +12,7 @@ Gem::Specification.new do |spec|
   spec.license = "MIT"
 
   spec.files = Dir.chdir(File.expand_path(__dir__)) do
-    Dir["lib/**/*", "README.md", "LICENSE*", "CHANGELOG.md"].select { |f| File.file?(f) }
+    Dir["lib/**/*", "sig/**/*", "README.md", "LICENSE*", "CHANGELOG.md"].select { |f| File.file?(f) }
   end
   spec.required_ruby_version = ">= 2.7"
 
@@ -26,11 +26,10 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "railties", ">= 6.0", "< 9.0"
 
   spec.add_development_dependency "rspec", "~> 3"
+  spec.add_development_dependency "polyrun", "~> 1.5.0"
   spec.add_development_dependency "webmock", "~> 3"
   spec.add_development_dependency "rake", "~> 13"
-  spec.add_development_dependency "simplecov", "~> 0.22"
   spec.add_development_dependency "rspec_junit_formatter", "~> 0.6"
-  spec.add_development_dependency "simplecov-cobertura", "~> 3"
   spec.add_development_dependency "standard", "~> 1.52"
   spec.add_development_dependency "standard-custom", "~> 1.0"
   spec.add_development_dependency "standard-performance", "~> 1.8"

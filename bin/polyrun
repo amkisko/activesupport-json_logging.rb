@@ -1,0 +1,108 @@
+#!/usr/bin/env bash
+# Delegates to `bundle exec polyrun` with repo config.
+# - No args → same as `polyrun` with no subcommand (auto parallel RSpec from polyrun.yml / spec/**/*_spec.rb).
+# - Path-like argv (spec files, globs, dirs) → polyrun implicit parallel (path-only argv).
+# - Named subcommands (plan, config, parallel-rspec, ci-shard-rspec, …) → pass through.
+# - Otherwise (RSpec flags first, e.g. --format) → `start --workers N -- bundle exec rspec "$@"`.
+# Globals: -c/--config, -v/--verbose, -h/--help, --help (same as bundle exec polyrun).
+# Workers: POLYRUN_WORKERS (default 5, max 10, min 1) — read by polyrun run-shards/start.
+set -eo pipefail
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+cd "$ROOT"
+
+W="${POLYRUN_WORKERS:-5}"
+case "$W" in ''|*[!0-9]*) W=5 ;; esac
+if [ "$W" -gt 10 ]; then W=10; fi
+if [ "$W" -lt 1 ]; then W=1; fi
+
+CONFIG="${POLYRUN_CONFIG:-polyrun.yml}"
+polyrun_prefix=()
+have_config=0
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    -c|--config)
+      polyrun_prefix+=("$1" "$2")
+      CONFIG="$2"
+      have_config=1
+      shift 2
+      ;;
+    -v|--verbose)
+      polyrun_prefix+=("$1")
+      shift
+      ;;
+    -h|--help)
+      if [ "$have_config" -eq 0 ]; then
+        exec bundle exec polyrun "${polyrun_prefix[@]}" -c "$CONFIG" -h
+      else
+        exec bundle exec polyrun "${polyrun_prefix[@]}" -h
+      fi
+      ;;
+    *)
+      break
+      ;;
+  esac
+done
+
+if [ "${1:-}" = "--version" ]; then
+  if [ "$have_config" -eq 0 ]; then
+    exec bundle exec polyrun "${polyrun_prefix[@]}" -c "$CONFIG" version
+  else
+    exec bundle exec polyrun "${polyrun_prefix[@]}" version
+  fi
+fi
+
+is_polyrun_command() {
+  case "$1" in
+    plan|prepare|merge-coverage|report-coverage|report-junit|report-timing|env|config|merge-timing|\
+    db:setup-template|db:setup-shard|db:clone-shards|run-shards|parallel-rspec|start|build-paths|\
+    ci-shard-run|ci-shard-rspec|init|queue|quick|help|version)
+      return 0 ;;
+    *)
+      return 1 ;;
+  esac
+}
+
+# True if argv should use polyrun implicit path parallel (any path-like token).
+implicit_path_in_argv() {
+  for a in "$@"; do
+    case "$a" in
+      -*) [ "$a" = "-" ] || continue ;;
+    esac
+    case "$a" in
+      *.rb|spec/*|test/*|./|/*|*[\*\?[]*) return 0 ;;
+    esac
+    [ -e "$a" ] && return 0
+  done
+  return 1
+}
+
+run_polyrun() {
+  if [ "$have_config" -eq 0 ]; then
+    exec bundle exec polyrun "${polyrun_prefix[@]}" -c "$CONFIG" "$@"
+  else
+    exec bundle exec polyrun "${polyrun_prefix[@]}" "$@"
+  fi
+}
+
+exec_parallel_rspec() {
+  if [ "$have_config" -eq 0 ]; then
+    exec bundle exec polyrun "${polyrun_prefix[@]}" -c "$CONFIG" start --workers "$W" -- bundle exec rspec "$@"
+  else
+    exec bundle exec polyrun "${polyrun_prefix[@]}" start --workers "$W" -- bundle exec rspec "$@"
+  fi
+}
+
+if [ $# -eq 0 ]; then
+  run_polyrun
+fi
+
+if is_polyrun_command "$1"; then
+  run_polyrun "$@"
+fi
+
+if implicit_path_in_argv "$@"; then
+  run_polyrun "$@"
+fi
+
+exec_parallel_rspec "$@"
