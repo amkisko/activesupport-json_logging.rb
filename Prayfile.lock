@@ -7,7 +7,7 @@ manifest_hash = "sha256:4dc7af2bbd8a9dc047ee29f39c2df303fa5926490d58f7111a1dd90b
 name = "amkisko"
 kind = "git"
 url = "git+https://github.com/amkisko/prayers"
-revision = "287547850423a9a54ddfb76151fb95ce3ff0957e"
+revision = "8872ddeabd20fc388211ca8cdcae6fb6cca07879"
 
 [[package]]
 name = "amkisko/branch-naming"
