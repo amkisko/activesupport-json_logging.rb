@@ -4,7 +4,7 @@ require "stringio"
 require "active_support/logger"
 
 # Performance benchmarks comparing JsonLogging with standard Rails logger
-# rubocop:disable RSpec/DescribeClass, RSpec/NoExpectationExample
+# rubocop:disable RSpec/DescribeClass, RSpec/NoExpectationExample, RSpec/Output
 RSpec.describe "Performance benchmarks", :benchmark do
   let(:iterations) { 10_000 }
   let(:io) { StringIO.new }
@@ -198,4 +198,4 @@ RSpec.describe "Performance benchmarks", :benchmark do
     end
   end
 end
-# rubocop:enable RSpec/DescribeClass, RSpec/NoExpectationExample
+# rubocop:enable RSpec/DescribeClass, RSpec/NoExpectationExample, RSpec/Output
