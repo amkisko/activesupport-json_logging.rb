@@ -42,4 +42,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "memory_profiler", "~> 1"
   spec.add_development_dependency "rbs", "~> 3"
   spec.add_development_dependency "benchmark", "~> 0.5"
+  spec.add_development_dependency "benchmark-ips", "~> 2"
+  spec.add_development_dependency "stackprof", "~> 0.2"
 end
