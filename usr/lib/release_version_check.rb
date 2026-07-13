@@ -71,7 +71,7 @@ module ReleaseVersionCheck
     end
 
     response.body if response.is_a?(Net::HTTPSuccess)
-  rescue StandardError
+  rescue
     nil
   end
 end

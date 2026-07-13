@@ -1,7 +1,7 @@
 require "spec_helper"
 require "stringio"
 
-RSpec.describe "JsonLogging hot-path optimizations" do
+RSpec.describe JsonLogging do
   describe JsonLogging::Sanitizer do
     describe ".sanitize_string" do
       it "returns the same string object for clean ASCII text", :aggregate_failures do
@@ -23,8 +23,8 @@ RSpec.describe "JsonLogging hot-path optimizations" do
 
         filter_parameters = [:password]
         rails_module = Module.new
-        rails_application = instance_double("Rails::Application")
-        rails_configuration = instance_double("Rails::Application::Configuration", filter_parameters: filter_parameters)
+        rails_application = double("application")
+        rails_configuration = double("configuration", filter_parameters: filter_parameters)
 
         allow(rails_application).to receive(:config).and_return(rails_configuration)
         stub_const("Rails", rails_module)
@@ -42,7 +42,7 @@ RSpec.describe "JsonLogging hot-path optimizations" do
     end
   end
 
-  describe JsonLogging do
+  describe "additional context caching" do
     after do
       described_class.send(:context_storage)[described_class::THREAD_CONTEXT_KEY] = nil
       described_class.send(:context_storage)[described_class::SANITIZED_CONTEXT_CACHE_KEY] = nil
@@ -100,18 +100,20 @@ RSpec.describe "JsonLogging hot-path optimizations" do
     end
   end
 
-  describe "tag sanitization at push time" do
-    it "strips control characters from tags before they reach the payload", :aggregate_failures do
-      io = StringIO.new
-      logger = JsonLogging::JsonLogger.new(io)
+  describe JsonLogging::JsonLogger do
+    describe "tag sanitization at push time" do
+      it "strips control characters from tags before they reach the payload", :aggregate_failures do
+        io = StringIO.new
+        logger = described_class.new(io)
 
-      logger.tagged("REQUEST\x00ID") do
-        logger.info("done")
+        logger.tagged("REQUEST\x00ID") do
+          logger.info("done")
+        end
+
+        io.rewind
+        payload = JSON.parse(io.gets)
+        expect(payload["tags"]).to eq(["REQUESTID"])
       end
-
-      io.rewind
-      payload = JSON.parse(io.gets)
-      expect(payload["tags"]).to eq(["REQUESTID"])
     end
   end
 
@@ -119,10 +121,11 @@ RSpec.describe "JsonLogging hot-path optimizations" do
     describe ".to_json_line" do
       it "skips deep_stringify_keys when payload already uses string keys", :aggregate_failures do
         payload = {"message" => "hello", "context" => {"user_id" => 1}}
-
-        expect(payload).not_to receive(:deep_stringify_keys)
+        allow(payload).to receive(:deep_stringify_keys).and_call_original
 
         line = described_class.to_json_line(payload)
+
+        expect(payload).not_to have_received(:deep_stringify_keys)
         expect(JSON.parse(line)).to eq(payload)
       end
 
