@@ -12,8 +12,7 @@ RSpec.describe JsonLogging::Formatter do
   end
 
   it "handles errors in formatting", :aggregate_failures do
-    # Mock an error in PayloadBuilder
-    allow(JsonLogging::PayloadBuilder).to receive(:build_base_payload).and_raise(StandardError.new("builder error"))
+    allow(JsonLogging::LineEncoder).to receive(:build_line).and_raise(StandardError.new("builder error"))
     result = formatter.call("ERROR", Time.now, nil, "test")
     payload = JSON.parse(result)
     expect(payload["severity"]).to eq("ERROR")
@@ -22,7 +21,7 @@ RSpec.describe JsonLogging::Formatter do
   end
 
   it "handles nil timestamp in error path", :aggregate_failures do
-    allow(JsonLogging::PayloadBuilder).to receive(:build_base_payload).and_raise(StandardError.new("error"))
+    allow(JsonLogging::LineEncoder).to receive(:build_line).and_raise(StandardError.new("error"))
     result = formatter.call("WARN", nil, nil, "test")
     payload = JSON.parse(result)
     expect(payload["timestamp"]).to be_a(String)
@@ -107,7 +106,7 @@ RSpec.describe JsonLogging::FormatterWithTags do
   end
 
   it "handles errors gracefully" do
-    allow(JsonLogging::PayloadBuilder).to receive(:build_base_payload).and_raise(StandardError.new("error"))
+    allow(JsonLogging::LineEncoder).to receive(:build_line).and_raise(StandardError.new("error"))
     result = formatter.call("ERROR", Time.now, nil, "test")
     payload = JSON.parse(result)
     expect(payload).to have_key("formatter_error")

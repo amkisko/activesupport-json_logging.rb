@@ -45,7 +45,9 @@ module JsonLogging
         payload["tags"] = (existing_tags + prepared_tags).uniq
       end
 
-      payload["context"] = merged_context unless merged_context.empty?
+      unless merged_context.empty?
+        payload["context"] = merged_context.transform_keys(&:to_s)
+      end
       payload
     end
 
