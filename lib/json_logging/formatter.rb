@@ -2,7 +2,7 @@ module JsonLogging
   class Formatter < ::Logger::Formatter
     def initialize(tags: [])
       super()
-      @tags = Array(tags)
+      @tags = Sanitizer.prepare_tags(tags)
     end
 
     attr_reader :tags
@@ -13,7 +13,9 @@ module JsonLogging
         severity: severity,
         timestamp: Helpers.normalize_timestamp(timestamp),
         tags: @tags,
-        additional_context: JsonLogging.additional_context.compact
+        additional_context: JsonLogging.additional_context_for_payload,
+        additional_context_sanitized: true,
+        sanitize_tags: false
       )
     rescue => e
       build_fallback_output(severity, timestamp, msg, e)

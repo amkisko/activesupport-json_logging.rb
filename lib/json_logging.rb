@@ -15,7 +15,9 @@ require_relative "json_logging/json_logger"
 
 module JsonLogging
   THREAD_CONTEXT_KEY = :__json_logging_context
+  SANITIZED_CONTEXT_CACHE_KEY = :__json_logging_sanitized_context
   @additional_context_warned = Set.new
+  @additional_context_transformer = nil
 
   def self.context_storage
     if defined?(ActiveSupport::IsolatedExecutionState)
@@ -30,9 +32,11 @@ module JsonLogging
     storage = context_storage
     original = storage[THREAD_CONTEXT_KEY]
     storage[THREAD_CONTEXT_KEY] = (original || {}).merge(safe_hash(extra_context))
+    invalidate_sanitized_context_cache(storage)
     yield
   ensure
     storage[THREAD_CONTEXT_KEY] = original
+    invalidate_sanitized_context_cache(storage)
   end
 
   # Returns the current thread-local context when called without arguments,
@@ -75,6 +79,21 @@ module JsonLogging
 
   def self.additional_context=(proc_or_block)
     @additional_context_transformer = proc_or_block
+    invalidate_sanitized_context_cache(context_storage)
+  end
+
+  def self.additional_context_for_payload
+    if @additional_context_transformer.is_a?(Proc)
+      return sanitized_context_from(compact_context(additional_context))
+    end
+
+    storage = context_storage
+    cached = storage[SANITIZED_CONTEXT_CACHE_KEY]
+    return cached if cached
+
+    sanitized = sanitized_context_from(compact_context(storage[THREAD_CONTEXT_KEY]))
+    storage[SANITIZED_CONTEXT_CACHE_KEY] = sanitized.freeze
+    sanitized
   end
 
   def self.safe_hash(obj)
@@ -90,6 +109,26 @@ module JsonLogging
     warn "[activesupport-json_logging] #{message} (#{error.class}: #{error.message})"
   end
   private_class_method :warn_additional_context_once
+
+  def self.compact_context(context)
+    return {} unless context.is_a?(Hash)
+    return {} if context.empty?
+
+    context.compact
+  end
+  private_class_method :compact_context
+
+  def self.sanitized_context_from(compacted_context)
+    return {} if compacted_context.empty?
+
+    Sanitizer.sanitize_hash(compacted_context)
+  end
+  private_class_method :sanitized_context_from
+
+  def self.invalidate_sanitized_context_cache(storage)
+    storage[SANITIZED_CONTEXT_CACHE_KEY] = nil
+  end
+  private_class_method :invalidate_sanitized_context_cache
 
   # Returns an `ActiveSupport::Logger` that has already been wrapped with JSON logging concern.
   #

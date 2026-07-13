@@ -8,6 +8,7 @@ RELEASE_INTEGRATION = false
 POLYRUN_MERGE_FORMATS = nil
 
 require "fileutils"
+require_relative "../lib/release_version_check"
 
 FileUtils.mkdir_p("tmp")
 
@@ -52,6 +53,8 @@ end
 version_content = File.read(VERSION_FILE)
 version = version_content.match(/VERSION\s*=\s*"([0-9.]+)"/)[1]
 gem_file = "#{gem_name}-#{version}.gem"
+
+ReleaseVersionCheck.warn_if_already_released(version: version, package_name: gem_name, registry: :rubygems)
 
 execute_command("gem build #{gemspec}")
 

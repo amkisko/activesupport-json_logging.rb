@@ -34,9 +34,9 @@ RSpec.describe JsonLogging::Sanitizer do
     it "filters sensitive keys when Rails not available", :aggregate_failures do
       hash = {password: "secret", username: "user", api_key: "key123"}
       result = described_class.sanitize_hash(hash)
-      expect(result).to have_key(:username)
-      expect(result).not_to have_key(:password)
-      expect(result).not_to have_key(:api_key)
+      expect(result).to have_key("username")
+      expect(result).not_to have_key("password")
+      expect(result).not_to have_key("api_key")
       expect(result).to have_key("password_filtered")
       expect(result).to have_key("api_key_filtered")
     end
@@ -232,13 +232,13 @@ RSpec.describe JsonLogging::Sanitizer do
         result = described_class.sanitize_hash(hash)
 
         # Rails ParameterFilter keeps the key but replaces the value with [FILTERED]
-        expect(result).to have_key(:password)
-        expect(result[:password]).to eq("[FILTERED]")
-        expect(result).to have_key(:username)
-        expect(result[:username]).to eq("user")
+        expect(result).to have_key("password")
+        expect(result["password"]).to eq("[FILTERED]")
+        expect(result).to have_key("username")
+        expect(result["username"]).to eq("user")
         # api_token is not in filter_parameters, so it should remain unchanged
-        expect(result).to have_key(:api_token)
-        expect(result[:api_token]).to eq("token123")
+        expect(result).to have_key("api_token")
+        expect(result["api_token"]).to eq("token123")
       end
 
       it "rescue errors and returns nil", :aggregate_failures do

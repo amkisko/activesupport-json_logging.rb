@@ -2,12 +2,12 @@ require "spec_helper"
 
 RSpec.describe JsonLogging::MessageParser do
   it "returns hash as-is", :aggregate_failures do
-    expect(described_class.parse_message({foo: "bar"})).to eq({foo: "bar"})
+    expect(described_class.parse_message({foo: "bar"})).to eq({"foo" => "bar"})
   end
 
   it "converts objects with to_hash", :aggregate_failures do
     obj = double(to_hash: {a: 1})
-    expect(described_class.parse_message(obj)).to eq({a: 1})
+    expect(described_class.parse_message(obj)).to eq({"a" => 1})
   end
 
   it "parses JSON strings", :aggregate_failures do

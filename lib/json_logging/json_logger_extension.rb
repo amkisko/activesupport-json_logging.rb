@@ -27,7 +27,9 @@ module JsonLogging
         severity: severity,
         timestamp: Helpers.normalize_timestamp(Helpers.current_time),
         tags: formatter.current_tags,
-        additional_context: JsonLogging.additional_context.compact
+        additional_context: JsonLogging.additional_context_for_payload,
+        additional_context_sanitized: true,
+        sanitize_tags: false
       )
       @logdev&.write(line)
       true
@@ -112,8 +114,9 @@ module JsonLogging
     end
 
     def push_tags(tags)
-      flat = tags.flatten.compact.map(&:to_s).reject(&:empty?)
+      flat = Sanitizer.prepare_tags(tags)
       return if flat.empty?
+
       set_tags(current_tags + flat)
     end
 
@@ -151,8 +154,9 @@ module JsonLogging
       end
 
       def push_tags(tags)
-        flat = Array(tags).flatten.compact.map(&:to_s).reject(&:empty?)
+        flat = Sanitizer.prepare_tags(tags)
         return [] if flat.empty?
+
         @tags.concat(flat)
         flat
       end

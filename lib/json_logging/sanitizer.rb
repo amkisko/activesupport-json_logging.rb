@@ -18,6 +18,9 @@ module JsonLogging
     # Common sensitive key patterns (case insensitive) - fallback when Rails ParameterFilter not available
     SENSITIVE_KEY_PATTERNS = /\b(password|passwd|pwd|secret|token|api_key|apikey|access_token|auth_token|private_key|credential)\b/i
 
+    @parameter_filter = nil
+    @parameter_filter_config = nil
+
     module_function
 
     # Get Rails ParameterFilter if available, nil otherwise
@@ -28,14 +31,29 @@ module JsonLogging
       filter_params = Rails.application.config.filter_parameters
       return nil if filter_params.empty?
 
-      ActiveSupport::ParameterFilter.new(filter_params)
+      if @parameter_filter && @parameter_filter_config == filter_params
+        return @parameter_filter
+      end
+
+      @parameter_filter_config = filter_params
+      @parameter_filter = ActiveSupport::ParameterFilter.new(filter_params)
     rescue
       nil
+    end
+
+    def reset_rails_parameter_filter_cache!
+      @parameter_filter = nil
+      @parameter_filter_config = nil
+    end
+
+    def prepare_tags(tags)
+      tags.flatten.compact.map(&:to_s).reject(&:empty?).map { |tag| sanitize_string(tag) }
     end
 
     # Sanitize a string by removing/escaping control characters and truncating
     def sanitize_string(str)
       return str unless str.is_a?(String)
+      return str if str.length <= MAX_STRING_LENGTH && !str.match?(CONTROL_CHARS)
 
       # Remove or replace control characters
       sanitized = str.gsub(CONTROL_CHARS, "")
@@ -78,21 +96,21 @@ module JsonLogging
 
         # Then sanitize values (strings, control chars, etc.) preserving filtered structure
         filtered.each_with_object({}) do |(key, value), result|
-          result[key] = sanitize_value(value, depth: depth + 1)
+          result[key.to_s] = sanitize_value(value, depth: depth + 1)
         end
 
       else
         # Fallback: use pattern matching for sensitive keys
         limited_hash.each_with_object({}) do |(key, value), result|
-          key_str = key.to_s
+          key_string = key.to_s
 
           # Skip sensitive keys
-          if SENSITIVE_KEY_PATTERNS.match?(key_str)
-            result[key_str.gsub(/(?<!^)(?=[A-Z])/, "_").downcase + "_filtered"] = "[FILTERED]"
+          if SENSITIVE_KEY_PATTERNS.match?(key_string)
+            result[key_string.gsub(/(?<!^)(?=[A-Z])/, "_").downcase + "_filtered"] = "[FILTERED]"
             next
           end
 
-          result[key] = sanitize_value(value, depth: depth + 1)
+          result[key_string] = sanitize_value(value, depth: depth + 1)
         end
       end
     rescue

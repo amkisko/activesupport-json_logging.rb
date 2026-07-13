@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## 1.2.2 (2026-07-08)
+
+- Isolate log context per execution via `ActiveSupport::IsolatedExecutionState` when available
+- Sanitize fallback formatter output when JSON encoding fails
+- Refactor emit path into `LineEncoder`, `PayloadBuilder`, and `Severity` modules
+- Cache sanitized `additional_context` per `with_context` scope on the hot path
+- Memoize `ActiveSupport::ParameterFilter` when `filter_parameters` is unchanged
+- Fast-path `sanitize_string` for clean ASCII text within length limits
+- Sanitize tags at push time instead of on every log line
+- Skip `deep_stringify_keys` when payload structure already uses string keys
+- Add hot-path optimization specs
+
 ## 1.2.1 (2026-01-18)
 
 - Refactor tag stack handling in JsonLogging formatter for improved maintainability
