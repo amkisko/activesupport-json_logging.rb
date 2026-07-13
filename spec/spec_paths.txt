@@ -9,6 +9,7 @@ spec/json_logging_formatter_spec.rb
 spec/json_logging_helpers_spec.rb
 spec/json_logging_message_parser_advanced_spec.rb
 spec/json_logging_message_parser_spec.rb
+spec/json_logging_optimizations_spec.rb
 spec/json_logging_payload_builder_advanced_spec.rb
 spec/json_logging_payload_builder_spec.rb
 spec/json_logging_sanitizer_spec.rb
