@@ -20,6 +20,8 @@ require_relative "../lib/json_logging"
 Dir[File.expand_path("support/**/*.rb", __dir__)].each { |f| require_relative f }
 
 RSpec.configure do |config|
+  config.before(:all, :benchmark) { BenchmarkProfile.reset! }
+  config.after(:all, :benchmark) { BenchmarkProfile.write! }
 end
 require "polyrun/rspec"
 Polyrun::RSpec.install_failure_fragments!

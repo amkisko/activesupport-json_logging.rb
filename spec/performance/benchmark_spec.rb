@@ -27,10 +27,10 @@ RSpec.describe "Performance benchmarks", :benchmark do
       end
 
       overhead = ((json_time / std_time - 1) * 100).round(2)
-      puts "\n  Simple messages (#{iterations} iterations):"
-      puts "    JsonLogger:  #{json_time.round(4)}s"
-      puts "    Std Logger:  #{std_time.round(4)}s"
-      puts "    Overhead:    #{overhead}%"
+      BenchmarkProfile.log "\n  Simple messages (#{iterations} iterations):"
+      BenchmarkProfile.log "    JsonLogger:  #{json_time.round(4)}s"
+      BenchmarkProfile.log "    Std Logger:  #{std_time.round(4)}s"
+      BenchmarkProfile.log "    Overhead:    #{overhead}%"
 
       # JSON logging overhead is acceptable (JSON serialization adds overhead)
       # Typical overhead: 300-400% for structured logging is reasonable
@@ -56,10 +56,10 @@ RSpec.describe "Performance benchmarks", :benchmark do
       end
 
       overhead = ((json_time / std_time - 1) * 100).round(2)
-      puts "\n  Hash messages (#{iterations} iterations):"
-      puts "    JsonLogger:  #{json_time.round(4)}s"
-      puts "    Std Logger:  #{std_time.round(4)}s"
-      puts "    Overhead:    #{overhead}%"
+      BenchmarkProfile.log "\n  Hash messages (#{iterations} iterations):"
+      BenchmarkProfile.log "    JsonLogger:  #{json_time.round(4)}s"
+      BenchmarkProfile.log "    Std Logger:  #{std_time.round(4)}s"
+      BenchmarkProfile.log "    Overhead:    #{overhead}%"
 
       # JSON formatting of hashes should be reasonable
       # Typical overhead: 250-350% is normal for structured JSON logging
@@ -85,10 +85,10 @@ RSpec.describe "Performance benchmarks", :benchmark do
       end
 
       overhead = ((tagged_time / untagged_time - 1) * 100).round(2)
-      puts "\n  Tagged logging (#{iterations} iterations):"
-      puts "    Tagged:    #{tagged_time.round(4)}s"
-      puts "    Untagged:  #{untagged_time.round(4)}s"
-      puts "    Overhead:  #{overhead}%"
+      BenchmarkProfile.log "\n  Tagged logging (#{iterations} iterations):"
+      BenchmarkProfile.log "    Tagged:    #{tagged_time.round(4)}s"
+      BenchmarkProfile.log "    Untagged:  #{untagged_time.round(4)}s"
+      BenchmarkProfile.log "    Overhead:  #{overhead}%"
 
       # Tagging adds some overhead (thread-local storage, context merging)
       # Typical overhead: 60-70% is reasonable
@@ -113,10 +113,10 @@ RSpec.describe "Performance benchmarks", :benchmark do
       end
 
       overhead = ((with_context_time / without_context_time - 1) * 100).round(2)
-      puts "\n  Context (#{iterations} iterations):"
-      puts "    With context:    #{with_context_time.round(4)}s"
-      puts "    Without context: #{without_context_time.round(4)}s"
-      puts "    Overhead:        #{overhead}%"
+      BenchmarkProfile.log "\n  Context (#{iterations} iterations):"
+      BenchmarkProfile.log "    With context:    #{with_context_time.round(4)}s"
+      BenchmarkProfile.log "    Without context: #{without_context_time.round(4)}s"
+      BenchmarkProfile.log "    Overhead:        #{overhead}%"
 
       # Context should add minimal overhead (< 100%)
       # Benchmark results are informational only - variance is expected due to system load
@@ -160,10 +160,10 @@ RSpec.describe "Performance benchmarks", :benchmark do
       large_hash_size_kb = (large_hash.to_json.bytesize / 1024.0).round(2)
       simple_msg_size_kb = ("Simple message".bytesize / 1024.0).round(2)
 
-      puts "\n  Sanitization (#{iterations / 10} iterations):"
-      puts "    Large hash (#{large_hash_size_kb}KB): #{sanitized_time.round(4)}s"
-      puts "    Simple (#{simple_msg_size_kb}KB):     #{simple_time.round(4)}s"
-      puts "    Overhead:   #{overhead}%"
+      BenchmarkProfile.log "\n  Sanitization (#{iterations / 10} iterations):"
+      BenchmarkProfile.log "    Large hash (#{large_hash_size_kb}KB): #{sanitized_time.round(4)}s"
+      BenchmarkProfile.log "    Simple (#{simple_msg_size_kb}KB):     #{simple_time.round(4)}s"
+      BenchmarkProfile.log "    Overhead:   #{overhead}%"
 
       # Sanitization of large nested structures has overhead (deep_dup, filtering, etc.)
       # For large structures, 1000-1500% overhead is expected and acceptable
@@ -185,11 +185,11 @@ RSpec.describe "Performance benchmarks", :benchmark do
       total_retained = report.total_retained_memsize
       objects_allocated = report.total_allocated
 
-      puts "\n  Memory allocations (#{iterations} iterations):"
-      puts "    Total allocated: #{total_allocated / 1024}KB (#{objects_allocated} objects)"
-      puts "    Total retained:  #{total_retained / 1024}KB"
-      puts "    Avg per log:     #{(total_allocated / iterations / 1024.0).round(2)}KB"
-      puts "    Objects per log: #{(objects_allocated / iterations.to_f).round(2)}"
+      BenchmarkProfile.log "\n  Memory allocations (#{iterations} iterations):"
+      BenchmarkProfile.log "    Total allocated: #{total_allocated / 1024}KB (#{objects_allocated} objects)"
+      BenchmarkProfile.log "    Total retained:  #{total_retained / 1024}KB"
+      BenchmarkProfile.log "    Avg per log:     #{(total_allocated / iterations / 1024.0).round(2)}KB"
+      BenchmarkProfile.log "    Objects per log: #{(objects_allocated / iterations.to_f).round(2)}"
 
       # JSON serialization, string operations, hash operations, and sanitization allocate memory
       # Typical allocation: ~3KB per log entry is reasonable for structured JSON logging
