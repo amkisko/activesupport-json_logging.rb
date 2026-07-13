@@ -1,3 +1,4 @@
+spec/benchmark_profile_spec.rb
 spec/json_logger_advanced_spec.rb
 spec/json_logger_broadcast_spec.rb
 spec/json_logger_isolated_execution_state_spec.rb
@@ -14,3 +15,4 @@ spec/json_logging_payload_builder_advanced_spec.rb
 spec/json_logging_payload_builder_spec.rb
 spec/json_logging_sanitizer_spec.rb
 spec/performance/benchmark_spec.rb
+spec/performance/profiling_spec.rb

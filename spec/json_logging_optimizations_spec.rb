@@ -66,6 +66,7 @@ RSpec.describe JsonLogging do
 
         expect(result).to eq(nested)
       end
+
       it "does not mutate the source hash when the sanitized result is updated", :aggregate_failures do
         source = {
           "user" => {
