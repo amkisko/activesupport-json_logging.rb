@@ -91,7 +91,12 @@ module JsonLogging
     cached = storage[SANITIZED_CONTEXT_CACHE_KEY]
     return cached if cached
 
-    sanitized = sanitized_context_from(compact_context(storage[THREAD_CONTEXT_KEY]))
+    raw_context = storage[THREAD_CONTEXT_KEY]
+    if raw_context.nil? || (raw_context.is_a?(Hash) && raw_context.empty?)
+      return storage[SANITIZED_CONTEXT_CACHE_KEY] = {}.freeze
+    end
+
+    sanitized = sanitized_context_from(compact_context(raw_context))
     storage[SANITIZED_CONTEXT_CACHE_KEY] = sanitized.freeze
     sanitized
   end

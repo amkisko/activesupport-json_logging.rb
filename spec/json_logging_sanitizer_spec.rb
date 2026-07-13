@@ -168,6 +168,26 @@ RSpec.describe JsonLogging::Sanitizer do
     end
   end
 
+  describe ".parameter_filter_requires_full_tree_walk?" do
+    it "returns false for shallow symbol and regexp filters", :aggregate_failures do
+      expect(described_class.parameter_filter_requires_full_tree_walk?([:password])).to be(false)
+      expect(described_class.parameter_filter_requires_full_tree_walk?([/\Apin_/])).to be(false)
+    end
+
+    it "returns true for dotted string filters", :aggregate_failures do
+      expect(described_class.parameter_filter_requires_full_tree_walk?(["credit_card.code"])).to be(true)
+    end
+
+    it "returns true for dotted regexp filters", :aggregate_failures do
+      expect(described_class.parameter_filter_requires_full_tree_walk?([/credit_card\.code/])).to be(true)
+    end
+
+    it "returns true for proc filters", :aggregate_failures do
+      filter = proc { |_key, _value| }
+      expect(described_class.parameter_filter_requires_full_tree_walk?([filter])).to be(true)
+    end
+  end
+
   describe ".rails_parameter_filter" do
     it "returns nil when Rails is not available", :aggregate_failures do
       # In test environment without Rails loaded

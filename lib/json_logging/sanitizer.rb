@@ -1,3 +1,5 @@
+require_relative "structured_hash_sanitizer"
+
 module JsonLogging
   module Sanitizer
     # Control characters that should be escaped or removed from log messages
@@ -20,6 +22,7 @@ module JsonLogging
 
     @parameter_filter = nil
     @parameter_filter_config = nil
+    @parameter_filter_requires_full_tree_walk = false
 
     module_function
 
@@ -36,14 +39,34 @@ module JsonLogging
       end
 
       @parameter_filter_config = filter_params
+      @parameter_filter_requires_full_tree_walk = parameter_filter_requires_full_tree_walk?(filter_params)
       @parameter_filter = ActiveSupport::ParameterFilter.new(filter_params)
     rescue
       nil
     end
 
+    def rails_parameter_filter_requires_full_tree_walk?
+      rails_parameter_filter
+      @parameter_filter_requires_full_tree_walk
+    end
+
+    def parameter_filter_requires_full_tree_walk?(filter_params)
+      filter_params.any? do |filter|
+        case filter
+        when Proc
+          true
+        when Regexp
+          filter.to_s.include?("\\.")
+        else
+          filter.to_s.include?(".")
+        end
+      end
+    end
+
     def reset_rails_parameter_filter_cache!
       @parameter_filter = nil
       @parameter_filter_config = nil
+      @parameter_filter_requires_full_tree_walk = false
     end
 
     def prepare_tags(tags)
@@ -76,15 +99,33 @@ module JsonLogging
       # Prevent excessive nesting
       return {"error" => "max_depth_exceeded"} if depth > MAX_DEPTH
 
-      # Limit hash size first
-      limited_hash = if hash.size > MAX_CONTEXT_SIZE
+      limited_hash = limited_hash_for_sanitization(hash)
+      fast_path_result = fast_path_sanitized_hash(limited_hash, depth: depth)
+      return fast_path_result if fast_path_result
+
+      sanitize_hash_with_filtering(limited_hash, depth: depth)
+    rescue
+      {"sanitization_error" => true}
+    end
+
+    def limited_hash_for_sanitization(hash)
+      if hash.size > MAX_CONTEXT_SIZE
         truncated = hash.first(MAX_CONTEXT_SIZE).to_h
         truncated["_truncated"] = true
         truncated
       else
         hash
       end
+    end
 
+    def fast_path_sanitized_hash(hash, depth: 0)
+      return sanitize_primitive_hash(hash) if primitive_log_hash?(hash)
+      return StructuredHash.sanitize(hash, depth: depth) if StructuredHash.structured_log_hash?(hash)
+
+      nil
+    end
+
+    def sanitize_hash_with_filtering(limited_hash, depth: 0)
       # Use Rails ParameterFilter if available (handles encrypted attributes automatically)
       filter = rails_parameter_filter
       if filter
@@ -106,15 +147,13 @@ module JsonLogging
 
           # Skip sensitive keys
           if SENSITIVE_KEY_PATTERNS.match?(key_string)
-            result[key_string.gsub(/(?<!^)(?=[A-Z])/, "_").downcase + "_filtered"] = "[FILTERED]"
+            result[sensitive_filtered_key_name(key_string)] = "[FILTERED]"
             next
           end
 
           result[key_string] = sanitize_value(value, depth: depth + 1)
         end
       end
-    rescue
-      {"sanitization_error" => true}
     end
 
     # Sanitize a value (handles strings, hashes, arrays, etc.)
@@ -171,6 +210,50 @@ module JsonLogging
     # Check if a key looks sensitive
     def sensitive_key?(key)
       SENSITIVE_KEY_PATTERNS.match?(key.to_s)
+    end
+
+    def primitive_log_hash?(hash)
+      hash.all? { |_key, value| primitive_log_value?(value) }
+    end
+
+    def primitive_log_value?(value)
+      case value
+      when String
+        value.length <= MAX_STRING_LENGTH && !value.match?(CONTROL_CHARS)
+      when Numeric, TrueClass, FalseClass, NilClass
+        true
+      else
+        false
+      end
+    end
+
+    def sanitize_primitive_hash(hash)
+      filter = rails_parameter_filter
+      if filter
+        stringified = stringify_primitive_hash(hash)
+        filter.filter(stringified.dup)
+      else
+        hash.each_with_object({}) do |(key, value), result|
+          key_string = key.to_s
+
+          if SENSITIVE_KEY_PATTERNS.match?(key_string)
+            result[sensitive_filtered_key_name(key_string)] = "[FILTERED]"
+            next
+          end
+
+          result[key_string] = value
+        end
+      end
+    end
+
+    def stringify_primitive_hash(hash)
+      hash.each_with_object({}) do |(key, value), result|
+        result[key.to_s] = value
+      end
+    end
+
+    def sensitive_filtered_key_name(key_string)
+      key_string.gsub(/(?<!^)(?=[A-Z])/, "_").downcase + "_filtered"
     end
   end
 end

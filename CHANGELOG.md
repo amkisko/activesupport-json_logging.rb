@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 1.2.3 (2026-07-13)
+
+- Reduce per-line work for plain string, hash, tagged, and context-scoped log messages on common shapes
+- Sanitize flat and nested structured hash payloads without deep-copying the source when values are logging-safe primitives
+- Reuse ISO8601 microsecond UTC timestamps when callers already supply them
+- Skip context merging when tags and additional context are both empty
+- Cache empty thread context as a frozen hash on the hot path
+- Expand hot-path contract specs for fast-path logging and sanitization
+- Encode large nested structured hash log lines in one pass with copy-on-write sanitization and JSON.generate instead of building a full sanitized tree first
+
 ## 1.2.2 (2026-07-08)
 
 - Isolate log context per execution via `ActiveSupport::IsolatedExecutionState` when available

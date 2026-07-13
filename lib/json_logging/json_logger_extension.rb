@@ -25,7 +25,7 @@ module JsonLogging
       line = LineEncoder.build_line(
         msg: msg,
         severity: severity,
-        timestamp: Helpers.normalize_timestamp(Helpers.current_time),
+        timestamp: Helpers.current_timestamp,
         tags: formatter.current_tags,
         additional_context: JsonLogging.additional_context_for_payload,
         additional_context_sanitized: true,
@@ -78,7 +78,7 @@ module JsonLogging
     def write_add_fallback(severity, msg, error)
       msg ||= "<uninitialized>"
       fallback = {
-        timestamp: Helpers.normalize_timestamp(Helpers.current_time),
+        timestamp: Helpers.current_timestamp,
         severity: Severity.name_for(severity),
         message: Sanitizer.sanitize_string(Helpers.safe_string(msg)),
         logger_error: {
