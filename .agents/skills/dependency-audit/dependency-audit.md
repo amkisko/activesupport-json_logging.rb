@@ -11,7 +11,7 @@ Evidence-first. List exact commands, queries, and URLs consulted. Never claim ad
 - no drive-by dependency hunts when the task is unrelated;
 - separate hot-path findings from dev-only lag;
 - label OSINT inference (stars, issue ratios, maintainer overlap) as heuristic with confidence;
-- findings for `docs/issues/` or `docs/dependencies/`: plain prose per docs conventions.
+- findings for `usr/docs/issues/` or `usr/docs/dependencies/`: plain prose per docs conventions.
 
 ## Role
 
@@ -196,7 +196,7 @@ Call out missing gates explicitly. Automation does not replace Pass 0 recon for 
 
 ## Relationship to dependency-issues
 
-During implementation work, record clear upstream defects under `docs/dependencies/` per the dependency-issues prayer. This audit pass is proactive graph review with recon; dependency-issues is reactive evidence from real tasks.
+During implementation work, record clear upstream defects under `usr/docs/dependencies/` per the dependency-issues prayer. This audit pass is proactive graph review with recon; dependency-issues is reactive evidence from real tasks.
 
 ## Ignore
 

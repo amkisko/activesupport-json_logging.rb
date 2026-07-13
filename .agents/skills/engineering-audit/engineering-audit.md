@@ -10,7 +10,7 @@ Structured finding fields stay as specified below. Free-form audit text stays bl
 - no negation-first hooks; state the fact and move on;
 - do not repeat the same claim in positive and negative form in adjacent lines;
 - prefer commas, colons, semicolons, and full stops over em dashes;
-- findings destined for `docs/issues/`: plain prose, no markdown tables, bold, italic, or other styling unless the repository explicitly allows it.
+- findings destined for `usr/docs/issues/`: plain prose, no markdown tables, bold, italic, or other styling unless the repository explicitly allows it.
 
 ## Role
 

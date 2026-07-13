@@ -1,23 +1,23 @@
 ---
 name: changelog-update
-description: Update CHANGELOG.md and docs/changelogs in amkisko house style. Use when editing changelogs, preparing releases, or syncing engineering notes into product-facing release text.
+description: Update CHANGELOG.md and usr/docs/changelogs in amkisko house style. Use when editing changelogs, preparing releases, or syncing engineering notes into product-facing release text.
 ---
 
 # Changelog update
 
 ## Two layers
 
-1. `docs/changelogs/` — engineering draft: intent, reproduction steps, implementation notes, pull request links.
+1. `usr/docs/changelogs/` — engineering draft: intent, reproduction steps, implementation notes, pull request links.
 2. `CHANGELOG.md` — product-facing release notes: describe what people see and can do, not how it is built.
 
-File name for new engineering notes: `docs/changelogs/#{YYYYMMDDHHMMSS}_<title>.md` with kebab-case title.
+File name for new engineering notes: `usr/docs/changelogs/#{YYYYMMDDHHMMSS}_<title>.md` with kebab-case title.
 
 ## Audience split
 
 | Layer | Reader | Voice |
 |-------|--------|-------|
 | `CHANGELOG.md` | users, operators, product owners | outcome, screen, workflow; plain language |
-| `docs/changelogs/` | engineers and reviewers | classes, files, trade-offs, links |
+| `usr/docs/changelogs/` | engineers and reviewers | classes, files, trade-offs, links |
 
 `CHANGELOG.md` may name an operator surface when that is the user-visible place, but still describe the workflow benefit, not internal adapter or job names.
 
@@ -25,7 +25,7 @@ File name for new engineering notes: `docs/changelogs/#{YYYYMMDDHHMMSS}_<title>.
 
 - user-visible features, fixes, and breaking behavior: yes;
 - library upgrades, internal refactors, dev-only tooling: no unless they change a public contract or operator workflow users rely on;
-- do not invent behavior; gather facts from `docs/changelogs/`, git diff, or commits since the last release tag.
+- do not invent behavior; gather facts from `usr/docs/changelogs/`, git diff, or commits since the last release tag.
 
 ## CHANGELOG.md shape
 
@@ -49,7 +49,7 @@ Rules:
 
 ## Workflow
 
-1. capture engineering detail in `docs/changelogs/` when the change is significant enough to mention;
+1. capture engineering detail in `usr/docs/changelogs/` when the change is significant enough to mention;
 2. distill user-visible outcomes into `CHANGELOG.md` when cutting a release;
 3. read once for marketing odor, once for negation-led sentences, once for stray em dashes;
 4. keep version headings and release tags aligned when the repository uses tagged releases.

@@ -18,15 +18,17 @@ To change shared guidance, update `Prayfile` and run `pray install`.
 - keep the idea that code reflects user experience, so readability, structure, and clarity are product qualities, not optional polish;
 - pull request description should include answers to questions: what problem is solved, why it matters, how the solution works, and any relevant context; if the change is non-trivial, include reproduction steps or a changelog entry with intent;
 - pull request checklist: changelog entry with intent or reproduction steps when relevant, test coverage, and quality checks done;
-- suggest updating docs/changelog with a short summary and PR link only when the change is significant enough to be mentioned; changelog files should use `docs/changelogs/#{date +"%Y%m%d%H%M%S"}_<title>.md`;
-- when documenting ideas, issues, user requests, new features, bugfixes, chores, etc., use `docs/issues/#{date +"%Y%m%d%H%M%S"}_<title>.md`;
+- suggest updating usr/docs/changelogs with a short summary and PR link only when the change is significant enough to be mentioned; changelog files should use `usr/docs/changelogs/#{date +"%Y%m%d%H%M%S"}_<title>.md`;
+- when documenting ideas, issues, user requests, new features, bugfixes, chores, etc., use `usr/docs/issues/#{date +"%Y%m%d%H%M%S"}_<title>.md`;
 - validation output must list exact commands run and observed results, and never claim tests pass unless they were executed and passed;
 - ignore style-only dust unless it harms correctness, operability, maintainability, or auditability under realistic load.
 <!-- pray:5ef025d3 -->
 
 <!-- pray:9f724d55 -->
-- docs under `docs/issues`, `docs/plan`, `docs/changelogs`, `docs/meetings`, and `docs/dependencies` use `YYYYMMDDHHMMSS_<kebab-case-title>.md`; no README index in those trees;
-- any doc in those trees should make five things findable (use `##` headings or equivalent; omit empty sections): **Participants** (who was involved), **Decisions** (what was agreed), **Effects** (done, failed, recovered, rolled back), **Next** (todo, planned, open questions), **Source** (links upstream—meeting, issue, PR, commit—and downstream materializations); git history is the edit log; add an explicit note only when a later pass changes meaning (scope cut, rollback, decision reversed);
+- `docs/` is for human-facing documentation: setup guides, architecture, migration notes, and operator material meant for users and contributors without agent context; use stable descriptive filenames;
+- `usr/docs/` is for durable agent and engineering trace alongside other project-local operator surfaces under `usr/`; keep inference input (AGENTS.md, `.agents/`) separate from human docs;
+- trace files under `usr/docs/issues`, `usr/docs/plan`, `usr/docs/changelogs`, `usr/docs/meetings`, `usr/docs/dependencies`, `usr/docs/tasks`, and `usr/docs/ideas` use `YYYYMMDDHHMMSS_<kebab-case-title>.md`; no README index in those trees;
+- any doc in those trace trees should make five things findable (use `##` headings or equivalent; omit empty sections): **Participants** (who was involved), **Decisions** (what was agreed), **Effects** (done, failed, recovered, rolled back), **Next** (todo, planned, open questions), **Source** (links upstream—meeting, issue, PR, commit—and downstream materializations); git history is the edit log; add an explicit note only when a later pass changes meaning (scope cut, rollback, decision reversed);
 <!-- pray:9f724d55 -->
 
 <!-- pray:062b8a8e -->
@@ -34,7 +36,7 @@ To change shared guidance, update `Prayfile` and run `pray install`.
 
 When work surfaces a clearly visible bug or defect in a dependency — wrong behavior, broken API contract, regression between versions, or a fix already merged upstream but not released — say so in the task output and suggest a concrete fix path: upgrade, pin, patch, vendor, workaround, or upstream report.
 
-Store evidence under `docs/dependencies/#{YYYYMMDDHHMMSS}_<kebab-case-title>.md`; no README index in that tree. Each file should make these findable (use `##` headings or equivalent; omit empty sections): **Dependency** (name, version constraint, lockfile entry if any), **Symptom** (what breaks and where), **Evidence** (repro steps, logs, stack traces, links to issues or commits), **Suggested fix** (upgrade, pin, patch, workaround, or upstream report), **Next** (todo, planned, open questions), **Source** (links upstream—issue, PR, release note, commit—and downstream materializations in this repo). Git history is the edit log.
+Store evidence under `usr/docs/dependencies/#{YYYYMMDDHHMMSS}_<kebab-case-title>.md`; no README index in that tree. Each file should make these findable (use `##` headings or equivalent; omit empty sections): **Dependency** (name, version constraint, lockfile entry if any), **Symptom** (what breaks and where), **Evidence** (repro steps, logs, stack traces, links to issues or commits), **Suggested fix** (upgrade, pin, patch, workaround, or upstream report), **Next** (todo, planned, open questions), **Source** (links upstream—issue, PR, release note, commit—and downstream materializations in this repo). Git history is the edit log.
 
 Do not open drive-by dependency hunts; record only issues encountered while doing the requested work and only when the defect is evident from behavior or published upstream facts, not speculation.
 
@@ -181,7 +183,7 @@ Examples:
 ## Writing and changelog prose checks
 
 Read once for marketing odor, once for negation-led sentences, once for stray em dashes, and once for paragraphs that break on clause instead of on scene; keep live notes and metadata honest and plain.
-- repo docs under docs/issues, docs/tasks, and docs/changelogs: plain prose readable without a rendered preview—no markdown tables, bold, italic, or other styling; prioritize factual accuracy over presentation.
+- repo trace under usr/docs/issues, usr/docs/tasks, and usr/docs/changelogs: plain prose readable without a rendered preview—no markdown tables, bold, italic, or other styling; prioritize factual accuracy over presentation.
 <!-- pray:c7597e52 -->
 
 <!-- pray:8cf2baf2 -->
@@ -203,7 +205,8 @@ Verify the change is wanted, discuss first for unconfirmed larger features, desc
 <!-- pray:0b30e782 -->
 ## Collaboration workflow
 
-- keep durable project context in `docs/`; use folders such as `docs/changelog`, `docs/ideas`, and `docs/tasks`;
+- keep human-facing documentation in `docs/`;
+- keep durable agent and engineering trace in `usr/docs/`; use folders such as `usr/docs/changelogs`, `usr/docs/issues`, `usr/docs/plan`, `usr/docs/tasks`, and `usr/docs/ideas`;
 - agent-assisted work with ongoing project value must leave a trace in the repo;
 - store only specific, decision-bearing, high-signal material; do not commit generic notes, copied chat logs, or filler;
 - use the lightest process that preserves traceability; design-only work does not need branch ceremony unless implementation work starts.
