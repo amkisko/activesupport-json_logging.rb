@@ -6,13 +6,6 @@ Structured JSON logging for Rails and ActiveSupport with a safe, single-line for
 No dependencies beyond Rails and Activesupport.
 Supports Rails versions from 6 to 8.
 
-Sponsored by [Kisko Labs](https://www.kiskolabs.com).
-
-<a href="https://www.kiskolabs.com">
-  <img src="kisko.svg" width="200" alt="Sponsored by Kisko Labs" />
-</a>
-
-
 ## Installation
 
 Add to your Gemfile:
@@ -710,4 +703,12 @@ gem push activesupport-json_logging-*.gem
 ## License
 
 The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
+
+## Sponsors
+
+Sponsored by [Kisko Labs](https://www.kiskolabs.com).
+
+<a href="https://www.kiskolabs.com">
+  <img src="kisko.svg" width="200" alt="Sponsored by Kisko Labs" />
+</a>
 
