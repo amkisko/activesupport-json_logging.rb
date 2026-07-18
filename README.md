@@ -1,6 +1,6 @@
 # activesupport-json_logging
 
-[![Gem Version](https://badge.fury.io/rb/activesupport-json_logging.svg)](https://badge.fury.io/rb/activesupport-json_logging) [![Test Status](https://github.com/amkisko/activesupport-json_logging.rb/actions/workflows/test.yml/badge.svg)](https://github.com/amkisko/activesupport-json_logging.rb/actions/workflows/test.yml) [![codecov](https://codecov.io/gh/amkisko/activesupport-json_logging.rb/graph/badge.svg?token=UX80FTO0Y0)](https://codecov.io/gh/amkisko/activesupport-json_logging.rb) [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=amkisko_activesupport-json_logging.rb&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=amkisko_activesupport-json_logging.rb)
+[![Gem Version](https://badge.fury.io/rb/activesupport-json_logging.svg)](https://badge.fury.io/rb/activesupport-json_logging) [![Test Status](https://github.com/amkisko/activesupport-json_logging.rb/actions/workflows/test.yml/badge.svg)](https://github.com/amkisko/activesupport-json_logging.rb/actions/workflows/test.yml) [![codecov](https://codecov.io/gh/amkisko/activesupport-json_logging.rb/graph/badge.svg?token=UX80FTO0Y0)](https://app.codecov.io/github/amkisko/activesupport-json_logging.rb) [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=amkisko_activesupport-json_logging.rb&metric=alert_status)](https://sonarcloud.io/project/overview?id=amkisko_activesupport-json_logging.rb)
 
 Structured JSON logging for Rails and ActiveSupport with a safe, single-line formatter.
 No dependencies beyond Rails and Activesupport.
@@ -651,6 +651,19 @@ rm activesupport-json_logging-*.gem
 gem build activesupport-json_logging.gemspec
 gem push activesupport-json_logging-*.gem
 ```
+
+## Links
+
+- [GitHub](https://github.com/amkisko/activesupport-json_logging.rb)
+- [GitLab](https://gitlab.com/amkisko/activesupport-json_logging.rb)
+- [RubyGems](https://rubygems.org/gems/activesupport-json_logging)
+- [Versions Atom](https://rubygems.org/gems/activesupport-json_logging/versions.atom) (feed id `9801944970071`)
+- [libraries.io](https://libraries.io/rubygems/activesupport-json_logging)
+- [Deps.dev](https://deps.dev/rubygems/activesupport-json_logging)
+- [SonarCloud](https://sonarcloud.io/project/overview?id=amkisko_activesupport-json_logging.rb)
+- [Snyk](https://snyk.io/test/github/amkisko/activesupport-json_logging.rb)
+- [Codecov](https://app.codecov.io/github/amkisko/activesupport-json_logging.rb)
+- [OpenSSF Scorecard](https://scorecard.dev/viewer/?uri=github.com/amkisko/activesupport-json_logging.rb)
 
 ## License
 

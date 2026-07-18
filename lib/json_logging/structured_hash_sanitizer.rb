@@ -1,7 +1,7 @@
 module JsonLogging
   module Sanitizer
     module StructuredHash
-      JsonableResult = Struct.new(:tree, :owned, :leaf_count)
+      JsonableResult = Struct.new(:tree, :owned, :leaf_count, keyword_init: true)
 
       module_function
 
@@ -99,14 +99,14 @@ module JsonLogging
         when String
           leaf_counter[0] += 1 if leaf_counter
           sanitized = Sanitizer.sanitize_string(value)
-          JsonableResult.new(tree: sanitized, owned: sanitized != value)
+          JsonableResult.new(tree: sanitized, owned: sanitized != value, leaf_count: nil)
         when Hash
           jsonable_tree(value, depth: depth + 1, seen: seen, parent_key: parent_key, leaf_counter: leaf_counter)
         when Array
           jsonable_array(value, depth: depth, seen: seen, parent_key: parent_key, leaf_counter: leaf_counter)
         else
           leaf_counter[0] += 1 if leaf_counter
-          JsonableResult.new(tree: value, owned: false)
+          JsonableResult.new(tree: value, owned: false, leaf_count: nil)
         end
       end
 
@@ -123,7 +123,7 @@ module JsonLogging
           result[index] = child.tree
         end
 
-        JsonableResult.new(tree: owned ? result : array, owned: owned)
+        JsonableResult.new(tree: owned ? result : array, owned: owned, leaf_count: nil)
       end
 
       def process_jsonable_entry(key, value, depth:, seen:, parent_key:, omit_keys:, leaf_counter:)
