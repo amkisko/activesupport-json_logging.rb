@@ -131,7 +131,7 @@ module JsonLogging
       if filter
         # ParameterFilter will filter based on Rails.config.filter_parameters
         # This includes encrypted attributes automatically
-        # Create a deep copy since filter modifies in place (Rails 6+)
+        # Create a deep copy since filter modifies in place
         filtered = limited_hash.respond_to?(:deep_dup) ? limited_hash.deep_dup : limited_hash.dup
         filtered = filter.filter(filtered)
 

@@ -8,18 +8,16 @@ module JsonLogging
 
     def initialize(*args, **kwargs)
       # Initialize with minimal args to avoid ActiveSupport::Logger threading issues
-      # Rails 7+ supports kwargs, Rails 6 uses positional args only
       logdev = args.first || $stdout
       shift_age = args[1] || 0
       shift_size = args[2]
 
-      # Handle both positional and keyword arguments for Rails 6-8 compatibility
+      # Handle both positional and keyword arguments for Rails 7–8 compatibility
       if kwargs.empty? && shift_size
         super(logdev, shift_age, shift_size)
       elsif kwargs.empty?
         super(logdev, shift_age)
       else
-        # Rails 7+ may pass kwargs - delegate to parent
         super
       end
 

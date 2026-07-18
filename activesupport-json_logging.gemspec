@@ -7,14 +7,14 @@ Gem::Specification.new do |spec|
   spec.email = ["contact@kiskolabs.com"]
 
   spec.summary = "Structured JSON logging for Rails/ActiveSupport with safe, single-line entries."
-  spec.description = "Lightweight JSON logger and formatter integrating with Rails/ActiveSupport. No extra deps beyond Rails/Activesupport. Compatible with Rails 6–8."
+  spec.description = "Lightweight JSON logger and formatter integrating with Rails/ActiveSupport. No extra deps beyond Rails/Activesupport. Compatible with Rails 7–8."
   spec.homepage = "https://github.com/amkisko/activesupport-json_logging.rb"
   spec.license = "MIT"
 
   spec.files = Dir.chdir(File.expand_path(__dir__)) do
     Dir["lib/**/*", "sig/**/*", "README.md", "LICENSE*", "CHANGELOG.md"].select { |f| File.file?(f) }
   end
-  spec.required_ruby_version = ">= 2.7"
+  spec.required_ruby_version = ">= 3.2"
 
   spec.metadata = {
     "source_code_uri" => "https://github.com/amkisko/activesupport-json_logging.rb",
@@ -22,8 +22,8 @@ Gem::Specification.new do |spec|
     "bug_tracker_uri" => "https://github.com/amkisko/activesupport-json_logging.rb/issues"
   }
 
-  spec.add_runtime_dependency "activesupport", ">= 6.0", "< 9.0"
-  spec.add_runtime_dependency "railties", ">= 6.0", "< 9.0"
+  spec.add_runtime_dependency "activesupport", ">= 7.0", "< 9.0"
+  spec.add_runtime_dependency "railties", ">= 7.0", "< 9.0"
 
   spec.add_development_dependency "rspec", "~> 3"
   spec.add_development_dependency "polyrun", ">= 2.2.0"

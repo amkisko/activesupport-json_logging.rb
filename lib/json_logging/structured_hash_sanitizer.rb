@@ -1,7 +1,7 @@
 module JsonLogging
   module Sanitizer
     module StructuredHash
-      JsonableResult = Struct.new(:tree, :owned, :leaf_count, keyword_init: true)
+      JsonableResult = Struct.new(:tree, :owned, :leaf_count)
 
       module_function
 

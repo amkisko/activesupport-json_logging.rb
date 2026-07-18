@@ -2,8 +2,8 @@ PATH
   remote: .
   specs:
     activesupport-json_logging (1.2.2)
-      activesupport (>= 6.0, < 9.0)
-      railties (>= 6.0, < 9.0)
+      activesupport (>= 7.0, < 9.0)
+      railties (>= 7.0, < 9.0)
 
 GEM
   remote: https://rubygems.org/

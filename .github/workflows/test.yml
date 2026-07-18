@@ -5,6 +5,9 @@ on:
   push:
     branches: [main]
 
+permissions:
+  contents: read
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -13,8 +16,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - gemfile: rails6
-            ruby_version: "3.1"
           - gemfile: rails72
             ruby_version: "3.2"
           - gemfile: rails8ruby34

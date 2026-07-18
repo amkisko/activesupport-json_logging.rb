@@ -95,7 +95,7 @@ module JsonLogging
 
     def current_tags
       # Use IsolatedExecutionState (Rails 7.1+) for better thread/Fiber safety
-      # Falls back to Thread.current for Rails 6-7.0
+      # Falls back to Thread.current for Rails 7.0
       if defined?(ActiveSupport::IsolatedExecutionState)
         ActiveSupport::IsolatedExecutionState[tags_key] ||= []
       else
@@ -105,7 +105,7 @@ module JsonLogging
 
     def set_tags(new_tags)
       # Use IsolatedExecutionState (Rails 7.1+) for better thread/Fiber safety
-      # Falls back to Thread.current for Rails 6-7.0
+      # Falls back to Thread.current for Rails 7.0
       if defined?(ActiveSupport::IsolatedExecutionState)
         ActiveSupport::IsolatedExecutionState[tags_key] = new_tags
       else

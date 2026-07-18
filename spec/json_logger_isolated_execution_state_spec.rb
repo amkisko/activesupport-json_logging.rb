@@ -99,7 +99,7 @@ RSpec.describe JsonLogging::JsonLogger do
       end
     end
 
-    it "falls back to Thread.current for Rails 6-7.0", :aggregate_failures do
+    it "falls back to Thread.current for Rails 7.0", :aggregate_failures do
       # When IsolatedExecutionState is not available, should use Thread.current
       logger.tagged("FALLBACK") do
         tags = logger.send(:current_tags)
@@ -112,7 +112,7 @@ RSpec.describe JsonLogging::JsonLogger do
           stored = ActiveSupport::IsolatedExecutionState[key]
           expect(stored).to eq(["FALLBACK"]) if stored
         else
-          # Rails 6-7.0: Check Thread.current
+          # Rails 7.0: Check Thread.current
           stored = Thread.current[key]
           expect(stored).to eq(["FALLBACK"])
         end
@@ -137,7 +137,7 @@ RSpec.describe JsonLogging::JsonLogger do
 
   describe "backward compatibility" do
     it "works with Thread.current when IsolatedExecutionState unavailable" do
-      # Simulate Rails 6-7.0 behavior by ensuring Thread.current is used
+      # Simulate Rails 7.0 behavior by ensuring Thread.current is used
       logger.tagged("COMPAT") do
         logger.info("backward compatible")
       end

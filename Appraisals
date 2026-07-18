@@ -1,8 +1,3 @@
-appraise "rails6" do
-  gem "activesupport", "~> 6.1"
-  gem "railties", "~> 6.1"
-end
-
 appraise "rails72" do
   gem "activesupport", "~> 7.2"
   gem "railties", "~> 7.2"

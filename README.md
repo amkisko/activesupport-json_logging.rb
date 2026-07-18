@@ -4,7 +4,7 @@
 
 Structured JSON logging for Rails and ActiveSupport with a safe, single-line formatter.
 No dependencies beyond Rails and Activesupport.
-Supports Rails versions from 6 to 8.
+Supports Ruby 3.2+ and Rails 7–8.
 
 ## Installation
 
@@ -589,7 +589,7 @@ This is useful for:
 - Temporary verbose logging in background jobs
 - Per-request log level changes
 
-**Note:** `local_level` is available in Rails 7.1+. In Rails 6-7.0, only the global `level` is available.
+**Note:** `local_level` is available in Rails 7.1+. In Rails 7.0, only the global `level` is available.
 
 #### Standard Logger Methods
 
