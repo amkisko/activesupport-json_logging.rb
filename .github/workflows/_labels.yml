@@ -15,13 +15,12 @@ jobs:
   update-labels:
     runs-on: ubuntu-latest
     steps:
-      - uses: mschilde/auto-label-merge-conflicts@master
+      - uses: mschilde/auto-label-merge-conflicts@5981f8933e92b78098af86b9e33fe0871cc7a3be # v2.0
         with:
           CONFLICT_LABEL_NAME: has conflicts
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MAX_RETRIES: 5
           WAIT_MS: 5000
-      - uses: actions/labeler@v6
+      - uses: actions/labeler@b8dd2d9be0f68b860e7dae5dae7d772984eacd6d # v6.2.0
         with:
           repo-token: "${{ secrets.GITHUB_TOKEN }}"
-
