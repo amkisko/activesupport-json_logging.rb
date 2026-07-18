@@ -1,3 +1,8 @@
 module JsonLogging
   VERSION: String
+
+  class EventSubscriber
+    def initialize: (?logger: untyped, ?io: untyped) -> void
+    def emit: (untyped event) -> void
+  end
 end

@@ -46,6 +46,7 @@ end
 - Native `tagged` method support - use it just like Rails' tagged logger
 - Service-specific tagged loggers - create loggers with permanent tags using `logger.tagged("service")` without a block
 - Full compatibility with `ActiveSupport::BroadcastLogger` (Rails 7.1+)
+- Opt-in `JsonLogging::EventSubscriber` for Rails 8.1 `ActiveSupport::EventReporter` / `Rails.event`
 - Automatic Rails integration via Railtie (auto-requires the gem in Rails apps)
 
 ## Basic usage
@@ -130,6 +131,37 @@ api_logger = base_logger.tagged("api")
 redis_logger.info("Connected to Redis")  # Tagged with "redis"
 sidekiq_logger.info("Job enqueued")      # Tagged with "sidekiq"
 api_logger.info("Request received")      # Tagged with "api"
+```
+
+### Rails 8.1 Event Reporter
+
+Rails 8.1 adds `Rails.event` (`ActiveSupport::EventReporter`) for structured events that complement `Rails.logger`. Setting `config.logger` to a `JsonLogging` logger does not subscribe you to events. Register a subscriber:
+
+```ruby
+# config/initializers/json_logging.rb
+subscriber = JsonLogging::EventSubscriber.new(logger: -> { Rails.logger })
+Rails.event.subscribe(subscriber)
+
+# Optional: only a subset of events
+Rails.event.subscribe(subscriber) { |event| event[:name].start_with?("app.") }
+```
+
+Pass either `logger:` or `io:`, not both. A callable `logger:` is resolved on each emit (the Railtie opt-in uses this so a later `Rails.logger=` swap is picked up).
+
+Or enable the Railtie opt-in (off by default):
+
+```ruby
+# config/application.rb or an environment file
+config.json_logging.subscribe_event_reporter = true
+```
+
+The subscriber writes one JSON line per event and keeps the Rails event shape (`name`, `payload`, `tags`, `context`, `timestamp`, `source_location`). It writes through `Logger#<<` so the logger formatter does not wrap the event again. Payload and tag objects that implement `#serialize` are encoded via that method. Encode and write failures never raise from `#emit`.
+
+```ruby
+Rails.event.set_context(request_id: "abc123")
+Rails.event.tagged("billing") do
+  Rails.event.notify("invoice.created", invoice_id: 3)
+end
 ```
 
 ### BroadcastLogger integration
@@ -459,6 +491,16 @@ formatter.call("INFO", Time.now, nil, "message")  # Output includes both tags
 ```
 
 **Note:** When used with a logger (via `JsonLogging.new`), the logger uses `FormatterWithTags` which automatically includes tags from the logger's tagged context. Use `Formatter` directly only when you need a standalone formatter without a logger instance.
+
+### JsonLogging::EventSubscriber
+
+Rails 8.1+ subscriber for `ActiveSupport::EventReporter`. See [Rails 8.1 Event Reporter](#rails-81-event-reporter).
+
+```ruby
+subscriber = JsonLogging::EventSubscriber.new(logger: -> { Rails.logger })
+# or: JsonLogging::EventSubscriber.new(io: $stdout)
+Rails.event.subscribe(subscriber)
+```
 
 ### JsonLogging.with_context
 

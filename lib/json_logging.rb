@@ -12,6 +12,7 @@ require_relative "json_logging/formatter"
 require_relative "json_logging/formatter_with_tags"
 require_relative "json_logging/json_logger_extension"
 require_relative "json_logging/json_logger"
+require_relative "json_logging/event_subscriber"
 
 module JsonLogging
   THREAD_CONTEXT_KEY = :__json_logging_context

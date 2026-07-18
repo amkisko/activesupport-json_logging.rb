@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## Unreleased
+
+- Add opt-in `JsonLogging::EventSubscriber` for Rails 8.1 `ActiveSupport::EventReporter` / `Rails.event` structured events
+
 ## 1.2.3 (2026-07-13)
 
 - Reduce per-line work for plain string, hash, tagged, and context-scoped log messages on common shapes
