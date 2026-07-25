@@ -1,8 +1,8 @@
 # CHANGELOG
 
-## Unreleased
+## 1.3.0 (2026-07-25)
 
-- Require Ruby 3.2+ and Rails 7+ (drop Ruby 2.7–3.1 and Rails 6 support)
+- BREAKING: Require Ruby 3.2+ and Rails 7+ (drop Ruby 2.7–3.1 and Rails 6 support)
 - Add opt-in `JsonLogging::EventSubscriber` for Rails 8.1 `ActiveSupport::EventReporter` / `Rails.event` structured events
 
 ## 1.2.3 (2026-07-13)
