@@ -7,7 +7,7 @@ To change shared guidance, update `Prayfile` and run `pray install`.
 
 ## Shared instructions
 
-<!-- pray:5ef025d3 -->
+<!-- pray:9068e4a2 -->
 - when fixing or refactoring code, add or update tests first to expose the current bug/regression path (or missing contract), then implement the fix, then run focused and broader checks, and do not ship behavior changes without proving before/after via specs;
 - test only executable logic and user-facing behavior; tests should affect coverage metrics;
 - avoid tests that only assert implementation details; avoid file/page content/ordering/regex assertions; avoid duplicating tests;
@@ -22,16 +22,18 @@ To change shared guidance, update `Prayfile` and run `pray install`.
 - when documenting ideas, issues, user requests, new features, bugfixes, chores, etc., use `usr/docs/issues/#{date +"%Y%m%d%H%M%S"}_<title>.md`;
 - validation output must list exact commands run and observed results, and never claim tests pass unless they were executed and passed;
 - ignore style-only dust unless it harms correctness, operability, maintainability, or auditability under realistic load.
-<!-- pray:5ef025d3 -->
+<!-- pray:9068e4a2 -->
 
-<!-- pray:9f724d55 -->
+<!-- pray:bfe6ff38 -->
 - `docs/` is for human-facing documentation: setup guides, architecture, migration notes, and operator material meant for users and contributors without agent context; use stable descriptive filenames;
 - `usr/docs/` is for durable agent and engineering trace alongside other project-local operator surfaces under `usr/`; keep inference input (AGENTS.md, `.agents/`) separate from human docs;
 - trace files under `usr/docs/issues`, `usr/docs/plan`, `usr/docs/changelogs`, `usr/docs/meetings`, `usr/docs/dependencies`, `usr/docs/tasks`, and `usr/docs/ideas` use `YYYYMMDDHHMMSS_<kebab-case-title>.md`; no README index in those trees;
-- any doc in those trace trees should make five things findable (use `##` headings or equivalent; omit empty sections): **Participants** (who was involved), **Decisions** (what was agreed), **Effects** (done, failed, recovered, rolled back), **Next** (todo, planned, open questions), **Source** (links upstream—meeting, issue, PR, commit—and downstream materializations); git history is the edit log; add an explicit note only when a later pass changes meaning (scope cut, rollback, decision reversed);
-<!-- pray:9f724d55 -->
+- any doc in those trace trees should make five things findable (use `##` headings or equivalent; omit empty sections): **Participants** (humans only; omit agents, tools, and binaries), **Decisions** (what was agreed), **Effects** (done, failed, recovered, rolled back), **Next** (todo, planned, open questions), **Source** (links upstream—meeting, issue, PR, commit—and downstream materializations); git history is the edit log; add an explicit note only when a later pass changes meaning (scope cut, rollback, decision reversed);
+- mention software, tools, agents, or binaries in a note only when that detail is needed for execution or later analysis; put it under Decisions, Effects, or Source—not under Participants;
+- never put local absolute paths or private material in `docs/` or `usr/docs/`: no home-directory or machine-specific filesystem paths, secrets, credentials, tokens, API keys, or personal private data; prefer repository-relative paths;
+<!-- pray:bfe6ff38 -->
 
-<!-- pray:062b8a8e -->
+<!-- pray:edcc5f67 -->
 ## Dependency issues
 
 When work surfaces a clearly visible bug or defect in a dependency — wrong behavior, broken API contract, regression between versions, or a fix already merged upstream but not released — say so in the task output and suggest a concrete fix path: upgrade, pin, patch, vendor, workaround, or upstream report.
@@ -41,9 +43,9 @@ Store evidence under `usr/docs/dependencies/#{YYYYMMDDHHMMSS}_<kebab-case-title>
 Do not open drive-by dependency hunts; record only issues encountered while doing the requested work and only when the defect is evident from behavior or published upstream facts, not speculation.
 
 For proactive selection, alteration, and audit rules, use `dependency-policy` and the dependency-audit skill.
-<!-- pray:062b8a8e -->
+<!-- pray:edcc5f67 -->
 
-<!-- pray:33096566 -->
+<!-- pray:3ac5d6ce -->
 ## Dependency policy
 
 Rules for adding, changing, or removing third-party packages. Apply across languages (Ruby, Rust, Elixir, JavaScript, and others). Names vary by ecosystem; concepts do not.
@@ -99,16 +101,16 @@ Full dependency audits rely on deep recon and OSINT, not only lockfile scanners.
 - `dependency-issues` — record upstream defects encountered during real work; do not open drive-by hunts;
 - `minimal-implementation` — no new dependency when an existing path suffices;
 - `engineering-audit` — code and pipeline review; dependency-audit focuses on the supply graph.
-<!-- pray:33096566 -->
+<!-- pray:3ac5d6ce -->
 
-<!-- pray:7c468b51 -->
+<!-- pray:ad13bd27 -->
 - test coverage must follow @spec/README.md guidelines;
 - use ruby and Rails features according to the codebase versions;
 - follow ruby and Rails coding conventions, principles, and best practices;
 - never put data migrations in schema migrations, use the db/data_migrations pattern instead;
-<!-- pray:7c468b51 -->
+<!-- pray:ad13bd27 -->
 
-<!-- pray:b2a3d4d7 -->
+<!-- pray:bf7304a6 -->
 ## Minimal implementation
 
 Efficient means the smallest correct change, not careless or under-tested.
@@ -137,16 +139,16 @@ Not optional even when minimizing scope:
 - calibration against real hardware and production drift when the platform ideal is not the spec;
 - anything explicitly requested in the task or ticket;
 - tests for non-trivial behavior per @spec/README.md and the testing bullets above; trivial one-liners need no new spec.
-<!-- pray:b2a3d4d7 -->
+<!-- pray:bf7304a6 -->
 
-<!-- pray:2b9051df -->
+<!-- pray:120c3507 -->
 ## Finite state machines
 
 - model lifecycles with explicit finite state machines when status, allowed transitions, and side effects matter; prefer named states and guarded transitions over scattered conditionals and implicit enums alone;
 - finite state machines are not only for workflow logic: they can compactly represent ordered sets or maps of strings supporting fast prefix, suffix, and fuzzy search; consider tries and automata when matching catalogs, codes, routes, or searchable vocabularies at scale.
-<!-- pray:2b9051df -->
+<!-- pray:120c3507 -->
 
-<!-- pray:7317586a -->
+<!-- pray:26f3566a -->
 ## Branch naming
 
 Use kebab-case after the prefix.
@@ -166,9 +168,9 @@ Examples:
 - `trunk/2026-august-pack`
 - `plan/auth-redesign-notes`
 - `plan/2026-q2-roadmap`
-<!-- pray:7317586a -->
+<!-- pray:26f3566a -->
 
-<!-- pray:6aea78d0 -->
+<!-- pray:f528eeca -->
 ## Preferred stack and tools
 
 - native-first approach for all platforms and languages
@@ -177,16 +179,16 @@ Examples:
 - rust for system programming and performance-critical code
 - javascript, html, css for native browser experience
 - humane and accessible design principles for UI/UX, and for clear communication of intent and feedback
-<!-- pray:6aea78d0 -->
+<!-- pray:f528eeca -->
 
-<!-- pray:c7597e52 -->
+<!-- pray:ca94e22d -->
 ## Writing and changelog prose checks
 
 Read once for marketing odor, once for negation-led sentences, once for stray em dashes, and once for paragraphs that break on clause instead of on scene; keep live notes and metadata honest and plain.
 - repo trace under usr/docs/issues, usr/docs/tasks, and usr/docs/changelogs: plain prose readable without a rendered preview—no markdown tables, bold, italic, or other styling; prioritize factual accuracy over presentation.
-<!-- pray:c7597e52 -->
+<!-- pray:ca94e22d -->
 
-<!-- pray:8cf2baf2 -->
+<!-- pray:08c294fb -->
 ## Likely rejected changes
 
 - features whose complexity outweighs user value
@@ -194,15 +196,15 @@ Read once for marketing odor, once for negation-led sentences, once for stray em
 - non-trivial changes without tests
 - style-only rewrites without behavior change
 - AI-generated-looking code the author does not understand
-<!-- pray:8cf2baf2 -->
+<!-- pray:08c294fb -->
 
-<!-- pray:e662c764 -->
+<!-- pray:2543c1cc -->
 ## Checks before publish (engineering)
 
 Verify the change is wanted, discuss first for unconfirmed larger features, describe what problem is solved and why it matters, include tests, add screenshots or screen recordings for UI changes, keep one PR to one concern, and understand any AI-assisted code you submit.
-<!-- pray:e662c764 -->
+<!-- pray:2543c1cc -->
 
-<!-- pray:0b30e782 -->
+<!-- pray:48e8a6b3 -->
 ## Collaboration workflow
 
 - keep human-facing documentation in `docs/`;
@@ -210,9 +212,9 @@ Verify the change is wanted, discuss first for unconfirmed larger features, desc
 - agent-assisted work with ongoing project value must leave a trace in the repo;
 - store only specific, decision-bearing, high-signal material; do not commit generic notes, copied chat logs, or filler;
 - use the lightest process that preserves traceability; design-only work does not need branch ceremony unless implementation work starts.
-<!-- pray:0b30e782 -->
+<!-- pray:48e8a6b3 -->
 
-<!-- pray:5f23b29e -->
+<!-- pray:aa6c8f33 -->
 ## Shared prayers
 
 This project uses [pray](https://github.com/kiskolabs/pray) to install and lock shared inference input from the amkisko prayers distribution.
@@ -243,4 +245,4 @@ pray apply
 ```
 
 Distribution source for amkisko-wide packages: [amkisko/prayers](https://github.com/amkisko/prayers).
-<!-- pray:5f23b29e -->
+<!-- pray:aa6c8f33 -->
