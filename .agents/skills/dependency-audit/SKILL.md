@@ -1,20 +1,22 @@
 ---
 name: dependency-audit
-description: Audit third-party dependencies with advisory scans plus deep recon/OSINT. Use when asked to audit, review, or harden the dependency graph, lockfiles, or package manifests.
+description: >-
+  Select, alter, and audit third-party dependencies with advisory scans plus
+  deep recon/OSINT. Use when adding, replacing, or removing packages, or when
+  asked to audit, review, or harden the dependency graph, lockfiles, or
+  package manifests.
 ---
 
 # Dependency audit
 
-Use when asked for a dependency audit, supply-chain review, lockfile health check, or "are our dependencies safe and current?"
+Use when adding, changing, or removing a direct dependency, or when asked for a supply-chain review, lockfile health check, or whether dependencies are safe and current.
 
-Read `dependency-audit.md` in this skill directory for the recon workflow, three analytic passes, tier rules, heuristics, and output format.
+Read `references/selection-and-alteration.md` for prefer/reject rules, alteration checks, and automation. Read `references/dependency-audit.md` for recon workflow, analytic passes, tier rules, and output format.
 
 ## Quick reference
 
-Full audits combine local scans with external recon:
-
 ```text
-recon (OSINT) → security (advisories) → freshness (locked vs registry) → ecosystem synthesis
+stop-before-add → selection rules → recon (OSINT) → security → freshness → ecosystem synthesis
 ```
 
 Tool-only output (advisory scanner alone, outdated list alone) is a partial audit. State that explicitly when depth was limited.

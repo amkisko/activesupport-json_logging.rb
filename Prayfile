@@ -5,33 +5,38 @@ pray do
   security_email "security@kiskolabs.com"
 end
 
-source "amkisko", git: "https://github.com/amkisko/prayers", distribution: "prayers"
+source "amkisko", git: "https://github.com/amkisko/prayers.git", distribution: "prayers"
 
 compose "AGENTS.md" do
   pray ".agents/project.md"
-  pray "amkisko/working-rules", "~> 2.0"
-  pray "amkisko/docs-conventions", "~> 2.1"
-  pray "amkisko/dependency-issues", "~> 2.0"
-  pray "amkisko/dependency-policy", "~> 2.0", exports: ["dependency-policy", "skill"]
+  pray "amkisko/working-rules", "~> 2.1"
+  pray "amkisko/security", "~> 1.1"
+  pray "amkisko/docs-conventions", "~> 2.2"
+  pray "amkisko/dependency-issues", "~> 2.1"
+  pray "amkisko/dependency-policy", "~> 3.1"
   pray "amkisko/ruby-conventions", "~> 1.0"
-  pray "amkisko/minimal-implementation", "~> 1.0"
-  pray "amkisko/finite-state-machines", "~> 1.0"
+  pray "amkisko/minimal-implementation", "~> 1.1"
+  pray "amkisko/finite-state-machines", "~> 1.1"
   pray "amkisko/branch-naming", "~> 1.0"
-  pray "amkisko/preferred-stack", "~> 1.0"
-  pray "amkisko/writing-prose", "~> 2.0"
+  pray "amkisko/preferred-stack", "~> 1.3"
+  pray "amkisko/io-simulation", "~> 1.1"
+  pray "amkisko/writing-prose", "~> 3.3"
+  pray "amkisko/claims-audit", "~> 1.0"
+  pray "amkisko/rfc-process", "~> 1.2"
   pray "amkisko/rejected-changes", "~> 1.0"
   pray "amkisko/publish-checks", "~> 1.0"
-  pray "amkisko/collaboration-workflow", "~> 2.0"
-  pray "amkisko/getting-started", "~> 1.0"
+  pray "amkisko/collaboration-workflow", "~> 2.1"
 end
 
 tree ".agents/skills" do
-  pray "amkisko/dependency-policy", "~> 2.0", exports: ["dependency-policy", "skill"]
-  pray "amkisko/engineering-audit", "~> 2.0"
-  pray "amkisko/changelog-update", "~> 2.0"
+  pray "amkisko/dependency-policy", "~> 3.1"
+  pray "amkisko/engineering-audit", "~> 2.5"
+  pray "amkisko/changelog-update", "~> 2.1"
+  pray "amkisko/claims-audit", "~> 1.0"
+  pray "amkisko/rfc-process", "~> 1.2"
 end
 
 pray "amkisko/community-security", "~> 1.1", file: "SECURITY.md"
 pray "amkisko/community-code-of-conduct", "~> 1.1", file: "CODE_OF_CONDUCT.md"
-pray "amkisko/community-governance", "~> 1.0", file: "GOVERNANCE.md"
-pray "amkisko/community-contributing", "~> 1.0", file: "CONTRIBUTING.md"
+pray "amkisko/community-governance", "~> 1.1", file: "GOVERNANCE.md"
+pray "amkisko/community-contributing", "~> 1.1", file: "CONTRIBUTING.md"

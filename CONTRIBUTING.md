@@ -1,29 +1,23 @@
 # Contributing Guidelines
 
-Thank you for your interest in contributing. We value learning over perfection but require rigor and responsibility.
+## Automation authorship
 
-## The Golden Rule of Automation
+You may use AI and automation tools. You remain the author of every line you submit: review, debug, and understand the change.
 
-We welcome the use of AI and automation tools to reduce toil, but you must strictly adhere to the following:
+Keep pull requests small enough to review. Annotate non-obvious logic.
 
-1. You are the Author: You act as the responsible agent for any code you submit. You must review, debug, and understand every line.
-2. Manage Cognitive Load: Do not submit massive, unreviewed automated dumps. Respect the reviewers' time by annotating complex logic.
-3. Security: Never feed project secrets or private context into public AI models.
+Never send project secrets or private context to public models.
 
-## How to Contribute
+## How to contribute
 
-### 1. Reporting Issues
+### Reporting issues
 
-- Verify Accuracy: Before posting, verify your information. Avoid generalizations.
-- Use Structured Inputs: Use issue templates to provide clear goals, constraints, and reproduction steps. This helps us understand the context immediately.
+Verify the facts before filing. Use issue templates for goals, constraints, and reproduction steps.
 
-### 2. Pull Request Process
+### Pull requests
 
-- Scope: Keep PRs focused on a single goal.
-- Context: Explain why the change is necessary. Transparency builds trust.
-- Testing: Run all smoke tests and regression checks locally. We prioritize safety first.
+Keep one pull request to one goal. Explain why the change is needed. Run smoke tests and regression checks locally before opening the request.
 
-### 3. Review Process
+### Review
 
-- We encourage productive friction. Expect questions about your approach.
-- If a reviewer suggests a change, view it as mutual aid, not criticism.
+Reviewers will ask about approach and trade-offs. Treat suggested changes as part of the work.
