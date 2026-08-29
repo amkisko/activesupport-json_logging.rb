@@ -13,7 +13,7 @@ compose "AGENTS.md" do
   pray "amkisko/security", "~> 1.1"
   pray "amkisko/docs-conventions", "~> 2.2"
   pray "amkisko/dependency-issues", "~> 2.1"
-  pray "amkisko/dependency-policy", "~> 3.1"
+  pray "amkisko/dependency-policy", "~> 3.2"
   pray "amkisko/ruby-conventions", "~> 1.0"
   pray "amkisko/minimal-implementation", "~> 1.1"
   pray "amkisko/finite-state-machines", "~> 1.1"
@@ -29,14 +29,14 @@ compose "AGENTS.md" do
 end
 
 tree ".agents/skills" do
-  pray "amkisko/dependency-policy", "~> 3.1"
-  pray "amkisko/engineering-audit", "~> 2.5"
+  pray "amkisko/dependency-policy", "~> 3.2"
+  pray "amkisko/engineering-audit", "~> 2.6"
   pray "amkisko/changelog-update", "~> 2.1"
   pray "amkisko/claims-audit", "~> 1.0"
   pray "amkisko/rfc-process", "~> 1.2"
 end
 
-pray "amkisko/community-security", "~> 1.1", file: "SECURITY.md"
-pray "amkisko/community-code-of-conduct", "~> 1.1", file: "CODE_OF_CONDUCT.md"
+pray "amkisko/community-security", "~> 1.2", file: "SECURITY.md"
+pray "amkisko/community-code-of-conduct", "~> 1.2", file: "CODE_OF_CONDUCT.md"
 pray "amkisko/community-governance", "~> 1.1", file: "GOVERNANCE.md"
 pray "amkisko/community-contributing", "~> 1.1", file: "CONTRIBUTING.md"

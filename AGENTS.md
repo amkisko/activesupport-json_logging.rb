@@ -15,7 +15,7 @@ To change shared guidance, update `Prayfile` and run `pray install`.
 - prefer files around <=150 LOC when cohesion allows, but never split coherent logic purely to satisfy line count; split only when it improves ownership, readability, and reviewability;
 - do not use abbreviations and short names for variables, methods, classes, etc. unless it is a very common abbreviation or short name;
 - avoid explanatory comments, but allow intent comments for non-obvious constraints, invariants, concurrency edges, or external contract requirements;
-- keep the idea that code reflects user experience, so readability, structure, and clarity are product qualities, not optional polish;
+- keep the idea that code reflects user experience, so readability, structure, and clarity are product qualities;
 - pull request description should include answers to questions: what problem is solved, why it matters, how the solution works, and any relevant context; if the change is non-trivial, include reproduction steps or a changelog entry with intent;
 - pull request checklist: changelog entry with intent or reproduction steps when relevant, test coverage, and quality checks done;
 - follow docs-conventions for usr/docs trace filenames and layout;
@@ -92,7 +92,7 @@ Related: `dependency-issues` records upstream defects found during real work; `m
 <!-- pray:bf7304a6 -->
 ## Minimal implementation
 
-Efficient means the smallest correct change, not careless or under-tested.
+Efficient means the smallest correct change.
 
 Before writing code, stop at each step until one applies:
 - does the feature need to exist at all (YAGNI)?
@@ -126,7 +126,7 @@ Related: `keep-the-work` covers staying on the failed place and keeping answers 
 ## Finite state machines
 
 - model lifecycles with explicit finite state machines when status, allowed transitions, and side effects matter; prefer named states and guarded transitions over scattered conditionals and implicit enums alone;
-- finite state machines are not only for workflow logic: they can compactly represent ordered sets or maps of strings supporting fast prefix, suffix, and fuzzy search; consider tries and automata when matching catalogs, codes, routes, or searchable vocabularies at scale;
+- finite state machines can compactly represent ordered sets or maps of strings supporting fast prefix, suffix, and fuzzy search; consider tries and automata when matching catalogs, codes, routes, or searchable vocabularies at scale;
 - when digital reported state and physical process state can diverge, name both machines and the observation that couples them; occupancy listing is not the lock; a reported identity is not the person or sample at the station.
 
 Related: `engineering-audit` boundary mode asks when those states disagree without an alarm; `io-simulation` injects the faults that cause the split.
@@ -226,7 +226,12 @@ Claim `rfcs/ids/NNNN` before writing `rfcs/NNNN-slug.md`. Copy `rfcs/0000-templa
 <!-- pray:2543c1cc -->
 ## Checks before publish (engineering)
 
-Verify the change is wanted, discuss first for unconfirmed larger features, describe what problem is solved and why it matters, include tests, add screenshots or screen recordings for UI changes, keep one PR to one concern, and understand any AI-assisted code you submit.
+- verify the change is wanted; discuss first for unconfirmed larger features
+- describe what problem is solved and why it matters
+- include tests
+- add screenshots or screen recordings for UI changes
+- keep one pull request to one concern
+- understand any AI-assisted code you submit
 <!-- pray:2543c1cc -->
 
 <!-- pray:48e8a6b3 -->

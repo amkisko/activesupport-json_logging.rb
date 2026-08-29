@@ -1,6 +1,10 @@
 # Engineering audit (pipeline + evidence)
 
-Use when asked for an engineering audit, systems review, hot-path analysis, Big-O review, pipeline-style inspection, resource and budget review, or trace and identification review. When the system talks to external services, devices, operators, or physical actuators, also run boundary and control mode below. For every tree that can execute, also run resource and budget mode and trace and identification mode. Skip those two only when the tree never becomes executed bytes, and state that reason.
+Use when asked for an engineering audit, systems review, hot-path analysis, Big-O review, pipeline-style inspection, resource and budget review, trace and identification review, or a product-health pass (presentation, privacy, performance, observability, security, contracts, learned systems).
+
+When the system talks to external services, devices, operators, or physical actuators, also run boundary and control mode below. For every tree that can execute, also run resource and budget mode and trace and identification mode. Skip those two only when the tree never becomes executed bytes, and state that reason.
+
+Optional modes below skip when the product has no matching surface. Skip and state the reason. Do not name frameworks, catalogues, or vendor tools in findings unless the audience is engineering and the tree already depends on them.
 
 ## Voice and prose
 
@@ -34,6 +38,18 @@ Scan for:
 6. asymptotic and hot-path shape (N+1 queries, repeated scans, probable O(n²) regions);
 7. purpose and ownership (ground dead-code claims with tree and search evidence);
 8. language-native features the code fights instead of using.
+
+## Indicators
+
+Every finding lands in a category (audit type, pipeline stage, or severity band), carries a measurable value or countable outcome, and serializes so later runs compare without re-reading prose. Prefer numbers, ratios, counts, bands, and pass/fail matrices. When judgement is unavoidable, still assign category, severity, location, and kind (observed versus inference).
+
+Unmeasured claims include the exact check that would make them measurable next run.
+
+Lag of third-party packages (libyears or equivalent) lives in `dependency-audit`, not here.
+
+## Test quality
+
+Missing coverage is not futile coverage. Also treat as findings: flaky or slow tests that erode trust; missing negative permission tests; missing failure, empty, and retry states; helpers that bypass real policy so production risk is hidden.
 
 ## Pipeline stage checks
 
@@ -74,7 +90,7 @@ Ask about hazards from a correctly functioning dependency whose assumptions are 
 
 Ask who remains operational after partial failure, and whether two commanders can both believe they own the same lock, order, or identity.
 
-A logically valid command that moves a lock, types a scale, or labels a sample is a safety and privacy event. Hand spoofable identity keys and missing TLS verify to security review.
+A logically valid command that moves a lock, types a scale, or labels a sample is a safety and privacy event. Hand spoofable identity keys and missing TLS verify to security review mode (`security.md`).
 
 Human: can an operator or customer act on a stale or colliding label, tell empty, occupied, refused, or never-synced apart, and still operate on the place they used (URL, document, screen, command, query) after a refusal.
 
@@ -106,6 +122,22 @@ Run this mode for every audited tree that can execute. Skip only when the tree n
 ## Trace and identification mode
 
 Run this mode for every audited tree that can execute. Skip only when the tree never becomes executed bytes, and state that reason. Keep the same finding fields. Procedure in `trace-and-identification.md` in this skill directory. Quantity of traces stays in resource and budget; this mode asks who those emissions identify.
+
+## Optional product modes
+
+Skip any mode that does not apply and state that reason. Procedure in the named file in this skill directory. Keep the same finding fields unless that file adds optional extras.
+
+| Mode | File | Run when | Skip when |
+|------|------|----------|-----------|
+| Product surface | `product-surface.md` | person-facing presentation | library or service with no presentation |
+| Privacy and data-flow | `privacy.md` | collects, stores, sends, or logs data about a person | never holds that data |
+| Performance | `performance.md` | serving latency, payload size, or perceived delay in scope | specification or data file only |
+| Observability | `observability.md` | service, worker, or long-lived process | library with no runtime of its own |
+| Security review | `security.md` | trust, auth, or attacker path in scope | calculation-only, no IO, no secrets |
+| Contract | `contracts.md` | publishes or consumes a protocol, API, or event contract | none |
+| Learned systems | `learned-systems.md` | generative model, retrieval corpus, or tool-calling agent | none of those |
+
+CVE reachability and package lag: `dependency-audit`. Place after refusal: boundary mode above and `keep-the-work`.
 
 ## Required output per finding
 
@@ -144,6 +176,8 @@ Stylistic trivia unless it harms correctness, operability, maintainability, or a
 - boundary mode run when external services, devices, operators, or actuators exist, or explicitly skipped with reason;
 - resource mode run for an executable tree, or skipped with reason when the tree never executes;
 - trace and identification mode run for an executable tree, or skipped with reason when the tree never executes;
+- each optional product mode run or skipped with reason;
+- indicators categorizable, measurable, and representable; unmeasured claims name the next check;
 - cheaper, smaller, or greener claims labeled with the bench or marked inference; mixed compressed versus uncompressed numbers called out; energy or a stated proxy named;
 - identity claims labeled with the bench (HAR, disk, logs, SDK init) or marked inference;
 - missing versus futile coverage separated;

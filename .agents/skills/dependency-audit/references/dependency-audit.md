@@ -99,16 +99,18 @@ Report: advisory id, affected package, locked version, fixed version, hot-path t
 
 ## Pass 2 — Freshness (locked vs registry)
 
-Goal: direct runtime and hot-path transitive packages at latest published safe version.
+Goal: direct runtime and hot-path transitive packages at latest published safe version. Record lag metrics (libyears or equivalent): total, average per package, major-version distance, paired with test coverage. Procedure in `references/libyears.md`. Lag is not effort and not a CVE.
 
 Actions:
 
 - compare locked versions to registry latest for direct runtime dependencies;
 - run outdated tooling where the ecosystem provides it; filter noise from dev-only tooling unless it blocks upgrades;
+- measure libyears or the ecosystem's equivalent lag; record total, average per package, and major-version distance;
 - flag major-version lag and document adapter risk (test mocks, native extensions, breaking API renames);
-- use recon publish dates when release tags are stale.
+- use recon publish dates when release tags are stale;
+- when feasible, spike-upgrade the worst offenders and record whether the tree still works.
 
-Report: package, locked, latest, gap type (patch, minor, major), tier.
+Report: package, locked, latest, gap type (patch, minor, major), tier; plus graph-level total lag, average lag, coverage, and spike result when attempted.
 
 ## Pass 3 — Ecosystem synthesis
 
