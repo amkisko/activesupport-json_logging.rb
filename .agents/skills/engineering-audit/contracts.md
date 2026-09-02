@@ -10,6 +10,7 @@ Run this mode when the audited system publishes or consumes a protocol, API, or 
 - idempotency for writes;
 - error shape that matches the transport status;
 - webhook or callback verification and replay protection;
+- destination failure recorded as completed versus retried as if our code failed;
 - backward compatibility for callers you still support.
 
 Auth detail for each operation stays in security review mode.

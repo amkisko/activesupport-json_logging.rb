@@ -20,7 +20,7 @@ Do not quote a tool pass as fully accessible. Separate automated findings from h
 
 ## Presentation quality
 
-Ask whether the person can complete the task on a narrow surface, a short surface, a high-density display, and with pointer or keyboard only. Check empty, loading, error, and long-text states. Check that destructive actions have friction and that error text tells the person what to do next.
+Ask whether the person can complete the task on a narrow surface, a short surface, a high-density display, and with pointer or keyboard only. Check empty, loading, error, and long-text states. Check that destructive actions have friction and that error text tells the person what to do next. Ask whether a live refresh or reconnect wipes the work still on the place.
 
 Related: `keep-the-work` keeps the place and in-progress answers after a refusal. This mode asks whether the surface is usable before that refusal.
 

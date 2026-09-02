@@ -21,6 +21,8 @@ Manual checklist frame: a published application-security verification standard (
 
 Before suggesting an auth change, name the trust boundary, the policy owner, and whether the path runs as user, operator, service, or worker. Show whether the bug is missing authentication, missing authorization, wrong object scope, wrong tenant scope, or unsafe privilege inheritance.
 
+Ask whether a request parameter establishes access, or only chooses a row inside an already-authorized set. Ask whether a worker reads request-local context that was not captured at enqueue. HTTP-cached form pages that leave a stale mutating token are a session-boundary flaw.
+
 ## Tests
 
 Separate missing security coverage, futile coverage (happy path only, boundary mocked away), and dangerous helpers that bypass real policy.

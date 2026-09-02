@@ -20,7 +20,8 @@ To change shared guidance, update `Prayfile` and run `pray install`.
 - pull request checklist: changelog entry with intent or reproduction steps when relevant, test coverage, and quality checks done;
 - follow docs-conventions for usr/docs trace filenames and layout;
 - validation output must list exact commands run and observed results, and never claim tests pass unless they were executed and passed;
-- ignore style-only dust unless it harms correctness, operability, maintainability, or auditability under realistic load.
+- ignore style-only dust unless it harms correctness, operability, maintainability, or auditability under realistic load;
+- fix the cause of a race, not a retry around it; prefer positive names; compute at write when a read cannot paginate; do not change production design only so tests can reach it.
 <!-- pray:9068e4a2 -->
 
 <!-- pray:781b7711 -->
@@ -36,15 +37,23 @@ To change shared guidance, update `Prayfile` and run `pray install`.
 - A redacted fingerprint above is a hash of a secret for config references. A device fingerprint is fields that combine to identify a person or device across sessions or observers.
 - Identifiers, IP addresses, device marks, and combined attributes are personal data. They can unmask a person, a location, or a session secret. Emit them only when the feature they asked for this session needs them and they were shown that this product would.
 - Silent analytics ids, leftover marks after logout, and canvas or hardware probes are security events. They can locate a person, stitch sessions, or leak a credential-shaped token.
+
+## Ownership and destinations
+
+- Lookups go through an ownership set; request parameters pick which row; fail closed when access cannot be proven.
+- Treat user-supplied URLs as untrusted; rate-limit authentication and abuse-prone endpoints.
+
+Related: `engineering-audit` security mode asks whether a parameter establishes access and whether a worker skipped policy.
 <!-- pray:781b7711 -->
 
 <!-- pray:bfe6ff38 -->
 - `docs/` is for human-facing documentation: setup guides, architecture, migration notes, and operator material meant for users and contributors without agent context; use stable descriptive filenames;
-- `usr/docs/` is for durable agent and engineering trace alongside other project-local operator surfaces under `usr/`; keep inference input (AGENTS.md, `.agents/`) separate from human docs;
-- four timestamp trees, no README index, filename `YYYYMMDDHHMMSS_<kebab-case-title>.md`: `issues` (live work: contract, findings, open next; pitch, plan, and queue stay here), `changelogs` (what shipped), `meetings` (one sitting: who was there and what they agreed), `dependencies` (upstream defects from real work);
+- `usr/docs/` is for durable agent and engineering trace; keep inference input (AGENTS.md, `.agents/`) separate from human docs;
+- `usr/migrate/` holds live console-first scripts for a change that must run before new code is on the process; later schema migrate is schema-only and idempotent;
+- four usr/docs timestamp trees, no README index, filename `YYYYMMDDHHMMSS_<kebab-case-title>.md`: `issues` (live work: contract, findings, open next; pitch, plan, and queue stay here), `changelogs` (what shipped), `meetings` (one sitting: who was there and what they agreed), `dependencies` (upstream defects from real work);
 - issues, changelogs, and meetings make five things findable (use `##` headings or equivalent; omit empty sections): **Participants** (humans only; omit agents, tools, and binaries), **Decisions** (what was agreed), **Effects** (done, failed, recovered, rolled back), **Next** (todo, planned, open questions), **Source** (links upstream: meeting, issue, PR, commit, and downstream materializations); git history is the edit log; add an explicit note only when a later pass changes meaning (scope cut, rollback, decision reversed);
 - mention software, tools, agents, or binaries in a note only when that detail is needed for execution or later analysis; put it under Decisions, Effects, or Source, not under Participants;
-- never put local absolute paths or private material in `docs/` or `usr/docs/`: no home-directory or machine-specific filesystem paths, secrets, credentials, tokens, API keys, or personal private data; prefer repository-relative paths;
+- never put local absolute paths or private material in `docs/` or under `usr/`: no home-directory or machine-specific filesystem paths, secrets, credentials, tokens, API keys, or personal private data; prefer repository-relative paths;
 <!-- pray:bfe6ff38 -->
 
 <!-- pray:edcc5f67 -->
@@ -86,7 +95,13 @@ Related: `dependency-issues` records upstream defects found during real work; `m
 - test coverage must follow @spec/README.md guidelines;
 - use ruby and Rails features according to the codebase versions;
 - follow ruby and Rails coding conventions, principles, and best practices;
-- never put data migrations in schema migrations, use the db/data_migrations pattern instead;
+- schema DDL in `db/migrate`; row backfills in `db/data_migrations`; keep `up` and `change` as schema DDL;
+- page large backfills with an id cursor or `offset`/`limit`; pass `total_records` and `processed_count`; `enqueue` the next page; when `enqueue` is absent (console `new.perform`), drain remaining pages in the same `perform`;
+- log progress as `processed_count/total_records` or `print "."`;
+- unpublished in-repo gem: gemspec next to the library, Gemfile `path:` link, version 0.x, metadata `allowed_push_host` empty so gem push fails;
+- development and test isolation: declare the path gem in `group :development, :test` so production never requires it;
+
+Related: `docs-conventions` names `usr/migrate` for console-first scripts that must run before new code is on the process.
 <!-- pray:ad13bd27 -->
 
 <!-- pray:bf7304a6 -->
@@ -101,9 +116,14 @@ Before writing code, stop at each step until one applies:
 - can the change be one line; if so, make it one line?
 - only then write the minimum code that works.
 
+Before adding a new library directory or first-party package, stop until one applies:
+- one product owns the contract and is the only caller: keep source in that tree;
+- a second in-repo caller, or no product runtime: unpublished in-repo package (own manifest, own tests, path-linked, 0.x, registry publish blocked);
+- a second repository or registry consumer: extract, publish, then follow dependency-policy.
+
 Rules:
 - match the language of the directory you are changing (see Preferred stack and tools above);
-- no abstractions unless the request or clear reuse needs them;
+- no abstractions unless three real variations need them; drop unused public methods;
 - no new dependency when stdlib, the framework for this tree, or an installed dependency suffices;
 - no boilerplate the task did not ask for;
 - deletion over addition; boring over clever; fewest files that stay readable (see file size guidance above);
@@ -119,13 +139,13 @@ Not optional even when minimizing scope:
 - anything explicitly requested in the task or ticket;
 - tests for non-trivial behavior per @spec/README.md and the testing bullets above; trivial one-liners need no new spec.
 
-Related: `keep-the-work` covers staying on the failed place and keeping answers after a refusal.
+Related: `keep-the-work` covers staying on the failed place and keeping answers after a refusal; `dependency-policy` covers third-party registry packages.
 <!-- pray:bf7304a6 -->
 
 <!-- pray:120c3507 -->
 ## Finite state machines
 
-- model lifecycles with explicit finite state machines when status, allowed transitions, and side effects matter; prefer named states and guarded transitions over scattered conditionals and implicit enums alone;
+- model lifecycles with explicit finite state machines when status, allowed transitions, and side effects matter; prefer named states and guarded transitions over scattered conditionals and implicit enums alone; when who and when matter, model the event as a record, not a boolean flag;
 - finite state machines can compactly represent ordered sets or maps of strings supporting fast prefix, suffix, and fuzzy search; consider tries and automata when matching catalogs, codes, routes, or searchable vocabularies at scale;
 - when digital reported state and physical process state can diverge, name both machines and the observation that couples them; occupancy listing is not the lock; a reported identity is not the person or sample at the station.
 
@@ -162,7 +182,7 @@ Examples:
 - elixir for concurrent and distributed systems, and for its actor model and fault tolerance
 - rust for system programming and performance-critical code
 - javascript, html, css for native browser experience
-- humane and accessible design principles for UI/UX, and for clear communication of intent and feedback
+- humane and accessible design principles for UI/UX, and for clear communication of intent and feedback; label icon-only controls; hide decorative duplicates from the accessibility tree
 
 Related: `keep-the-work` covers staying on the failed place and keeping answers after a refusal.
 <!-- pray:f528eeca -->

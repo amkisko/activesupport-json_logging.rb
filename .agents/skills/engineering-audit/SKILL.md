@@ -32,6 +32,6 @@ Order findings by danger, then certainty, then impact, then fix cost. Present th
 
 When the system has external services, devices, operators, or physical actuators, also run boundary and control mode: who commands whom, interface deviations, and whether intended, commanded, reported, inferred, and physical state can diverge without an alarm.
 
-When the product has a place the person can return to, also ask whether unknown identifiers, auth returns, forbidden, error-body status, timeouts, rate limits, 5xx survival of answers, write conflicts, system-initiated recreation, file controls, and deep links that replace in-progress work stay honest for the person and for status-based counters.
+When the product has a place the person can return to, also ask whether unknown identifiers, auth returns, forbidden, error-body status, timeouts, rate limits, 5xx survival of answers, write conflicts, system-initiated recreation, file controls, and deep links, live refresh, or reconnect that replace in-progress work stay honest for the person and for status-based counters.
 
 For every tree that can execute, also run resource and budget mode: measure memory, CPU, storage, network, and energy against a named ceiling; label cheaper, smaller, or greener as inference until benched. Also run trace and identification mode: which emissions identify a person or device, which observers see them, and whether they appear in what this product showed the person for this run. Skip those two modes only when the tree never becomes executed bytes.

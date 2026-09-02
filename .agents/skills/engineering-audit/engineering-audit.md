@@ -59,7 +59,7 @@ Cache: key design, TTL correctness, stampede protection, invalidation ownership,
 
 Database: N+1 queries, unbounded result sets, missing indexes, lock contention, tenant or shard skew hotspots.
 
-Queue and worker: retry storms, poison jobs, duplicate work, drain rate versus enqueue rate, starvation, head-of-line blocking, missing backpressure, idempotency gaps.
+Queue and worker: retry storms, poison jobs, duplicate work, drain rate versus enqueue rate, starvation, head-of-line blocking, missing backpressure, idempotency gaps, request-local context read at perform that was not captured at enqueue, destination failure retried as if our code failed.
 
 External API: jobs orchestrate; client adapters own protocol details; retries, backoff, and idempotency tested at the correct boundary.
 
@@ -102,7 +102,7 @@ When the product has a place the person can return to, also ask:
 - a recovery action that confirms a resource a 404 was meant to hide;
 - error-body status that disagrees with the HTTP line;
 - delayed redirect with no chance to stay;
-- deep link or navigation that replaces in-progress work without a chance to stay;
+- deep link, live refresh, reconnect, or navigation that replaces in-progress work without a chance to stay;
 - ephemeral notice or a replacement home as the only blocking-error surface;
 - error replaces the document or screen and drops the place and answers;
 - timeout that deletes answers without saying so;
