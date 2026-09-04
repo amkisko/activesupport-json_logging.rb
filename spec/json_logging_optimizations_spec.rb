@@ -33,24 +33,28 @@ RSpec.describe JsonLogging do
       end
 
       it "still deep-sanitizes nested structures" do
-        nested = {"user" => {"email" => "test@example.com"}}
+        nested = {"user" => {"login" => "tester"}}
         result = described_class.sanitize_hash(nested)
 
-        expect(result).to eq("user" => {"email" => "test@example.com"})
+        expect(result).to eq("user" => {"login" => "tester"})
       end
 
-      it "sanitizes one-level nested primitive hashes without a deep copy", :aggregate_failures do
+      it "copies nested hashes so later mutation of the result cannot change the source", :aggregate_failures do
         nested = {
           "event" => "login",
-          "user" => {"id" => 42, "email" => "test@example.com"}
+          "user" => {"id" => 42, "login" => "tester"}
         }
+        source_user = nested["user"]
 
         result = described_class.sanitize_hash(nested)
+        result["user"]["id"] = 0
 
-        expect(result).to eq(nested)
+        expect(result).to include("event" => "login")
+        expect(result["user"]).not_to be(source_user)
+        expect(source_user["id"]).to eq(42)
       end
 
-      it "sanitizes deeply nested primitive structures without a deep copy", :aggregate_failures do
+      it "copies deeply nested primitive structures away from the source", :aggregate_failures do
         nested = {
           "user" => {
             "id" => 123,
@@ -61,10 +65,14 @@ RSpec.describe JsonLogging do
           },
           "request" => {"path" => "/api/users"}
         }
+        source_preferences = nested.dig("user", "profile", "preferences")
 
         result = described_class.sanitize_hash(nested)
+        result.dig("user", "profile", "preferences")["theme"] = "light"
 
-        expect(result).to eq(nested)
+        expect(result.dig("user", "id")).to eq(123)
+        expect(result.dig("user", "profile", "preferences")).not_to be(source_preferences)
+        expect(source_preferences["theme"]).to eq("dark")
       end
 
       it "does not mutate the source hash when the sanitized result is updated", :aggregate_failures do
@@ -90,6 +98,10 @@ RSpec.describe JsonLogging do
         JsonLogging::Sanitizer.reset_rails_parameter_filter_cache!
       end
 
+      def encoder_try_line(hash)
+        described_class.try_encode_line(hash, severity: "INFO", timestamp: timestamp)
+      end
+
       def stub_rails_filter_parameters(filter_parameters)
         rails_module = Module.new
         rails_application = double("application")
@@ -105,7 +117,7 @@ RSpec.describe JsonLogging do
         {
           user: {
             id: 123,
-            email: "test@example.com",
+            login: "tester",
             profile: {
               name: "Test User",
               bio: "A" * 1000,
@@ -121,7 +133,7 @@ RSpec.describe JsonLogging do
 
       it "encodes structured hashes in one pass with the same JSON as sanitize_hash", :aggregate_failures do
         hash = benchmark_large_hash
-        expect(described_class.eligible?(hash)).to be(true)
+        expect(encoder_try_line(hash)).to be_a(String)
         expect(JsonLogging::Sanitizer::StructuredHash.jsonable_tree(hash).owned).to be(false)
 
         sanitized = JsonLogging::Sanitizer.sanitize_hash(hash.dup)
@@ -144,9 +156,32 @@ RSpec.describe JsonLogging do
         expect(payload).not_to have_key("password")
       end
 
+      it "filters sensitive keys past the size cap without copying their values", :aggregate_failures do
+        secret = "overflow-secret-value"
+        hash = (1..50).to_h { |index| ["field_#{index}", "value_#{index}"] }
+        hash["password"] = secret
+        hash["user"] = {
+          "profile" => {
+            "bio" => "A" * 100,
+            "preferences" => (1..50).to_h { |index| ["pref_#{index}", "value_#{index}"] }
+          }
+        }
+
+        line = described_class.encode_line(hash, severity: "INFO", timestamp: timestamp)
+        payload = JSON.parse(line)
+
+        expect(payload["_truncated"]).to be(true)
+        expect(payload["password_filtered"]).to eq("[FILTERED]")
+        expect(payload).not_to have_key("password")
+        expect(payload).not_to have_key("user")
+        expect(line).not_to include(secret)
+        expect(hash["password"]).to eq(secret)
+        expect(encoder_try_line(hash)).to be_a(String)
+      end
+
       it "keeps flat primitive hashes on the copy path", :aggregate_failures do
         hash = {"event" => "login", "value" => 42}
-        expect(described_class.eligible?(hash)).to be(false)
+        expect(encoder_try_line(hash)).to be_nil
       end
 
       it "defers to the copy path when Rails uses deep parameter filters", :aggregate_failures do
@@ -157,7 +192,7 @@ RSpec.describe JsonLogging do
 
         hash = {"credit_card" => {"code" => "secret", "number" => "4111"}}
         expect(JsonLogging::Sanitizer.rails_parameter_filter_requires_full_tree_walk?).to be(true)
-        expect(described_class.eligible?(hash)).to be(false)
+        expect(encoder_try_line(hash)).to be_nil
       end
 
       it "keeps the encoder path for shallow Rails parameter filters", :aggregate_failures do
@@ -167,7 +202,29 @@ RSpec.describe JsonLogging do
         JsonLogging::Sanitizer.reset_rails_parameter_filter_cache!
 
         expect(JsonLogging::Sanitizer.rails_parameter_filter_requires_full_tree_walk?).to be(false)
-        expect(described_class.eligible?(benchmark_large_hash)).to be(true)
+        expect(encoder_try_line(benchmark_large_hash)).to be_a(String)
+      end
+
+      it "leaves nested source fields unchanged after ParameterFilter encoding", :aggregate_failures do
+        skip "ActiveSupport::ParameterFilter not available" unless defined?(ActiveSupport::ParameterFilter)
+
+        source = JSON.parse(JSON.generate(benchmark_large_hash))
+        source["user"]["email"] = "test@example.com"
+        expect(encoder_try_line(source)).to be_a(String)
+        expect(source.dig("user", "email")).to eq("test@example.com")
+
+        stub_rails_filter_parameters([:email])
+        JsonLogging::Sanitizer.reset_rails_parameter_filter_cache!
+
+        line = described_class.encode_line(source, severity: "INFO", timestamp: timestamp)
+        payload = JSON.parse(line)
+
+        expect(source.dig("user", "email")).to eq("test@example.com")
+        expect(payload.dig("user", "email")).to eq("[FILTERED]")
+        expect(payload["user"]).not_to have_key("email_filtered")
+
+        sanitized = JsonLogging::Sanitizer.sanitize_hash(JSON.parse(JSON.generate(source)))
+        expect(payload.dig("user", "email")).to eq(sanitized.dig("user", "email"))
       end
 
       it "omits overridden tags from the encoded body when merging logger tags", :aggregate_failures do
@@ -227,6 +284,34 @@ RSpec.describe JsonLogging do
         expect(first_filter).to be_a(ActiveSupport::ParameterFilter)
         expect(second_filter).to equal(first_filter)
       end
+
+      it "rebuilds the filter when filter_parameters is appended in place", :aggregate_failures do
+        skip "ActiveSupport::ParameterFilter not available" unless defined?(ActiveSupport::ParameterFilter)
+
+        filter_parameters = [:password]
+        rails_module = Module.new
+        rails_application = double("application")
+        rails_configuration = double("configuration", filter_parameters: filter_parameters)
+
+        allow(rails_application).to receive(:config).and_return(rails_configuration)
+        stub_const("Rails", rails_module)
+        allow(Rails).to receive(:respond_to?).with(:application).and_return(true)
+        allow(Rails).to receive(:application).and_return(rails_application)
+
+        described_class.reset_rails_parameter_filter_cache!
+
+        first_filter = described_class.rails_parameter_filter
+        filter_parameters << :ssn
+        second_filter = described_class.rails_parameter_filter
+
+        expect(first_filter).to be_a(ActiveSupport::ParameterFilter)
+        expect(second_filter).to be_a(ActiveSupport::ParameterFilter)
+        expect(second_filter).not_to equal(first_filter)
+
+        result = described_class.sanitize_hash({"ssn" => "123-45-6789", "username" => "user"})
+        expect(result["ssn"]).to eq("[FILTERED]")
+        expect(result["username"]).to eq("user")
+      end
     end
   end
 
@@ -284,6 +369,27 @@ RSpec.describe JsonLogging do
         io.rewind
         payloads = io.readlines.map { |line| JSON.parse(line) }
         expect(payloads.map { |payload| payload.dig("context", "sequence") }).to eq([1, 2])
+      end
+
+      it "does not log a nested password added after the first line in the same with_context scope", :aggregate_failures do
+        io = StringIO.new
+        logger = described_class::JsonLogger.new(io)
+        nested = {"id" => 1}
+
+        described_class.with_context(user: nested) do
+          logger.info("first")
+          nested["password"] = "secret"
+          logger.info("second")
+        end
+
+        io.rewind
+        payloads = io.readlines.map { |line| JSON.parse(line) }
+        expect(payloads.length).to eq(2)
+        payloads.each do |payload|
+          serialized = payload.to_json
+          expect(serialized).not_to include("secret")
+          expect(payload.dig("context", "user")).not_to have_key("password")
+        end
       end
     end
   end

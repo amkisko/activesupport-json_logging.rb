@@ -24,10 +24,10 @@ Gem::Specification.new do |spec|
 
   spec.add_runtime_dependency "activesupport", ">= 7.0", "< 9.0"
   spec.add_runtime_dependency "railties", ">= 7.0", "< 9.0"
+  spec.add_runtime_dependency "json", ">= 2.21.2"
 
   spec.add_development_dependency "rspec", "~> 3"
   spec.add_development_dependency "polyrun", ">= 2.2.0"
-  spec.add_development_dependency "webmock", "~> 3"
   spec.add_development_dependency "rake", "~> 13"
   spec.add_development_dependency "rspec_junit_formatter", "~> 0.6"
   spec.add_development_dependency "standard", "~> 1.52"

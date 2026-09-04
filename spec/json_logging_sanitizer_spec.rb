@@ -41,11 +41,50 @@ RSpec.describe JsonLogging::Sanitizer do
       expect(result).to have_key("api_key_filtered")
     end
 
+    it "filters Rails default sensitive-key substrings when Rails is not available", :aggregate_failures do
+      hash = {
+        credentials: "vault",
+        refresh_token: "refresh",
+        ssn: "123-45-6789",
+        email: "user@example.com",
+        otp: "123456",
+        username: "user"
+      }
+      result = described_class.sanitize_hash(hash)
+
+      expect(result["username"]).to eq("user")
+      expect(result).to include(
+        "credentials_filtered" => "[FILTERED]",
+        "refresh_token_filtered" => "[FILTERED]",
+        "ssn_filtered" => "[FILTERED]",
+        "email_filtered" => "[FILTERED]",
+        "otp_filtered" => "[FILTERED]"
+      )
+      expect(result).not_to have_key("credentials")
+      expect(result).not_to have_key("email")
+    end
+
     it "limits hash size", :aggregate_failures do
       large_hash = (1..60).map { |i| ["key#{i}", "value#{i}"] }.to_h
       result = described_class.sanitize_hash(large_hash)
       expect(result.size).to eq(51) # MAX_CONTEXT_SIZE + 1 for _truncated flag
       expect(result).to have_key("_truncated")
+    end
+
+    it "filters sensitive keys past the size cap without copying their values", :aggregate_failures do
+      secret = "overflow-secret-value"
+      large_hash = (1..50).to_h { |index| ["key#{index}", "value#{index}"] }
+      large_hash["password"] = secret
+      large_hash["later"] = "omitted-plain-value"
+
+      result = described_class.sanitize_hash(large_hash)
+
+      expect(result).to have_key("_truncated")
+      expect(result).not_to have_key("later")
+      expect(result).to include("password_filtered" => "[FILTERED]")
+      expect(result.values).not_to include(secret)
+      expect(JSON.generate(result)).not_to include(secret)
+      expect(large_hash["password"]).to eq(secret)
     end
 
     it "prevents excessive nesting", :aggregate_failures do
@@ -157,6 +196,24 @@ RSpec.describe JsonLogging::Sanitizer do
       result = described_class.sanitize_backtrace(obj)
       expect(result).to eq([])
     end
+
+    it "replaces a home-directory prefix with a tilde on a path boundary", :aggregate_failures do
+      home = "/tmp/json-logging-home-fixture"
+      original_home = ENV["HOME"]
+      ENV["HOME"] = home
+
+      result = described_class.sanitize_backtrace(
+        [
+          "#{home}/app/models/user.rb:10:in `create`",
+          "#{home}bar/lib/x.rb:1"
+        ]
+      )
+
+      expect(result[0]).to eq("~/app/models/user.rb:10:in `create`")
+      expect(result[1]).to eq("#{home}bar/lib/x.rb:1")
+    ensure
+      ENV["HOME"] = original_home
+    end
   end
 
   describe ".sensitive_key?" do
@@ -164,6 +221,11 @@ RSpec.describe JsonLogging::Sanitizer do
       expect(described_class.sensitive_key?("password")).to be true
       expect(described_class.sensitive_key?("api_key")).to be true
       expect(described_class.sensitive_key?("access_token")).to be true
+      expect(described_class.sensitive_key?("credentials")).to be true
+      expect(described_class.sensitive_key?("refresh_token")).to be true
+      expect(described_class.sensitive_key?("email")).to be true
+      expect(described_class.sensitive_key?("otp")).to be true
+      expect(described_class.sensitive_key?("ssn")).to be true
       expect(described_class.sensitive_key?("username")).to be false
     end
   end
@@ -259,6 +321,27 @@ RSpec.describe JsonLogging::Sanitizer do
         # api_token is not in filter_parameters, so it should remain unchanged
         expect(result).to have_key("api_token")
         expect(result["api_token"]).to eq("token123")
+      end
+
+      it "filters configured keys past the size cap without copying their values", :aggregate_failures do
+        skip "ActiveSupport::ParameterFilter not available" unless defined?(ActiveSupport::ParameterFilter)
+        skip "Cannot test without Rails properly configured" unless defined?(Rails) && Rails.respond_to?(:application)
+
+        Rails.application.config.filter_parameters = [:custom_field]
+        described_class.reset_rails_parameter_filter_cache!
+
+        secret = "overflow-custom-secret"
+        large_hash = (1..50).to_h { |index| ["key#{index}", "value#{index}"] }
+        large_hash["custom_field"] = secret
+
+        result = described_class.sanitize_hash(large_hash)
+
+        expect(result).to have_key("_truncated")
+        expect(result["custom_field"]).to eq("[FILTERED]")
+        expect(JSON.generate(result)).not_to include(secret)
+        expect(large_hash["custom_field"]).to eq(secret)
+      ensure
+        described_class.reset_rails_parameter_filter_cache!
       end
 
       it "rescue errors and returns nil", :aggregate_failures do

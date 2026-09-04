@@ -25,6 +25,8 @@ module JsonLogging
     end
 
     def json_string?(str)
+      return false if str.length > Sanitizer::MAX_STRING_LENGTH
+
       (str.start_with?("{") && str.end_with?("}")) ||
         (str.start_with?("[") && str.end_with?("]"))
     end

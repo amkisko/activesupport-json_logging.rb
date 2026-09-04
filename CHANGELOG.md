@@ -1,5 +1,20 @@
 # CHANGELOG
 
+## Unreleased
+
+## 1.3.1 (2026-09-04)
+
+- Copy large structured hashes before Rails parameter filtering so caller fields stay intact
+- Keep original key names on the large-hash encoder path when a Rails parameter filter is present
+- Isolate nested hashes in `with_context` from later caller mutations
+- Match fallback sensitive-key detection to Rails default filter substrings including email, otp, ssn, token, and credentials
+- Rebuild the compiled Rails parameter filter after in-place `filter_parameters` changes
+- Treat JSON object and array strings longer than 10,000 characters as truncated text
+- Replace home-directory prefixes in log strings and backtraces with a tilde
+- Skip EventSubscriber writes when the logger has INFO disabled; keep the Rails event timestamp as an integer
+- Keep overflow sensitive keys as filtered after the 50-key hash cap without copying their values
+- Require json 2.21.2 or newer
+
 ## 1.3.0 (2026-07-25)
 
 - BREAKING: Require Ruby 3.2+ and Rails 7+ (drop Ruby 2.7–3.1 and Rails 6 support)

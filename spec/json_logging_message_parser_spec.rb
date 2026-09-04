@@ -14,6 +14,16 @@ RSpec.describe JsonLogging::MessageParser do
     expect(described_class.parse_message('{"x":1}')).to eq({"x" => 1})
   end
 
+  it "treats brace strings longer than the sanitizer string limit as truncated text", :aggregate_failures do
+    inner = "a" * (JsonLogging::Sanitizer::MAX_STRING_LENGTH + 10)
+    json_str = "{\"x\":\"#{inner}\"}"
+    result = described_class.parse_message(json_str)
+
+    expect(result).to be_a(String)
+    expect(result).to end_with("...[truncated]")
+    expect(result.length).to eq(JsonLogging::Sanitizer::MAX_STRING_LENGTH + "...[truncated]".length)
+  end
+
   it "returns string if JSON parse fails", :aggregate_failures do
     expect(described_class.parse_message('{"invalid":}')).to eq('{"invalid":}')
   end

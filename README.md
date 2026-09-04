@@ -148,7 +148,7 @@ Or enable the Railtie opt-in (off by default):
 config.json_logging.subscribe_event_reporter = true
 ```
 
-The subscriber writes one JSON line per event and keeps the Rails event shape (`name`, `payload`, `tags`, `context`, `timestamp`, `source_location`). It writes through `Logger#<<` so the logger formatter does not wrap the event again. Payload and tag objects that implement `#serialize` are encoded via that method. Encode and write failures never raise from `#emit`.
+The subscriber writes one JSON line per event and keeps the Rails event shape (`name`, `payload`, `tags`, `context`, `timestamp`, `source_location`). It writes through `Logger#<<` so the logger formatter does not wrap the event again. It skips that write when the logger reports that INFO is disabled (`logger.level` above INFO). An IO destination always writes. `timestamp` stays the Rails event integer (nanoseconds), not the ISO8601 string used by `JsonLoggerExtension`. Payload and tag objects that implement `#serialize` are encoded via that method. Encode and write failures never raise from `#emit`.
 
 ```ruby
 Rails.event.set_context(request_id: "abc123")
@@ -616,9 +616,9 @@ logger.reopen                       # Reopen the logger (if supported by logdev)
 ## Security & privacy
 
 - **Rails ParameterFilter integration**: Automatically uses `Rails.application.config.filter_parameters` to filter sensitive data (passwords, tokens, etc.). This includes encrypted attributes automatically. See [Rails parameter filtering guide](https://thoughtbot.com/blog/parameter-filtering).
-- **Input sanitization**: Removes control characters, truncates long strings, and limits structure depth/size:
+- **Input sanitization**: Removes control characters, truncates long strings, redacts home-directory prefixes to `~`, and limits structure depth/size:
   - Maximum string length: 10,000 characters (truncated with `...[truncated]` suffix)
-  - Maximum context hash size: 50 keys (additional keys are truncated)
+  - Maximum context hash size: 50 keys (additional keys are truncated; overflow keys that match sensitive patterns or `filter_parameters` still appear as `[FILTERED]`)
   - Maximum nesting depth: 10 levels (deeper structures return `{"error" => "max_depth_exceeded"}`)
   - Maximum backtrace lines: 20 lines per exception
 - **Single-line JSON**: Emits single-line JSON to avoid log injection via newlines
@@ -632,7 +632,7 @@ This gem automatically uses Rails' `config.filter_parameters` when available. Co
 
 ```ruby
 Rails.application.config.filter_parameters += [
-  :passw, :secret, :token, :_key, :crypt, :salt, :certificate, :otp, :ssn
+  :passw, :email, :secret, :token, :_key, :crypt, :salt, :certificate, :otp, :ssn
 ]
 ```
 

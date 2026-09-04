@@ -35,7 +35,7 @@ RSpec.describe "JsonLogging::EventSubscriber" do
     it "writes a single JSON line preserving Rails event fields", :aggregate_failures do
       subscriber.emit(
         name: "user.signup",
-        payload: {user_id: 123, email: "user@example.com"},
+        payload: {user_id: 123, login: "tester"},
         tags: {graphql: true},
         context: {request_id: "abc123"},
         timestamp: 1_738_964_843_208_679_035,
@@ -44,7 +44,7 @@ RSpec.describe "JsonLogging::EventSubscriber" do
 
       payload = last_payload
       expect(payload["name"]).to eq("user.signup")
-      expect(payload["payload"]).to eq("user_id" => 123, "email" => "user@example.com")
+      expect(payload["payload"]).to eq("user_id" => 123, "login" => "tester")
       expect(payload["tags"]).to eq("graphql" => true)
       expect(payload["context"]).to eq("request_id" => "abc123")
       expect(payload["timestamp"]).to eq(1_738_964_843_208_679_035)
@@ -156,6 +156,20 @@ RSpec.describe "JsonLogging::EventSubscriber" do
           timestamp: 1
         )
       }.not_to raise_error
+    end
+
+    it "skips the logger write when INFO is disabled", :aggregate_failures do
+      logger.level = Logger::WARN
+      subscriber.emit(
+        name: "quiet.event",
+        payload: {ok: true},
+        tags: {},
+        context: {},
+        timestamp: 1_738_964_843_208_679_035
+      )
+
+      io.rewind
+      expect(io.gets).to be_nil
     end
 
     it "writes through an IO destination without a logger", :aggregate_failures do

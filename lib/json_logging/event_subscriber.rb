@@ -121,9 +121,13 @@ module JsonLogging
     def write_line(line)
       if @io
         @io.write(line)
-      else
-        resolve_logger << line
+        return
       end
+
+      logger = resolve_logger
+      return if logger.respond_to?(:info?) && !logger.info?
+
+      logger << line
     end
 
     def resolve_logger

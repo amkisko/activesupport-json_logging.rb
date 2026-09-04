@@ -223,14 +223,6 @@ module JsonLogging
       "#{JSON.generate(payload)}\n"
     end
 
-    def build_sanitized_hash_payload(message:, severity:, timestamp:)
-      hash = message.is_a?(Hash) ? message : message.to_hash
-      payload = Sanitizer.sanitize_hash(hash)
-      payload["severity"] = severity
-      payload["timestamp"] = timestamp
-      payload
-    end
-
     def deep_stringify_structure(obj)
       case obj
       when Hash

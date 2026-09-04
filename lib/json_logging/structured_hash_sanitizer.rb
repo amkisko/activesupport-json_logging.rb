@@ -44,11 +44,7 @@ module JsonLogging
 
       def sanitize_without_filter(hash, depth: 0)
         jsonable = jsonable_tree(hash, depth: depth)
-        if jsonable.owned
-          stringify(jsonable.tree)
-        else
-          jsonable.tree.dup
-        end
+        stringify(jsonable.tree)
       end
 
       def jsonable_tree(hash, depth: 0, seen: nil, parent_key: nil, omit_keys: nil, count_leaves: false, leaf_counter: nil)
@@ -133,7 +129,8 @@ module JsonLogging
           return
         end
 
-        if Sanitizer::SENSITIVE_KEY_PATTERNS.match?(key_string)
+        # ParameterFilter keeps original key names; fallback rename would hide them from it.
+        if Sanitizer.rails_parameter_filter.nil? && Sanitizer::SENSITIVE_KEY_PATTERNS.match?(key_string)
           return [Sanitizer.sensitive_filtered_key_name(key_string), "[FILTERED]", true]
         end
 
@@ -194,12 +191,6 @@ module JsonLogging
         else
           value
         end
-      end
-
-      def stringify_keys_copy(hash)
-        return hash if hash.keys.all? { |key| key.is_a?(String) }
-
-        hash.transform_keys(&:to_s)
       end
     end
   end

@@ -1,3 +1,4 @@
+spec/activesupport/json_logging_spec.rb
 spec/benchmark_profile_spec.rb
 spec/json_logger_advanced_spec.rb
 spec/json_logger_broadcast_spec.rb

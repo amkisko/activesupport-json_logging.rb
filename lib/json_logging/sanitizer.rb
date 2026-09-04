@@ -1,4 +1,5 @@
 require_relative "structured_hash_sanitizer"
+require_relative "sanitizer_hash_limit"
 
 module JsonLogging
   module Sanitizer
@@ -18,7 +19,7 @@ module JsonLogging
     MAX_BACKTRACE_LINES = 20
 
     # Common sensitive key patterns (case insensitive) - fallback when Rails ParameterFilter not available
-    SENSITIVE_KEY_PATTERNS = /\b(password|passwd|pwd|secret|token|api_key|apikey|access_token|auth_token|private_key|credential)\b/i
+    SENSITIVE_KEY_PATTERNS = /(passw|pwd|email|secret|token|_key|crypt|salt|certificate|otp|ssn|cvv|cvc|credential)/i
 
     @parameter_filter = nil
     @parameter_filter_config = nil
@@ -38,7 +39,7 @@ module JsonLogging
         return @parameter_filter
       end
 
-      @parameter_filter_config = filter_params
+      @parameter_filter_config = filter_params.dup.freeze
       @parameter_filter_requires_full_tree_walk = parameter_filter_requires_full_tree_walk?(filter_params)
       @parameter_filter = ActiveSupport::ParameterFilter.new(filter_params)
     rescue
@@ -76,12 +77,14 @@ module JsonLogging
     # Sanitize a string by removing/escaping control characters and truncating
     def sanitize_string(str)
       return str unless str.is_a?(String)
-      return str if str.length <= MAX_STRING_LENGTH && !str.match?(CONTROL_CHARS)
 
-      # Remove or replace control characters
+      home_prefix = home_directory_prefix
+      has_home_directory = home_prefix && str.include?(home_prefix)
+      return str if str.length <= MAX_STRING_LENGTH && !str.match?(CONTROL_CHARS) && !has_home_directory
+
       sanitized = str.gsub(CONTROL_CHARS, "")
+      sanitized = redact_home_directory(sanitized, home_prefix) if has_home_directory
 
-      # Truncate if too long
       if sanitized.length > MAX_STRING_LENGTH
         sanitized = sanitized[0, MAX_STRING_LENGTH] + "...[truncated]"
       end
@@ -91,12 +94,8 @@ module JsonLogging
       "<sanitization_error>"
     end
 
-    # Sanitize a hash, removing sensitive keys and limiting size/depth
-    # Uses Rails ParameterFilter when available, falls back to pattern matching
     def sanitize_hash(hash, depth: 0)
       return hash unless hash.is_a?(Hash)
-
-      # Prevent excessive nesting
       return {"error" => "max_depth_exceeded"} if depth > MAX_DEPTH
 
       limited_hash = limited_hash_for_sanitization(hash)
@@ -109,13 +108,7 @@ module JsonLogging
     end
 
     def limited_hash_for_sanitization(hash)
-      if hash.size > MAX_CONTEXT_SIZE
-        truncated = hash.first(MAX_CONTEXT_SIZE).to_h
-        truncated["_truncated"] = true
-        truncated
-      else
-        hash
-      end
+      SanitizerHashLimit.apply(hash, filter_config: rails_parameter_filter && @parameter_filter_config)
     end
 
     def fast_path_sanitized_hash(hash, depth: 0)
@@ -126,38 +119,26 @@ module JsonLogging
     end
 
     def sanitize_hash_with_filtering(limited_hash, depth: 0)
-      # Use Rails ParameterFilter if available (handles encrypted attributes automatically)
       filter = rails_parameter_filter
       if filter
-        # ParameterFilter will filter based on Rails.config.filter_parameters
-        # This includes encrypted attributes automatically
-        # Create a deep copy since filter modifies in place
+        # ParameterFilter mutates in place; copy first
         filtered = limited_hash.respond_to?(:deep_dup) ? limited_hash.deep_dup : limited_hash.dup
         filtered = filter.filter(filtered)
-
-        # Then sanitize values (strings, control chars, etc.) preserving filtered structure
         filtered.each_with_object({}) do |(key, value), result|
           result[key.to_s] = sanitize_value(value, depth: depth + 1)
         end
-
       else
-        # Fallback: use pattern matching for sensitive keys
         limited_hash.each_with_object({}) do |(key, value), result|
           key_string = key.to_s
-
-          # Skip sensitive keys
           if SENSITIVE_KEY_PATTERNS.match?(key_string)
             result[sensitive_filtered_key_name(key_string)] = "[FILTERED]"
             next
           end
-
           result[key_string] = sanitize_value(value, depth: depth + 1)
         end
       end
     end
 
-    # Sanitize a value (handles strings, hashes, arrays, etc.)
-    # Preserves numeric, boolean, and nil types
     def sanitize_value(value, depth: 0)
       case value
       when String
@@ -165,24 +146,20 @@ module JsonLogging
       when Hash
         sanitize_hash(value, depth: depth)
       when Array
-        # Limit array size
         sanitized = value.first(MAX_CONTEXT_SIZE).map { |v| sanitize_value(v, depth: depth + 1) }
         sanitized << "[truncated]" if value.size > MAX_CONTEXT_SIZE
         sanitized
       when Exception
         sanitize_exception(value)
       when Numeric, TrueClass, FalseClass, NilClass
-        # Preserve numeric, boolean, and nil types
         value
       else
-        # For other types, convert to string and sanitize
         sanitize_string(value.to_s)
       end
     rescue
       "<unprintable>"
     end
 
-    # Sanitize exception, including backtrace
     def sanitize_exception(ex)
       {
         "error" => {
@@ -195,11 +172,9 @@ module JsonLogging
       {"error" => {"class" => "Exception", "message" => "<sanitization_failed>"}}
     end
 
-    # Sanitize backtrace - truncate and remove sensitive paths
     def sanitize_backtrace(backtrace)
       return [] unless backtrace.is_a?(Array)
 
-      # Take first MAX_BACKTRACE_LINES, sanitize each
       backtrace.first(MAX_BACKTRACE_LINES).map do |line|
         sanitize_string(line.to_s)
       end
@@ -207,7 +182,6 @@ module JsonLogging
       []
     end
 
-    # Check if a key looks sensitive
     def sensitive_key?(key)
       SENSITIVE_KEY_PATTERNS.match?(key.to_s)
     end
@@ -254,6 +228,23 @@ module JsonLogging
 
     def sensitive_filtered_key_name(key_string)
       key_string.gsub(/(?<!^)(?=[A-Z])/, "_").downcase + "_filtered"
+    end
+
+    def home_directory_prefix
+      prefix = ENV["HOME"]
+      prefix = Dir.home if prefix.blank?
+      prefix = prefix.to_s.chomp("/").chomp("\\")
+      return if prefix.empty?
+
+      prefix
+    rescue ArgumentError, RuntimeError
+      nil
+    end
+
+    def redact_home_directory(str, prefix)
+      return str unless prefix
+
+      str.gsub(/#{Regexp.escape(prefix)}(?=\/|\\|\z)/, "~")
     end
   end
 end

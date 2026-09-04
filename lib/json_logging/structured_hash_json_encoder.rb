@@ -6,35 +6,6 @@ module JsonLogging
 
     module_function
 
-    def eligible?(hash)
-      return false if Sanitizer.primitive_log_hash?(hash)
-      return false unless Sanitizer::StructuredHash.structured_log_hash?(hash)
-      return false unless large_structured_hash?(hash)
-
-      filter = Sanitizer.rails_parameter_filter
-      return true unless filter
-
-      !Sanitizer.rails_parameter_filter_requires_full_tree_walk?
-    end
-
-    def large_structured_hash?(hash, leaf_threshold: LEAF_THRESHOLD)
-      leaf_count = 0
-      walker = lambda do |value|
-        case value
-        when Hash
-          value.each_value { |entry| walker.call(entry) }
-        when Array
-          value.each { |entry| walker.call(entry) }
-        else
-          leaf_count += 1
-          throw(:enough, true) if leaf_count > leaf_threshold
-        end
-      end
-
-      catch(:enough) { walker.call(hash) }
-      leaf_count > leaf_threshold
-    end
-
     def try_encode_line(hash, severity:, timestamp:, field_overrides: {})
       tree = prepared_tree(hash, field_overrides: field_overrides)
       return nil unless tree
@@ -88,13 +59,7 @@ module JsonLogging
       return jsonable.tree unless filter
       return jsonable.tree if Sanitizer.rails_parameter_filter_requires_full_tree_walk?
 
-      tree = if jsonable.owned
-        jsonable.tree
-      else
-        Sanitizer::StructuredHash.stringify_keys_copy(jsonable.tree)
-      end
-
-      filter.filter(tree)
+      filter.filter(Sanitizer::StructuredHash.stringify(jsonable.tree))
     end
 
     def append_json_line(tree, severity:, timestamp:, field_overrides:)
