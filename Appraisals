@@ -1,6 +1,8 @@
 appraise "rails72" do
   gem "activesupport", "~> 7.2", ">= 7.2.3.2"
   gem "railties", "~> 7.2", ">= 7.2.3.2"
+  # parallel 2.x requires Ruby >= 3.3; this appraisal still runs on 3.2 in CI
+  gem "parallel", "< 2"
 end
 
 appraise "rails8ruby34" do
