@@ -40,13 +40,13 @@ Rules:
 - unordered list with `- ` only;
 - bullets stay imperative, concrete, and short;
 - no marketing language;
-- no negation-first hooks.
+- state the finding directly; preserve necessary negation.
 
 ## Workflow
 
 1. capture engineering detail in `usr/docs/changelogs/` when the change is significant enough to mention;
 2. distill user-visible outcomes into `CHANGELOG.md` when cutting a release;
-3. read once for marketing odor, once for negation-led sentences, once for stray em dashes;
+3. review for marketing language, invented objections, empty contrasts, and stray em dashes; preserve meaning, necessary negation, scope, and uncertainty;
 4. keep version headings and release tags aligned when the repository uses tagged releases.
 
 ## Relationship to pull requests

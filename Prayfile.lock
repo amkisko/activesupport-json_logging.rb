@@ -1,41 +1,41 @@
 prayfile_lock = "1"
 spec = "0.1"
-generated_by = "pray 1.9.1"
-manifest_hash = "sha256:a14acf7254b9eb40624d74bd75a4f1b95271002b9a55d74eefbc393e702cca59"
+generated_by = "pray 1.12.0"
+manifest_hash = "sha256:76465b936bea43363550e44791ac66c762b6d5162dfa5804f7995f146559f6c1"
 
 [[source]]
 name = "amkisko"
 kind = "git"
 url = "git+https://github.com/amkisko/prayers.git"
-revision = "b182cd335c85480023d7791eb3be1055337e7916"
+revision = "3d9d5400048c9f85d0ac213c1c4e93edba104865"
 
 [[package]]
 name = "amkisko/branch-naming"
 version = "1.0.0"
-path = "./.pray/cache/registry/ed704cf1c46e638b/amkisko/branch-naming/1.0.0"
+path = "./.pray/cache/registry/amkisko/branch-naming/1.0.0/937b91d368c05c53"
 tree_hash = "sha256:f50538e28a0e4d573884c019210ce4cc650f692b2211802520e267ff18f30e9b"
 artifact_hash = "sha256:f50538e28a0e4d573884c019210ce4cc650f692b2211802520e267ff18f30e9b"
-artifact = "path:./.pray/cache/registry/ed704cf1c46e638b/amkisko/branch-naming/1.0.0"
+artifact = "path:./.pray/cache/registry/amkisko/branch-naming/1.0.0/937b91d368c05c53"
 exports = ["branch-naming"]
 dependencies = []
 
 [[package]]
 name = "amkisko/changelog-update"
-version = "2.1.0"
-path = "./.pray/cache/registry/980462ce739c0afb/amkisko/changelog-update/2.1.0"
-tree_hash = "sha256:06c805944f70fa6d3095d6378e5187d506f308119895f15dbc6eca25068646b2"
-artifact_hash = "sha256:06c805944f70fa6d3095d6378e5187d506f308119895f15dbc6eca25068646b2"
-artifact = "path:./.pray/cache/registry/980462ce739c0afb/amkisko/changelog-update/2.1.0"
+version = "2.1.1"
+path = "./.pray/cache/registry/amkisko/changelog-update/2.1.1/937b91d368c05c53"
+tree_hash = "sha256:c663239cfdcf932c0f95fbc260fce5fcf141cb4e955563c9112a9455a474f28a"
+artifact_hash = "sha256:c663239cfdcf932c0f95fbc260fce5fcf141cb4e955563c9112a9455a474f28a"
+artifact = "path:./.pray/cache/registry/amkisko/changelog-update/2.1.1/937b91d368c05c53"
 exports = ["skill"]
 dependencies = []
 
 [[package]]
 name = "amkisko/claims-audit"
 version = "1.0.0"
-path = "./.pray/cache/registry/4b03a17f528ab595/amkisko/claims-audit/1.0.0"
+path = "./.pray/cache/registry/amkisko/claims-audit/1.0.0/937b91d368c05c53"
 tree_hash = "sha256:83130ec7a9773f0712c1d8255f5043f976de83b338287693b91cb5845c501efd"
 artifact_hash = "sha256:83130ec7a9773f0712c1d8255f5043f976de83b338287693b91cb5845c501efd"
-artifact = "path:./.pray/cache/registry/4b03a17f528ab595/amkisko/claims-audit/1.0.0"
+artifact = "path:./.pray/cache/registry/amkisko/claims-audit/1.0.0/937b91d368c05c53"
 exports = [
     "claims-audit",
     "skill",
@@ -44,71 +44,71 @@ dependencies = []
 
 [[package]]
 name = "amkisko/collaboration-workflow"
-version = "2.1.0"
-path = "./.pray/cache/registry/af386195ef89937b/amkisko/collaboration-workflow/2.1.0"
-tree_hash = "sha256:f12fa3ba5d786c3b32e8fc25e071ea9d34bb3e1d6236561e50c7b202269b40dd"
-artifact_hash = "sha256:f12fa3ba5d786c3b32e8fc25e071ea9d34bb3e1d6236561e50c7b202269b40dd"
-artifact = "path:./.pray/cache/registry/af386195ef89937b/amkisko/collaboration-workflow/2.1.0"
+version = "2.2.0"
+path = "./.pray/cache/registry/amkisko/collaboration-workflow/2.2.0/937b91d368c05c53"
+tree_hash = "sha256:b9d6efb001a131f038089fb2565f1671fa3c5045c39dae75108580c17e943b7c"
+artifact_hash = "sha256:b9d6efb001a131f038089fb2565f1671fa3c5045c39dae75108580c17e943b7c"
+artifact = "path:./.pray/cache/registry/amkisko/collaboration-workflow/2.2.0/937b91d368c05c53"
 exports = ["collaboration-workflow"]
 dependencies = []
 
 [[package]]
 name = "amkisko/community-code-of-conduct"
 version = "1.2.0"
-path = "./.pray/cache/registry/24b7583e5a5df6fb/amkisko/community-code-of-conduct/1.2.0"
+path = "./.pray/cache/registry/amkisko/community-code-of-conduct/1.2.0/937b91d368c05c53"
 tree_hash = "sha256:34ef4d6e4670d622147d890d32d91462d58ea577992822342a427fedb04c5b7a"
 artifact_hash = "sha256:34ef4d6e4670d622147d890d32d91462d58ea577992822342a427fedb04c5b7a"
-artifact = "path:./.pray/cache/registry/24b7583e5a5df6fb/amkisko/community-code-of-conduct/1.2.0"
+artifact = "path:./.pray/cache/registry/amkisko/community-code-of-conduct/1.2.0/937b91d368c05c53"
 exports = ["code-of-conduct"]
 dependencies = []
 
 [[package]]
 name = "amkisko/community-contributing"
 version = "1.1.0"
-path = "./.pray/cache/registry/f17cc17182815a05/amkisko/community-contributing/1.1.0"
+path = "./.pray/cache/registry/amkisko/community-contributing/1.1.0/937b91d368c05c53"
 tree_hash = "sha256:41fb0850422628dc5f33c8858ab20242ad522598916b4a27cffde95a61457908"
 artifact_hash = "sha256:41fb0850422628dc5f33c8858ab20242ad522598916b4a27cffde95a61457908"
-artifact = "path:./.pray/cache/registry/f17cc17182815a05/amkisko/community-contributing/1.1.0"
+artifact = "path:./.pray/cache/registry/amkisko/community-contributing/1.1.0/937b91d368c05c53"
 exports = ["contributing"]
 dependencies = []
 
 [[package]]
 name = "amkisko/community-governance"
 version = "1.1.0"
-path = "./.pray/cache/registry/8e0db98b89a9562b/amkisko/community-governance/1.1.0"
+path = "./.pray/cache/registry/amkisko/community-governance/1.1.0/937b91d368c05c53"
 tree_hash = "sha256:8022e773293dd45e46436e6a34310b8dd3674074bdfe9624e0f7a862b968be12"
 artifact_hash = "sha256:8022e773293dd45e46436e6a34310b8dd3674074bdfe9624e0f7a862b968be12"
-artifact = "path:./.pray/cache/registry/8e0db98b89a9562b/amkisko/community-governance/1.1.0"
+artifact = "path:./.pray/cache/registry/amkisko/community-governance/1.1.0/937b91d368c05c53"
 exports = ["governance"]
 dependencies = []
 
 [[package]]
 name = "amkisko/community-security"
 version = "1.2.0"
-path = "./.pray/cache/registry/9b665e2a499da97f/amkisko/community-security/1.2.0"
+path = "./.pray/cache/registry/amkisko/community-security/1.2.0/937b91d368c05c53"
 tree_hash = "sha256:1770c2bef0f168be900862b012e53b8480da5d6117df0170d3fa753179e3320e"
 artifact_hash = "sha256:1770c2bef0f168be900862b012e53b8480da5d6117df0170d3fa753179e3320e"
-artifact = "path:./.pray/cache/registry/9b665e2a499da97f/amkisko/community-security/1.2.0"
+artifact = "path:./.pray/cache/registry/amkisko/community-security/1.2.0/937b91d368c05c53"
 exports = ["security"]
 dependencies = []
 
 [[package]]
 name = "amkisko/dependency-issues"
 version = "2.1.0"
-path = "./.pray/cache/registry/2048eae8308ba431/amkisko/dependency-issues/2.1.0"
+path = "./.pray/cache/registry/amkisko/dependency-issues/2.1.0/937b91d368c05c53"
 tree_hash = "sha256:9567ae50b1c7dcb0cd9a1e9c79c2767b87d52029670961cad8a0c6d30ab63ce3"
 artifact_hash = "sha256:9567ae50b1c7dcb0cd9a1e9c79c2767b87d52029670961cad8a0c6d30ab63ce3"
-artifact = "path:./.pray/cache/registry/2048eae8308ba431/amkisko/dependency-issues/2.1.0"
+artifact = "path:./.pray/cache/registry/amkisko/dependency-issues/2.1.0/937b91d368c05c53"
 exports = ["dependency-issues"]
 dependencies = []
 
 [[package]]
 name = "amkisko/dependency-policy"
-version = "3.2.0"
-path = "./.pray/cache/registry/96269ba4280d6cdc/amkisko/dependency-policy/3.2.0"
-tree_hash = "sha256:011c599c0fade22671bf410496bc80a26804e495128f5a56c4e1d82a1189bed9"
-artifact_hash = "sha256:011c599c0fade22671bf410496bc80a26804e495128f5a56c4e1d82a1189bed9"
-artifact = "path:./.pray/cache/registry/96269ba4280d6cdc/amkisko/dependency-policy/3.2.0"
+version = "4.0.0"
+path = "./.pray/cache/registry/amkisko/dependency-policy/4.0.0/937b91d368c05c53"
+tree_hash = "sha256:63f3d382797e522a0c9fe0ee1235a63f0d0cca7721600ba8436ed1c4dddcb100"
+artifact_hash = "sha256:63f3d382797e522a0c9fe0ee1235a63f0d0cca7721600ba8436ed1c4dddcb100"
+artifact = "path:./.pray/cache/registry/amkisko/dependency-policy/4.0.0/937b91d368c05c53"
 exports = [
     "dependency-policy",
     "skill",
@@ -118,90 +118,90 @@ dependencies = []
 [[package]]
 name = "amkisko/docs-conventions"
 version = "2.3.0"
-path = "./.pray/cache/registry/95c486e040128f99/amkisko/docs-conventions/2.3.0"
+path = "./.pray/cache/registry/amkisko/docs-conventions/2.3.0/937b91d368c05c53"
 tree_hash = "sha256:3c3cdc99932b2b528263af9da5229d3f06a0710788769ba2006f935da8f3e1fa"
 artifact_hash = "sha256:3c3cdc99932b2b528263af9da5229d3f06a0710788769ba2006f935da8f3e1fa"
-artifact = "path:./.pray/cache/registry/95c486e040128f99/amkisko/docs-conventions/2.3.0"
+artifact = "path:./.pray/cache/registry/amkisko/docs-conventions/2.3.0/937b91d368c05c53"
 exports = ["docs-conventions"]
 dependencies = []
 
 [[package]]
 name = "amkisko/engineering-audit"
-version = "2.7.0"
-path = "./.pray/cache/registry/8929185150cdbdee/amkisko/engineering-audit/2.7.0"
-tree_hash = "sha256:c9b823521bb9bf4fadcc1f35cbef5bdca26c2f685ef7783df56a91c51c40e636"
-artifact_hash = "sha256:c9b823521bb9bf4fadcc1f35cbef5bdca26c2f685ef7783df56a91c51c40e636"
-artifact = "path:./.pray/cache/registry/8929185150cdbdee/amkisko/engineering-audit/2.7.0"
+version = "2.7.1"
+path = "./.pray/cache/registry/amkisko/engineering-audit/2.7.1/937b91d368c05c53"
+tree_hash = "sha256:ddd8a315c3eede60c7c37fea5c0d444ef141387053c050cab9c01000a727eb5f"
+artifact_hash = "sha256:ddd8a315c3eede60c7c37fea5c0d444ef141387053c050cab9c01000a727eb5f"
+artifact = "path:./.pray/cache/registry/amkisko/engineering-audit/2.7.1/937b91d368c05c53"
 exports = ["skill"]
 dependencies = []
 
 [[package]]
 name = "amkisko/finite-state-machines"
 version = "1.2.0"
-path = "./.pray/cache/registry/b935531c40ef3cfe/amkisko/finite-state-machines/1.2.0"
+path = "./.pray/cache/registry/amkisko/finite-state-machines/1.2.0/937b91d368c05c53"
 tree_hash = "sha256:f3a0129b165ab4f1ea44d6167e84fd62012ab842720e6ce87a62a8dddaa3fe03"
 artifact_hash = "sha256:f3a0129b165ab4f1ea44d6167e84fd62012ab842720e6ce87a62a8dddaa3fe03"
-artifact = "path:./.pray/cache/registry/b935531c40ef3cfe/amkisko/finite-state-machines/1.2.0"
+artifact = "path:./.pray/cache/registry/amkisko/finite-state-machines/1.2.0/937b91d368c05c53"
 exports = ["finite-state-machines"]
 dependencies = []
 
 [[package]]
 name = "amkisko/io-simulation"
 version = "1.1.0"
-path = "./.pray/cache/registry/c2f5c9b7bcff969d/amkisko/io-simulation/1.1.0"
+path = "./.pray/cache/registry/amkisko/io-simulation/1.1.0/937b91d368c05c53"
 tree_hash = "sha256:516cf780a64f9227ad161cf5a141642dc66e496d3b3945a1c2e8dbaea83c1105"
 artifact_hash = "sha256:516cf780a64f9227ad161cf5a141642dc66e496d3b3945a1c2e8dbaea83c1105"
-artifact = "path:./.pray/cache/registry/c2f5c9b7bcff969d/amkisko/io-simulation/1.1.0"
+artifact = "path:./.pray/cache/registry/amkisko/io-simulation/1.1.0/937b91d368c05c53"
 exports = ["io-simulation"]
 dependencies = []
 
 [[package]]
 name = "amkisko/minimal-implementation"
 version = "1.3.0"
-path = "./.pray/cache/registry/01056bf22b46ab79/amkisko/minimal-implementation/1.3.0"
+path = "./.pray/cache/registry/amkisko/minimal-implementation/1.3.0/937b91d368c05c53"
 tree_hash = "sha256:e68a5459effa93349471993df63a68f14d5db763bb0980d260dc210132e73fc8"
 artifact_hash = "sha256:e68a5459effa93349471993df63a68f14d5db763bb0980d260dc210132e73fc8"
-artifact = "path:./.pray/cache/registry/01056bf22b46ab79/amkisko/minimal-implementation/1.3.0"
+artifact = "path:./.pray/cache/registry/amkisko/minimal-implementation/1.3.0/937b91d368c05c53"
 exports = ["minimal-implementation"]
 dependencies = []
 
 [[package]]
 name = "amkisko/preferred-stack"
 version = "1.4.0"
-path = "./.pray/cache/registry/d009f65247a548fd/amkisko/preferred-stack/1.4.0"
+path = "./.pray/cache/registry/amkisko/preferred-stack/1.4.0/937b91d368c05c53"
 tree_hash = "sha256:0b0a72d35f880e01683eb1edd99e3afd12be81a1cd839a6f4390a3b40113a67c"
 artifact_hash = "sha256:0b0a72d35f880e01683eb1edd99e3afd12be81a1cd839a6f4390a3b40113a67c"
-artifact = "path:./.pray/cache/registry/d009f65247a548fd/amkisko/preferred-stack/1.4.0"
+artifact = "path:./.pray/cache/registry/amkisko/preferred-stack/1.4.0/937b91d368c05c53"
 exports = ["preferred-stack"]
 dependencies = []
 
 [[package]]
 name = "amkisko/publish-checks"
 version = "1.0.1"
-path = "./.pray/cache/registry/73a0abfb7a532d0d/amkisko/publish-checks/1.0.1"
+path = "./.pray/cache/registry/amkisko/publish-checks/1.0.1/937b91d368c05c53"
 tree_hash = "sha256:9a525cf914df55a461ed1a38bbf68f49dca24083e60aed6f53657a3ec8795340"
 artifact_hash = "sha256:9a525cf914df55a461ed1a38bbf68f49dca24083e60aed6f53657a3ec8795340"
-artifact = "path:./.pray/cache/registry/73a0abfb7a532d0d/amkisko/publish-checks/1.0.1"
+artifact = "path:./.pray/cache/registry/amkisko/publish-checks/1.0.1/937b91d368c05c53"
 exports = ["publish-checks"]
 dependencies = []
 
 [[package]]
 name = "amkisko/rejected-changes"
 version = "1.0.0"
-path = "./.pray/cache/registry/faa8d2021d96fe15/amkisko/rejected-changes/1.0.0"
+path = "./.pray/cache/registry/amkisko/rejected-changes/1.0.0/937b91d368c05c53"
 tree_hash = "sha256:c67d00c73127370733d1a11fe463634e7e8a59b3c3da47c1f578ba00f4b0d9fb"
 artifact_hash = "sha256:c67d00c73127370733d1a11fe463634e7e8a59b3c3da47c1f578ba00f4b0d9fb"
-artifact = "path:./.pray/cache/registry/faa8d2021d96fe15/amkisko/rejected-changes/1.0.0"
+artifact = "path:./.pray/cache/registry/amkisko/rejected-changes/1.0.0/937b91d368c05c53"
 exports = ["rejected-changes"]
 dependencies = []
 
 [[package]]
 name = "amkisko/rfc-process"
 version = "1.2.0"
-path = "./.pray/cache/registry/7833aba01a85fea1/amkisko/rfc-process/1.2.0"
+path = "./.pray/cache/registry/amkisko/rfc-process/1.2.0/937b91d368c05c53"
 tree_hash = "sha256:e3744ca258b957b69d0cea3de6ecb932c8c8b01cf3de512dce8030968b822ec2"
 artifact_hash = "sha256:e3744ca258b957b69d0cea3de6ecb932c8c8b01cf3de512dce8030968b822ec2"
-artifact = "path:./.pray/cache/registry/7833aba01a85fea1/amkisko/rfc-process/1.2.0"
+artifact = "path:./.pray/cache/registry/amkisko/rfc-process/1.2.0/937b91d368c05c53"
 exports = [
     "rfc-process",
     "skill",
@@ -211,40 +211,40 @@ dependencies = []
 [[package]]
 name = "amkisko/ruby-conventions"
 version = "1.2.0"
-path = "./.pray/cache/registry/7960494e9a50c987/amkisko/ruby-conventions/1.2.0"
+path = "./.pray/cache/registry/amkisko/ruby-conventions/1.2.0/937b91d368c05c53"
 tree_hash = "sha256:5d145604680e608d1b115257b5e5ddc33b4a16ad5dc3d026ef199ea46902840f"
 artifact_hash = "sha256:5d145604680e608d1b115257b5e5ddc33b4a16ad5dc3d026ef199ea46902840f"
-artifact = "path:./.pray/cache/registry/7960494e9a50c987/amkisko/ruby-conventions/1.2.0"
+artifact = "path:./.pray/cache/registry/amkisko/ruby-conventions/1.2.0/937b91d368c05c53"
 exports = ["ruby-conventions"]
 dependencies = []
 
 [[package]]
 name = "amkisko/security"
 version = "1.2.0"
-path = "./.pray/cache/registry/453dcf64fff4906d/amkisko/security/1.2.0"
+path = "./.pray/cache/registry/amkisko/security/1.2.0/937b91d368c05c53"
 tree_hash = "sha256:357995aef5075f605816b67a66f30c9b1de96a0c701ae71576642ddea04418d8"
 artifact_hash = "sha256:357995aef5075f605816b67a66f30c9b1de96a0c701ae71576642ddea04418d8"
-artifact = "path:./.pray/cache/registry/453dcf64fff4906d/amkisko/security/1.2.0"
+artifact = "path:./.pray/cache/registry/amkisko/security/1.2.0/937b91d368c05c53"
 exports = ["security"]
 dependencies = []
 
 [[package]]
 name = "amkisko/working-rules"
-version = "2.2.0"
-path = "./.pray/cache/registry/56e56eb79a51a700/amkisko/working-rules/2.2.0"
-tree_hash = "sha256:ba1536746f47b5cc51b5798267fed3a73f6c3fb800376a9ccbe22fb6508696a1"
-artifact_hash = "sha256:ba1536746f47b5cc51b5798267fed3a73f6c3fb800376a9ccbe22fb6508696a1"
-artifact = "path:./.pray/cache/registry/56e56eb79a51a700/amkisko/working-rules/2.2.0"
+version = "2.3.0"
+path = "./.pray/cache/registry/amkisko/working-rules/2.3.0/937b91d368c05c53"
+tree_hash = "sha256:da04ed39a778175924e68acb1205ff4885a5a7d309ffb54eca472f26baf12a08"
+artifact_hash = "sha256:da04ed39a778175924e68acb1205ff4885a5a7d309ffb54eca472f26baf12a08"
+artifact = "path:./.pray/cache/registry/amkisko/working-rules/2.3.0/937b91d368c05c53"
 exports = ["working-rules"]
 dependencies = []
 
 [[package]]
 name = "amkisko/writing-prose"
-version = "3.3.0"
-path = "./.pray/cache/registry/ab12c7592fe8cf0c/amkisko/writing-prose/3.3.0"
-tree_hash = "sha256:39bf1e353bc174dab8c85a205e3fb6e650c1db827467a786d8355695abc6761d"
-artifact_hash = "sha256:39bf1e353bc174dab8c85a205e3fb6e650c1db827467a786d8355695abc6761d"
-artifact = "path:./.pray/cache/registry/ab12c7592fe8cf0c/amkisko/writing-prose/3.3.0"
+version = "3.4.0"
+path = "./.pray/cache/registry/amkisko/writing-prose/3.4.0/937b91d368c05c53"
+tree_hash = "sha256:51dfd68a57f740f2285f4a8e3e4aad6cebab19a7e6f74b866cc48931438d4ae3"
+artifact_hash = "sha256:51dfd68a57f740f2285f4a8e3e4aad6cebab19a7e6f74b866cc48931438d4ae3"
+artifact = "path:./.pray/cache/registry/amkisko/writing-prose/3.4.0/937b91d368c05c53"
 exports = ["writing-prose"]
 dependencies = []
 
@@ -261,10 +261,10 @@ id = "9068e4a2"
 target = "AGENTS.md"
 open_line = 10
 close_line = 25
-ideal_checksum = "sha256:a134a9bd0898ed0f3ebe24b7d6ae7f3d9c00a94f415722608b4b7757ca3536ee"
+ideal_checksum = "sha256:c5cc855a87b088b8e2bdb71721fdc2047bbdd8f4fde18e0e45d87325236ab4c9"
 package = "amkisko/working-rules"
 export = "working-rules"
-source_checksum = "sha256:ba1536746f47b5cc51b5798267fed3a73f6c3fb800376a9ccbe22fb6508696a1"
+source_checksum = "sha256:da04ed39a778175924e68acb1205ff4885a5a7d309ffb54eca472f26baf12a08"
 silenced = false
 
 [[managed_span]]
@@ -305,10 +305,10 @@ id = "3ac5d6ce"
 target = "AGENTS.md"
 open_line = 71
 close_line = 92
-ideal_checksum = "sha256:8e32bf05ad32a5d976abf8b67206b9330b364c280f5326cdfcff09217435e2a5"
+ideal_checksum = "sha256:60c42487ebb75ecf52586f0568d829d0af183edd793f2b5fef70381076960c49"
 package = "amkisko/dependency-policy"
 export = "dependency-policy"
-source_checksum = "sha256:011c599c0fade22671bf410496bc80a26804e495128f5a56c4e1d82a1189bed9"
+source_checksum = "sha256:63f3d382797e522a0c9fe0ee1235a63f0d0cca7721600ba8436ed1c4dddcb100"
 silenced = false
 
 [[managed_span]]
@@ -382,10 +382,10 @@ id = "ca94e22d"
 target = "AGENTS.md"
 open_line = 203
 close_line = 213
-ideal_checksum = "sha256:973ab605a8316b2a7c968b8782cc500d35f3d7a7c488d8ee4acac92dbba77b10"
+ideal_checksum = "sha256:9694a2c47fb8e70fc0f300773bb3237e2d4c1f12074ba5ec32e0507ee90bd9e1"
 package = "amkisko/writing-prose"
 export = "writing-prose"
-source_checksum = "sha256:39bf1e353bc174dab8c85a205e3fb6e650c1db827467a786d8355695abc6761d"
+source_checksum = "sha256:51dfd68a57f740f2285f4a8e3e4aad6cebab19a7e6f74b866cc48931438d4ae3"
 silenced = false
 
 [[managed_span]]
@@ -437,8 +437,176 @@ id = "48e8a6b3"
 target = "AGENTS.md"
 open_line = 257
 close_line = 264
-ideal_checksum = "sha256:56599a65c111874dc069865bb465bc931ce2a28c6380e2a1abedffcc9add7086"
+ideal_checksum = "sha256:0c9ad0fd4ae2aea3f0be7af78f7aeaed5319ea5d77c1c87f60144381a5f8c549"
 package = "amkisko/collaboration-workflow"
 export = "collaboration-workflow"
-source_checksum = "sha256:f12fa3ba5d786c3b32e8fc25e071ea9d34bb3e1d6236561e50c7b202269b40dd"
+source_checksum = "sha256:b9d6efb001a131f038089fb2565f1671fa3c5045c39dae75108580c17e943b7c"
 silenced = false
+
+[[provisioned]]
+path = ".agents/skills/changelog-update/SKILL.md"
+content_hash = "sha256:c05f198a0370b8ca1bf8c5b3df5f9d5ce737722364dab29a0e8e8fc9443854da"
+package = "amkisko/changelog-update"
+export = "skill"
+
+[[provisioned]]
+path = ".agents/skills/changelog-update/changelog-update.md"
+content_hash = "sha256:24cc79d2832f2e6c24f49181ca4b0122a3f4836e0be72e42b669faf259e6c10c"
+package = "amkisko/changelog-update"
+export = "skill"
+
+[[provisioned]]
+path = ".agents/skills/claims-audit/SKILL.md"
+content_hash = "sha256:d9b52c3a58a5f141da9342ee867116267800f397df39d4f80a86c6877cddf5e5"
+package = "amkisko/claims-audit"
+export = "skill"
+
+[[provisioned]]
+path = ".agents/skills/claims-audit/claims-audit.md"
+content_hash = "sha256:8e7f9b3d98f6586ed3a4bbdf08eae554e43540ee1b9cccc6982221cb930e5b2e"
+package = "amkisko/claims-audit"
+export = "skill"
+
+[[provisioned]]
+path = ".agents/skills/claims-audit/references/evidence-bundle.md"
+content_hash = "sha256:6e0b4f175bd51c4d9fb610364fb76de5dc2a7caffe8600db0294b906d18665bb"
+package = "amkisko/claims-audit"
+export = "skill"
+
+[[provisioned]]
+path = ".agents/skills/dependency-audit/SKILL.md"
+content_hash = "sha256:67052947427e3a9e2d43f207fc8cf44071841e6ecffaa6b8a81b159ac4bf3b1d"
+package = "amkisko/dependency-policy"
+export = "skill"
+
+[[provisioned]]
+path = ".agents/skills/dependency-audit/references/dependency-audit.md"
+content_hash = "sha256:b3e9cdcbd453636a5f93824f82f6537c99f4e1bc88fcc7f13659adbbdbc44a51"
+package = "amkisko/dependency-policy"
+export = "skill"
+
+[[provisioned]]
+path = ".agents/skills/dependency-audit/references/libyears.md"
+content_hash = "sha256:9c62bedc921cd25a93f363f2dedb9e6b9bf3b3b1593094ec6591ef16cb7b28fa"
+package = "amkisko/dependency-policy"
+export = "skill"
+
+[[provisioned]]
+path = ".agents/skills/dependency-audit/references/selection-and-alteration.md"
+content_hash = "sha256:a3925696bdf9bf664eac662515b192a040406b0ffa0aa50940b67d4a4c2196d2"
+package = "amkisko/dependency-policy"
+export = "skill"
+
+[[provisioned]]
+path = ".agents/skills/dependency-audit/references/vulnerability-assessment.md"
+content_hash = "sha256:dec8dc333344dd6a153bb91e64d422efe1aa4ea75dabe7cc5281f6120c1d8ae8"
+package = "amkisko/dependency-policy"
+export = "skill"
+
+[[provisioned]]
+path = ".agents/skills/engineering-audit/SKILL.md"
+content_hash = "sha256:a71a20604a45308a841de4bfea6318bd3a622b75fcdf6750faaffcb0fc7e4215"
+package = "amkisko/engineering-audit"
+export = "skill"
+
+[[provisioned]]
+path = ".agents/skills/engineering-audit/contracts.md"
+content_hash = "sha256:d7cc873d8e2aab9c79adb997253b0ee902abca8c102a6c1274c25325d6baa9e5"
+package = "amkisko/engineering-audit"
+export = "skill"
+
+[[provisioned]]
+path = ".agents/skills/engineering-audit/engineering-audit.md"
+content_hash = "sha256:863efc91586065907251776dda5d16c912f76b224941af9250f52da2ffef0029"
+package = "amkisko/engineering-audit"
+export = "skill"
+
+[[provisioned]]
+path = ".agents/skills/engineering-audit/learned-systems.md"
+content_hash = "sha256:ef72b3edff533b45ae27a957d276c7f08c670f5a0b15a6c2a319b99ea062ae7e"
+package = "amkisko/engineering-audit"
+export = "skill"
+
+[[provisioned]]
+path = ".agents/skills/engineering-audit/observability.md"
+content_hash = "sha256:c743c1c0da77b0de175eba4ad777b56fdbfaf493bd1b03b6eb5eb903f09ea731"
+package = "amkisko/engineering-audit"
+export = "skill"
+
+[[provisioned]]
+path = ".agents/skills/engineering-audit/performance.md"
+content_hash = "sha256:f22fb54c95a4920501b0d65bcb96a390dfa66fc595c8963fa6eb1c31cef8b3ab"
+package = "amkisko/engineering-audit"
+export = "skill"
+
+[[provisioned]]
+path = ".agents/skills/engineering-audit/privacy.md"
+content_hash = "sha256:ac36296267d8cb2db8a362c30dd98e81fa90012f4c5c46c85538422cd8c5e074"
+package = "amkisko/engineering-audit"
+export = "skill"
+
+[[provisioned]]
+path = ".agents/skills/engineering-audit/product-surface.md"
+content_hash = "sha256:7ecf8ae3db1e68feebc80f67683b866839da501c993e09d06abf07cd2f757af2"
+package = "amkisko/engineering-audit"
+export = "skill"
+
+[[provisioned]]
+path = ".agents/skills/engineering-audit/resource-and-budget.md"
+content_hash = "sha256:76a0994349754ec42bd1403e54b4924696f9130f2a25e8d7350f70b9ac8e4bde"
+package = "amkisko/engineering-audit"
+export = "skill"
+
+[[provisioned]]
+path = ".agents/skills/engineering-audit/security.md"
+content_hash = "sha256:ec7912d0fc337b87ec12a1e3faf53c7490d9d1e599ec6d900535564a7bf7d457"
+package = "amkisko/engineering-audit"
+export = "skill"
+
+[[provisioned]]
+path = ".agents/skills/engineering-audit/trace-and-identification.md"
+content_hash = "sha256:40d944f97538810e0213eea2abdfd170b66bd1165885f51923e38a2d8e5b45ce"
+package = "amkisko/engineering-audit"
+export = "skill"
+
+[[provisioned]]
+path = ".agents/skills/rfc-process/SKILL.md"
+content_hash = "sha256:53b254458e3f15aae7b2bcb1f7c5eadf5d80fa11cb65708301dd487699b19a7e"
+package = "amkisko/rfc-process"
+export = "skill"
+
+[[provisioned]]
+path = ".agents/skills/rfc-process/references/template.md"
+content_hash = "sha256:93f394732a6d6f508abe828de5e32aea49ab58738f312d7626bf4ff23fc97b99"
+package = "amkisko/rfc-process"
+export = "skill"
+
+[[provisioned]]
+path = ".agents/skills/rfc-process/rfc-process.md"
+content_hash = "sha256:bce6c5bfee557049c1c3b2a5cb9f013f0d2203d5e50e687393649eec0dbd3a68"
+package = "amkisko/rfc-process"
+export = "skill"
+
+[[provisioned]]
+path = "CODE_OF_CONDUCT.md"
+content_hash = "sha256:6107f4344947fcb26add770dcdaa308cde46a71f28f27678642574522e3f57c3"
+package = "amkisko/community-code-of-conduct"
+export = "code-of-conduct"
+
+[[provisioned]]
+path = "CONTRIBUTING.md"
+content_hash = "sha256:22fc3579135ee77ee76f1250496ecb56be08cc8e1ccb7529834301ef2bf5d9fc"
+package = "amkisko/community-contributing"
+export = "contributing"
+
+[[provisioned]]
+path = "GOVERNANCE.md"
+content_hash = "sha256:4639dbce773214e8ae95f2c84c198075f6cf3062bd9796d3078552c9cfe59a46"
+package = "amkisko/community-governance"
+export = "governance"
+
+[[provisioned]]
+path = "SECURITY.md"
+content_hash = "sha256:d29b005e7465ef05c99cebd424b97ea868acf855609f95f1247441c46a761659"
+package = "amkisko/community-security"
+export = "security"

@@ -11,7 +11,7 @@ Optional modes below skip when the product has no matching surface. Skip and sta
 Structured finding fields stay as specified below. Free-form audit text stays blunt, compressed, and evidence-first. No engagement filler.
 
 - no sales language, trend packaging, or methodology pitches;
-- no negation-first hooks; state the fact and move on;
+- state the finding directly; preserve necessary negation;
 - do not repeat the same claim in positive and negative form in adjacent lines;
 - prefer commas, colons, semicolons, and full stops over em dashes;
 - findings destined for `usr/docs/issues/`: plain prose, no markdown tables, bold, italic, or other styling unless the repository explicitly allows it.

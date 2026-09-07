@@ -19,7 +19,7 @@ To change shared guidance, update `Prayfile` and run `pray install`.
 - pull request description should include answers to questions: what problem is solved, why it matters, how the solution works, and any relevant context; if the change is non-trivial, include reproduction steps or a changelog entry with intent;
 - pull request checklist: changelog entry with intent or reproduction steps when relevant, test coverage, and quality checks done;
 - follow docs-conventions for usr/docs trace filenames and layout;
-- validation output must list exact commands run and observed results, and never claim tests pass unless they were executed and passed;
+- report completed actions only with observed evidence; validation output must list exact commands run and observed results;
 - ignore style-only dust unless it harms correctness, operability, maintainability, or auditability under realistic load;
 - fix the cause of a race, not a retry around it; prefer positive names; compute at write when a read cannot paginate; do not change production design only so tests can reach it.
 <!-- pray:9068e4a2 -->
@@ -86,7 +86,7 @@ Stop until one of these applies before adding a dependency:
 - an installed transitive dependency already covers it without a second library for the same job;
 - the feature needs a new package and tests will prove behavior.
 
-Run the dependency-audit skill when adding, replacing, or removing a direct dependency; when asked for a dependency audit; before a release that changes hot-path packages; or after a published advisory names a package in the graph.
+Run dependency-audit for direct dependency changes, graph audits, releases with hot-path package changes, and plausible dependency vulnerability or exploitation signals found during ordinary work. Keep the evidence and assessment in the live-work or dependency record.
 
 Related: `dependency-issues` records upstream defects found during real work; `minimal-implementation` covers YAGNI before adding deps; `engineering-audit` covers code and pipeline review.
 <!-- pray:3ac5d6ce -->
@@ -203,9 +203,9 @@ Related: `engineering-audit` enumerates those boundary conditions; `finite-state
 <!-- pray:ca94e22d -->
 ## Writing and changelog prose checks
 
-Read once for marketing odor, once for negation-led sentences, once for stray em dashes, and once for paragraphs that break on clause instead of on scene; keep live notes and metadata honest and plain.
+Review for marketing language, invented objections, empty contrasts, stray em dashes, and paragraph flow; keep notes and metadata honest and plain.
 - repo trace under usr/docs: plain prose readable without a rendered preview. No markdown tables, bold, italic, or other styling. Prioritize factual accuracy over presentation.
-- Ease, lexical diversity, coherence, mechanics, and claim integrity are separate constructs. Automated matches, readability grades, similarity, and model preference are review prompts; rewrite for meaning.
+- Ease, lexical diversity, coherence, mechanics, and claim integrity are separate constructs. Automated matches, readability grades, similarity, and model preference are review prompts; preserve meaning, necessary negation, scope, and uncertainty when editing.
 - Keep agency on the person who acts. Tools and process nouns do mechanical work.
 - Technical names, APIs, CLI verbs, RFC titles, identifiers, and UI copy use instrument and protocol words: check-in, last-seen, probe, monitor, expected tick. Body and organism metaphors such as heartbeat, pulse, and organ stay out of contracts and code. HTTP `/health` remains the liveness probe until a later RFC.
 - One sentence holds one beat. Consecutive short sentences that only restated the same beat are a punchline stack.
@@ -257,8 +257,8 @@ Claim `rfcs/ids/NNNN` before writing `rfcs/NNNN-slug.md`. Copy `rfcs/0000-templa
 <!-- pray:48e8a6b3 -->
 ## Collaboration workflow
 
-- agent-assisted work with ongoing project value must leave a trace in the repo;
-- store only specific, decision-bearing, high-signal material; do not commit generic notes, copied chat logs, or filler;
-- use the lightest process that preserves traceability; design-only work does not need branch ceremony unless implementation work starts;
-- follow docs-conventions for docs/ versus usr/docs/ layout.
+- record durable project value in the live-work queue, including improvements to shared guidance or a skill;
+- keep only decision-bearing material; omit generic notes, copied chat, and filler;
+- use the lightest trace that preserves context; design-only work needs no branch unless implementation starts;
+- follow docs-conventions for `docs/` and `usr/docs/`.
 <!-- pray:48e8a6b3 -->
