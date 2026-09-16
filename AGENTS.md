@@ -12,15 +12,16 @@ To change shared guidance, update `Prayfile` and run `pray install`.
 - test only executable logic and user-facing behavior; tests should affect coverage metrics;
 - avoid tests that only assert implementation details; avoid file/page content/ordering/regex assertions; avoid duplicating tests;
 - user interface texts should never mention implementation technical details;
-- prefer files around <=150 LOC when cohesion allows, but never split coherent logic purely to satisfy line count; split only when it improves ownership, readability, and reviewability;
-- do not use abbreviations and short names for variables, methods, classes, etc. unless it is a very common abbreviation or short name;
+- prefer files around <=150 LOC when cohesion allows; split only when it improves ownership, readability, and reviewability;
+- do not use abbreviations or short names unless they are very common;
 - avoid explanatory comments, but allow intent comments for non-obvious constraints, invariants, concurrency edges, or external contract requirements;
-- keep the idea that code reflects user experience, so readability, structure, and clarity are product qualities;
-- pull request description should include answers to questions: what problem is solved, why it matters, how the solution works, and any relevant context; if the change is non-trivial, include reproduction steps or a changelog entry with intent;
+- readability, structure, and clarity are product qualities;
+- pull request description answers what problem is solved, why it matters, how the solution works, and relevant context; non-trivial changes include reproduction steps or a changelog entry with intent;
 - pull request checklist: changelog entry with intent or reproduction steps when relevant, test coverage, and quality checks done;
 - follow docs-conventions for usr/docs trace filenames and layout;
 - report completed actions only with observed evidence; validation output must list exact commands run and observed results;
 - ignore style-only dust unless it harms correctness, operability, maintainability, or auditability under realistic load;
+- sibling files and executable checks beat shared defaults; mixed styles stay a split until a path boundary explains both;
 - fix the cause of a race, not a retry around it; prefer positive names; compute at write when a read cannot paginate; do not change production design only so tests can reach it.
 <!-- pray:9068e4a2 -->
 
@@ -47,8 +48,8 @@ Related: `engineering-audit` security mode asks whether a parameter establishes 
 <!-- pray:781b7711 -->
 
 <!-- pray:bfe6ff38 -->
-- `docs/` is for human-facing documentation: setup guides, architecture, migration notes, and operator material meant for users and contributors without agent context; use stable descriptive filenames;
-- `usr/docs/` is for durable agent and engineering trace; keep inference input (AGENTS.md, `.agents/`) separate from human docs;
+- `docs/` is for human-facing documentation without agent context; use stable descriptive filenames;
+- `usr/docs/` is for durable agent and engineering trace; keep inference input (AGENTS.md, `.agents/`) separate from human docs; conventions that matter fail a command;
 - `usr/migrate/` holds live console-first scripts for a change that must run before new code is on the process; later schema migrate is schema-only and idempotent;
 - four usr/docs timestamp trees, no README index, filename `YYYYMMDDHHMMSS_<kebab-case-title>.md`: `issues` (live work: contract, findings, open next; pitch, plan, and queue stay here), `changelogs` (what shipped), `meetings` (one sitting: who was there and what they agreed), `dependencies` (upstream defects from real work);
 - issues, changelogs, and meetings make five things findable (use `##` headings or equivalent; omit empty sections): **Participants** (humans only; omit agents, tools, and binaries), **Decisions** (what was agreed), **Effects** (done, failed, recovered, rolled back), **Next** (todo, planned, open questions), **Source** (links upstream: meeting, issue, PR, commit, and downstream materializations); git history is the edit log; add an explicit note only when a later pass changes meaning (scope cut, rollback, decision reversed);
@@ -123,10 +124,11 @@ Before adding a new library directory or first-party package, stop until one app
 
 Rules:
 - match the language of the directory you are changing (see Preferred stack and tools above);
+- match the tree's structural height; a consistent absence of a layer is a convention; do not introduce a second pattern for the same job;
 - no abstractions unless three real variations need them; drop unused public methods;
 - no new dependency when stdlib, the framework for this tree, or an installed dependency suffices;
 - no boilerplate the task did not ask for;
-- deletion over addition; boring over clever; fewest files that stay readable (see file size guidance above);
+- deletion over addition; boring over clever; fewest files that stay readable;
 - when a request sounds overbuilt, ask whether a simpler existing path already covers it;
 - when two stdlib approaches are the same size, pick the edge-case-correct one; less code is not an excuse for a flimsier algorithm;
 - document deliberate shortcuts with an intent comment: name the known ceiling (global lock, O(n²) scan, naive heuristic) and the upgrade path when that ceiling matters.
@@ -137,9 +139,9 @@ Not optional even when minimizing scope:
 - security and accessibility;
 - calibration against real hardware and production drift when the platform ideal is not the spec;
 - anything explicitly requested in the task or ticket;
-- tests for non-trivial behavior per @spec/README.md and the testing bullets above; trivial one-liners need no new spec.
+- tests for non-trivial behavior per @spec/README.md; trivial one-liners need no new spec.
 
-Related: `keep-the-work` covers staying on the failed place and keeping answers after a refusal; `dependency-policy` covers third-party registry packages.
+Related: `keep-the-work` covers the failed place after a refusal; `dependency-policy` covers third-party registry packages; `infer-conventions` encodes how this tree writes as checks.
 <!-- pray:bf7304a6 -->
 
 <!-- pray:120c3507 -->
@@ -260,5 +262,5 @@ Claim `rfcs/ids/NNNN` before writing `rfcs/NNNN-slug.md`. Copy `rfcs/0000-templa
 - record durable project value in the live-work queue, including improvements to shared guidance or a skill;
 - keep only decision-bearing material; omit generic notes, copied chat, and filler;
 - use the lightest trace that preserves context; design-only work needs no branch unless implementation starts;
-- follow docs-conventions for `docs/` and `usr/docs/`.
+- follow docs-conventions for `docs/` and `usr/docs/`; when encoding how this tree writes, use infer-conventions.
 <!-- pray:48e8a6b3 -->

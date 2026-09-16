@@ -13,11 +13,11 @@ Run this mode when the audited system publishes or consumes a protocol, API, or 
 - destination failure recorded as completed versus retried as if our code failed;
 - backward compatibility for callers you still support.
 
-Auth detail for each operation stays in security review mode.
+Authentication, object-level authorization, extra-field writes, and trusted-layer validation for each operation stay in security review mode.
 
 ## Indicators
 
-Prefer schema-validation pass/fail, operations without a negative auth test, and compatibility breaks since the last released contract.
+Prefer schema-validation pass/fail, extra-field persist counts, operations without a negative auth test, and compatibility breaks since the last released contract.
 
 ## Skip
 

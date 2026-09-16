@@ -49,15 +49,15 @@ Lag of third-party packages (libyears or equivalent) lives in `dependency-audit`
 
 ## Test quality
 
-Missing coverage is not futile coverage. Also treat as findings: flaky or slow tests that erode trust; missing negative permission tests; missing failure, empty, and retry states; helpers that bypass real policy so production risk is hidden.
+Missing coverage is not futile coverage. Also treat as findings: flaky or slow tests that erode trust; missing negative permission tests, including two-principal object access; missing extra-field persist tests; client-only validation; missing failure, empty, and retry states; helpers that bypass real policy so production risk is hidden.
 
 ## Pipeline stage checks
 
 When the audit scope includes these layers, inspect explicitly.
 
-Cache: key design, TTL correctness, stampede protection, invalidation ownership, whether misses amplify upstream load.
+Cache: key design, TTL correctness, stampede protection, invalidation ownership, whether misses amplify upstream load, untrusted keys, caller-controlled values in shared process state.
 
-Database: N+1 queries, unbounded result sets, missing indexes, lock contention, tenant or shard skew hotspots.
+Database: N+1 queries, unbounded result sets, missing indexes, lock contention, tenant or shard skew hotspots, extra columns written from undeclared fields.
 
 Queue and worker: retry storms, poison jobs, duplicate work, drain rate versus enqueue rate, starvation, head-of-line blocking, missing backpressure, idempotency gaps, request-local context read at perform that was not captured at enqueue, destination failure retried as if our code failed.
 

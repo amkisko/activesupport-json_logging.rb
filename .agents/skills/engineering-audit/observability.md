@@ -4,6 +4,8 @@ Run this mode when the audited system runs as a service, job worker, or long-liv
 
 Ask whether a person can know what broke without reading source.
 
+Use `operational-signal-intake` when work starts from a live alert, event, trace, metric, log, probe, change, or user report. This mode audits the telemetry design and coverage; intake establishes what the current evidence supports and routes deeper work.
+
 ## Checks
 
 - structured logs with request or job correlation that does not leak private data;
