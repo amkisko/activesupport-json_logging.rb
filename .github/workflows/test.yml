@@ -63,6 +63,17 @@ jobs:
           ruby-version: "3.4"
           bundler-cache: true
       - run: POLYRUN_COVERAGE=1 bundle exec polyrun parallel-rspec --workers 5 --merge-failures
+      - name: Report coverage for Sonar/Codecov
+        run: >
+          bundle exec polyrun report-coverage
+          -i coverage/merged.json
+          -o coverage
+          --basename coverage
+          --format json,cobertura
+      - name: Merge RSpec JSON into JUnit
+        run: |
+          mkdir -p coverage
+          bundle exec polyrun report-junit -i "tmp/rspec-*.json" -o coverage/junit-coverage.xml
       - uses: SonarSource/sonarqube-scan-action@7006c4492b2e0ee0f816d36501671557c97f5995 # v8.1.0
         continue-on-error: true
         env:
