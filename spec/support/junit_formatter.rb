@@ -18,4 +18,3 @@ if ENV["CI"]
     Polyrun::Reporting::RspecJunit.install!
   end
 end
-

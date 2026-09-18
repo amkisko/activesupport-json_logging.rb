@@ -43,6 +43,7 @@ lint:
     - shfmt
     - hadolint
     - trivy
+    - osv-scanner
   definitions:
     - name: stylelint
       files: [css]
@@ -78,7 +79,6 @@ lint:
     - dotenv-linter@4.0.0
     - git-diff-check
     - markdownlint@0.46.0
-    - osv-scanner@2.2.4
     - shellcheck@0.11.0
 actions:
   disabled:

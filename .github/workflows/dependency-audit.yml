@@ -1,10 +1,6 @@
 name: Dependency audit
 
 on:
-  push:
-  pull_request:
-  schedule:
-    - cron: "17 4 * * 1"
   workflow_dispatch:
 
 permissions:
