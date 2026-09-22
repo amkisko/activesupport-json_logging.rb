@@ -14,7 +14,7 @@ Structured finding fields stay as specified below. Free-form audit text stays bl
 - state the finding directly; preserve necessary negation;
 - do not repeat the same claim in positive and negative form in adjacent lines;
 - prefer commas, colons, semicolons, and full stops over em dashes;
-- findings destined for `usr/docs/issues/`: plain prose, no markdown tables, bold, italic, or other styling unless the repository explicitly allows it.
+- findings destined for `docs/issues/`: plain prose, no markdown tables, bold, italic, or other styling unless the repository explicitly allows it.
 
 ## Role
 
@@ -41,7 +41,7 @@ Scan for:
 
 ## Indicators
 
-Every finding lands in a category (audit type, pipeline stage, or severity band), carries a measurable value or countable outcome, and serializes so later runs compare without re-reading prose. Prefer numbers, ratios, counts, bands, and pass/fail matrices. When judgement is unavoidable, still assign category, severity, location, and kind (observed versus inference).
+Every finding lands in a category (audit type, pipeline stage, or severity band), carries a measurable value or countable outcome, and serializes so later runs compare without re-reading prose. Prefer numbers, ratios, counts, bands, and pass/fail matrices. When judgement is unavoidable, still assign category, severity, location, and evidence kind (observed, inference, or artifact-missing). Security mode also assigns a disposition: confirmed, blocked, or rejected.
 
 Unmeasured claims include the exact check that would make them measurable next run.
 
@@ -55,11 +55,13 @@ Missing coverage is not futile coverage. Also treat as findings: flaky or slow t
 
 When the audit scope includes these layers, inspect explicitly.
 
-Cache: key design, TTL correctness, stampede protection, invalidation ownership, whether misses amplify upstream load, untrusted keys, caller-controlled values in shared process state.
+Cache: key design, TTL correctness, stampede protection, invalidation ownership, whether misses amplify upstream load, untrusted keys, caller-controlled values in shared process state. Ask whether this cache is the source of truth or every read revalidates. Ask whether another instance can serve stale data after a write is acknowledged. Control-plane metadata and bulk bytes must not share a runtime, lock, or transport without a named reason.
 
-Database: N+1 queries, unbounded result sets, missing indexes, lock contention, tenant or shard skew hotspots, extra columns written from undeclared fields.
+Database: N+1 queries, unbounded result sets, missing indexes, lock contention, tenant or shard skew hotspots, extra columns written from undeclared fields. A hot path must not list or enumerate when a probe would do.
 
-Queue and worker: retry storms, poison jobs, duplicate work, drain rate versus enqueue rate, starvation, head-of-line blocking, missing backpressure, idempotency gaps, request-local context read at perform that was not captured at enqueue, destination failure retried as if our code failed.
+Queue and worker: retry storms, poison jobs, duplicate work, drain rate versus enqueue rate, starvation, head-of-line blocking, missing backpressure, idempotency gaps, request-local context read at perform that was not captured at enqueue, destination failure retried as if our code failed. Measure the distance between the latest committed item and the worker cursor, and treat unexplained waiting as a finding.
+
+A proxy that terminates TLS, authenticates callers, or transfers request or response bodies must identify its role in each request trace.
 
 External API: jobs orchestrate; client adapters own protocol details; retries, backoff, and idempotency tested at the correct boundary.
 
@@ -136,6 +138,7 @@ Skip any mode that does not apply and state that reason. Procedure in the named 
 | Security review | `security.md` | trust, auth, or attacker path in scope | calculation-only, no IO, no secrets |
 | Contract | `contracts.md` | publishes or consumes a protocol, API, or event contract | none |
 | Learned systems | `learned-systems.md` | generative model, retrieval corpus, or tool-calling agent | none of those |
+| Lineage | `lineage.md` | named object, contract field, or reported number | no data path and no published contract |
 
 CVE reachability and package lag: `dependency-audit`. Place after refusal: boundary mode above and `keep-the-work`.
 
@@ -147,11 +150,12 @@ CVE reachability and package lag: `dependency-audit`. Place after refusal: bound
 | Confidence | high, medium, low |
 | Location | file, symbol, endpoint, queue, job, query, worker, or subsystem |
 | Why it matters | short, concrete |
-| Kind | observed fact vs inference |
+| Evidence kind | observed, inference, or artifact-missing |
+| Security disposition | confirmed, blocked, or rejected; omit outside security mode |
 | Smallest credible fix | minimal change that addresses the issue |
 | Deeper fix | optional structural change when the small fix is insufficient |
 
-Label every claim not proven by code, tests, logs, traces, or query plans as inference and include the exact check needed to confirm or reject it.
+Label every claim not proven by code, tests, logs, traces, or query plans as inference and include the exact check needed to confirm or reject it. Completeness, consistency, and quality are different questions. Passing one check does not establish the others. The auditor reports. The producer repairs. A later artifact does not prove an earlier gate. The confidence of a downstream finding cannot exceed the confidence of an upstream finding it depends on.
 
 ## Ranking
 

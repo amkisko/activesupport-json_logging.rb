@@ -20,7 +20,7 @@ Ask whether this tree's memory, CPU, storage, network, or energy use starves, de
 
 ## What to name
 
-Quantity metrics: shipped size (JS bundle, native binary, container image, gem, assets), resident memory and heap, CPU time and duty cycle, storage growth, network bytes, energy or a stated proxy (CPU-seconds, joules). Call out mixed compressed versus uncompressed numbers. JS parse cost is not image bytes of the same size. Transferred bytes are not a linear network-energy saving.
+Quantity metrics: shipped size (JS bundle, native binary, container image, gem, assets), resident memory and heap, CPU time and duty cycle, storage growth, network bytes, energy or a stated proxy (CPU-seconds, joules), tool-call count, token count. Call out mixed compressed versus uncompressed numbers. JS parse cost is not image bytes of the same size. Transferred bytes are not a linear network-energy saving. Claims that extra supervisors improve quality by a multiplier stay inference until a benchmark demonstrates the effect.
 
 Industry starter numbers (page-weight defaults, store download ceilings, carbon-rate formulas) stay related reading. Measure the audience, then set the house budget.
 

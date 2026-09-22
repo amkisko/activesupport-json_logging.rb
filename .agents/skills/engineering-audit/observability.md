@@ -16,7 +16,8 @@ Use `operational-signal-intake` when work starts from a live alert, event, trace
 - outbound mail, webhook, and third-party failures visible and separated from application faults;
 - health and readiness distinct when the platform has both;
 - pool, queue, and retry or dead-letter behaviour visible;
-- alert thresholds that fire on user impact, not on every retry.
+- alert thresholds that fire on user impact, not on every retry;
+- distance between the latest committed item and the worker cursor visible, with unexplained waiting exposed on shared-store and worker paths.
 
 Industry frame: latency, traffic, errors, and saturation (SRE four signals) as related reading, not house MUST.
 

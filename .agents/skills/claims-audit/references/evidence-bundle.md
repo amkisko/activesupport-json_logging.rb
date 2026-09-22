@@ -2,7 +2,7 @@
 
 Use a working bundle when the task needs reproducible research: new material claims, disputed facts, or a source audit that should outlive the chat.
 
-Prefer an uncommitted working directory unless the project already stores research under `usr/docs/`. The bundle is working material. Reader-facing citations belong in the published text.
+Prefer an uncommitted working directory unless the project already stores research under `docs/issues` or `docs/dependencies`. The bundle is working material. Reader-facing citations belong in the published text.
 
 ## Layout
 
@@ -29,7 +29,7 @@ Search-result snippets, model summaries, anonymous aggregations, and unsourced r
 
 Maintain a claim-evidence list. For each claim record an ID, the proposed material claim, location in the text, supporting sources, conflicting sources, status, and necessary qualification or action.
 
-Statuses match the claims-audit outcomes: `supported`, `partially supported`, `unsupported`, `outdated`, `contested`, `unverifiable`. A source link alone is insufficient. The cited passage must support the claim's scope, date, population, modality, and causal strength. If this file will live under `usr/docs/`, use labelled fields rather than markdown tables.
+Statuses match the claims-audit outcomes: `supported`, `partially supported`, `unsupported`, `outdated`, `contested`, `unverifiable`. A source link alone is insufficient. The cited passage must support the claim's scope, date, population, modality, and causal strength. If this file will live under a `docs/` timestamp tree, use labelled fields rather than markdown tables.
 
 ## query-log.md
 

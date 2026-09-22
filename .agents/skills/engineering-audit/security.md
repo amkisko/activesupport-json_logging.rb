@@ -72,6 +72,30 @@ Client-side checks improve usability. The trusted-layer control is independent o
 4. Prove with extra-field writes that must not persist; type, range, and related-field rejects; path-escape rejects; hidden-field or cookie tampers that must be ignored. Schema-validation pass or fail and extra-field persist counts are the countable indicators.
 5. Tests that only exercise the client form, or that mock away the binder, are futile coverage.
 
+## Security dispositions
+
+Assign one disposition alongside the evidence kind defined in `engineering-audit.md`:
+
+- confirmed: source evidence and a bounded result;
+- blocked: the exact missing fact; no severity;
+- rejected: disproved, so the next pass does not re-litigate it.
+
+Use the artifact-missing evidence kind when a claim needs a screenshot, trace, store console, or device run. Assign severity only to confirmed records, and do not exceed demonstrated impact. Defense-in-depth and missing headers are hardening notes unless a less-trusted path gains something. One pass is partial; say what was not reviewed. A green gate certifies the assertions it ran, not the surrounding product claim. Missing runtime is not a successful static pass.
+
+When the person asks for a security audit, launch a second agent that only tries to refute each confirmed finding. The checker is not the finder.
+
+## Data isolation and lifecycle
+
+A tenant field on a row is not isolation. Derived copies (search, cache, export, backup, analytics) can have weaker ACLs. Soft-delete, restore, and queued work can recreate deleted data. Privacy mode asks whether the data should exist. This pass asks whether another tenant can reach a copy.
+
+## Packaged client
+
+When the tree ships a client with a platform manifest or IPC surface, ask: exported entry points without a bound permission; embedded browser that proceeds on TLS failure; cleartext allowed; secrets in local stores versus the platform keystore; shrinker as binary protection, not a style trophy. Skip for libraries and server-only trees.
+
+## CI and orchestration
+
+Checkout of untrusted code with write tokens is a finding. Interpolating untrusted event fields into a shell is a finding. Unpinned third-party workflow steps are a finding. An orchestrator or sandbox with a container-runtime socket is host-equivalent privilege. Shipping compose is not the documented production topology. A human checkpoint that defaults off is not a default barrier.
+
 ## Tests
 
 Separate missing security coverage, futile coverage (happy path only, boundary mocked away, client form only), and dangerous helpers that bypass real policy.
@@ -96,6 +120,10 @@ Order by exploitability, blast radius, privilege gained, data sensitivity, certa
 
 No trust boundary, secrets, or attacker path: skip and say so.
 
+## Companions
+
+Read `http-identity.md` when the tree has an HTTP or identity protocol surface. Read `client-surface.md` when the tree has a browser or embedded-browser surface. Read `native-interface.md` when the tree has native, unsafe, or foreign-function code. Skip each file and say so when that surface is absent.
+
 ## Primary references
 
 - CWE-639, authorization bypass through a user-controlled key: https://cwe.mitre.org/data/definitions/639.html
@@ -104,3 +132,5 @@ No trust boundary, secrets, or attacker path: skip and say so.
 - CWE-20, improper input validation: https://cwe.mitre.org/data/definitions/20.html
 - CWE-915, improperly controlled modification of dynamically-determined object attributes: https://cwe.mitre.org/data/definitions/915.html
 - OWASP Input Validation Cheat Sheet: https://cheatsheetseries.owasp.org/cheatsheets/Input_Validation_Cheat_Sheet.html
+- OWASP LLM01 Prompt Injection: https://genai.owasp.org/llmrisk/llm01-prompt-injection/
+- OWASP MCP Top 10: https://github.com/OWASP/www-project-mcp-top-10/

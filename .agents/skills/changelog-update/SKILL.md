@@ -1,6 +1,6 @@
 ---
 name: changelog-update
-description: Update CHANGELOG.md and usr/docs/changelogs in amkisko house style. Use when editing changelogs, preparing releases, or syncing engineering notes into product-facing release text.
+description: Update CHANGELOG.md and docs/changelogs in amkisko house style. Use when editing changelogs, preparing releases, or syncing engineering notes into product-facing release text.
 ---
 
 # Changelog update
@@ -11,4 +11,4 @@ Read `changelog-update.md` in this skill directory for layers, audience, when to
 
 ## Quick reference
 
-`usr/docs/changelogs/` is the engineering draft. `CHANGELOG.md` is user-visible outcomes. Imperative bullets. No marketing language.
+`docs/changelogs/` is the engineering draft. `CHANGELOG.md` is user-visible outcomes. Imperative bullets. No marketing language.

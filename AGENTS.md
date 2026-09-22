@@ -5,7 +5,9 @@
 Do not edit managed blocks in `AGENTS.md` or provisioned files under `.agents/`.
 To change shared guidance, update `Prayfile` and run `pray install`.
 
+<!-- pray:ae5d334a -->
 ## Shared instructions
+<!-- pray:ae5d334a -->
 
 <!-- pray:9068e4a2 -->
 - when fixing or refactoring code, add or update tests first to expose the current bug/regression path (or missing contract), then implement the fix, then run focused and broader checks, and do not ship behavior changes without proving before/after via specs;
@@ -18,20 +20,25 @@ To change shared guidance, update `Prayfile` and run `pray install`.
 - readability, structure, and clarity are product qualities;
 - pull request description answers what problem is solved, why it matters, how the solution works, and relevant context; non-trivial changes include reproduction steps or a changelog entry with intent;
 - pull request checklist: changelog entry with intent or reproduction steps when relevant, test coverage, and quality checks done;
-- follow docs-conventions for usr/docs trace filenames and layout;
+- follow docs-conventions for docs timestamp-tree filenames and layout;
 - report completed actions only with observed evidence; validation output must list exact commands run and observed results;
 - ignore style-only dust unless it harms correctness, operability, maintainability, or auditability under realistic load;
 - sibling files and executable checks beat shared defaults; mixed styles stay a split until a path boundary explains both;
-- fix the cause of a race, not a retry around it; prefer positive names; compute at write when a read cannot paginate; do not change production design only so tests can reach it.
+- fix the cause of a race, not a retry around it; prefer positive names; compute at write when a read cannot paginate; do not change production design only so tests can reach it;
+- if process state and local cache files are both cleared, name what must be rebuilt and from which durable source;
+- side effects read committed state from a cursor; they are not steps of the write;
+- on a store or network hot path, name the expensive unit and keep a before-and-after budget;
+- after changing a published number, identifier, or contract field, search dependents and mark them stale or update them.
 <!-- pray:9068e4a2 -->
 
 <!-- pray:781b7711 -->
 ## Credentials and Secrets
 
 - Prefer a secret store or OS credential helper over embedding live secrets in config files, scripts, or documentation. Named managers (for example 1Password, Bitwarden, KeePassXC) are fine; the requirement is isolation, not a specific vendor.
-- Config and project files may hold references (vault paths, item ids, redacted fingerprints). They must not hold live tokens, API keys, passwords, or client secrets.
+- Config and project files may hold references (vault paths, item ids, redacted fingerprints). They must not hold live tokens, API keys, passwords, or client secrets. The same prohibition applies to skill files, prompt templates, and MCP environment settings.
 - Do not pass secrets on command lines or in other process-visible arguments. Prefer secret-store lookup, short-lived credentials, or stdin/file descriptors that do not persist in shell history.
 - Do not commit secrets, paste them into issues or pull requests, or write them to logs. Rotate anything that may have been exposed.
+- if a live secret, credential, or confidential trace appears in this session, treat it as a security event: tell the person, do not quote the value, and do not send it to another third party; the inference provider already saw what reached this session
 
 ## Tracking and identification
 
@@ -43,18 +50,21 @@ To change shared guidance, update `Prayfile` and run `pray install`.
 
 - Lookups go through an ownership set; request parameters pick which row; fail closed when access cannot be proven.
 - Treat user-supplied URLs as untrusted; rate-limit authentication and abuse-prone endpoints.
+- An invalid or expired credential gets a protocol-level failure status. A hop's own credential is never the caller's. Modes that relax access controls must remain disabled when their configuration is missing or invalid.
 
 Related: `engineering-audit` security mode asks whether a parameter establishes access and whether a worker skipped policy.
 <!-- pray:781b7711 -->
 
 <!-- pray:bfe6ff38 -->
-- `docs/` is for human-facing documentation without agent context; use stable descriptive filenames;
-- `usr/docs/` is for durable agent and engineering trace; keep inference input (AGENTS.md, `.agents/`) separate from human docs; conventions that matter fail a command;
-- `usr/migrate/` holds live console-first scripts for a change that must run before new code is on the process; later schema migrate is schema-only and idempotent;
-- four usr/docs timestamp trees, no README index, filename `YYYYMMDDHHMMSS_<kebab-case-title>.md`: `issues` (live work: contract, findings, open next; pitch, plan, and queue stay here), `changelogs` (what shipped), `meetings` (one sitting: who was there and what they agreed), `dependencies` (upstream defects from real work);
+- `docs/` holds maintained explanations and working records; use stable descriptive filenames for guides; placement does not imply polish or currency;
+- keep inference input (AGENTS.md, `.agents/`) separate from `docs/`; conventions that matter fail a command;
+- `usr/` is the workshop for working tools and operational material;
+- `usr/migrate/` holds console-first scripts that must run before new code is on the process; later schema migrate is schema-only and idempotent;
+- four `docs/` timestamp trees, no README index, filename `YYYYMMDDHHMMSS_<kebab-case-title>.md`: `issues` (live work: contract, findings, open next; pitch, plan, and queue stay here), `changelogs` (what shipped), `meetings` (one sitting: who was there and what they agreed), `dependencies` (upstream defects from real work);
 - issues, changelogs, and meetings make five things findable (use `##` headings or equivalent; omit empty sections): **Participants** (humans only; omit agents, tools, and binaries), **Decisions** (what was agreed), **Effects** (done, failed, recovered, rolled back), **Next** (todo, planned, open questions), **Source** (links upstream: meeting, issue, PR, commit, and downstream materializations); git history is the edit log; add an explicit note only when a later pass changes meaning (scope cut, rollback, decision reversed);
 - mention software, tools, agents, or binaries in a note only when that detail is needed for execution or later analysis; put it under Decisions, Effects, or Source, not under Participants;
 - never put local absolute paths or private material in `docs/` or under `usr/`: no home-directory or machine-specific filesystem paths, secrets, credentials, tokens, API keys, or personal private data; prefer repository-relative paths;
+- one home per fact; link, do not duplicate; goal and acceptance live apart from operating rules; when a decision changes shape, supersede it in place; name what the product does not do next to what it does;
 <!-- pray:bfe6ff38 -->
 
 <!-- pray:edcc5f67 -->
@@ -62,7 +72,7 @@ Related: `engineering-audit` security mode asks whether a parameter establishes 
 
 When work surfaces a clearly visible bug or defect in a dependency (wrong behavior, broken API contract, regression between versions, or a fix already merged upstream but not released), say so in the task output and suggest a concrete fix path: upgrade, pin, patch, vendor, workaround, or upstream report.
 
-Store evidence under `usr/docs/dependencies/#{YYYYMMDDHHMMSS}_<kebab-case-title>.md`; no README index in that tree. Each file should make these findable (use `##` headings or equivalent; omit empty sections): **Dependency** (name, version constraint, lockfile entry if any), **Symptom** (what breaks and where), **Evidence** (repro steps, logs, stack traces, links to issues or commits), **Suggested fix** (upgrade, pin, patch, workaround, or upstream report), **Next** (todo, planned, open questions), **Source** (links upstream: issue, PR, release note, commit, and downstream materializations in this repo). Git history is the edit log.
+Store evidence under `docs/dependencies/#{YYYYMMDDHHMMSS}_<kebab-case-title>.md`; no README index in that tree. Each file should make these findable (use `##` headings or equivalent; omit empty sections): **Dependency** (name, version constraint, lockfile entry if any), **Symptom** (what breaks and where), **Evidence** (repro steps, logs, stack traces, links to issues or commits), **Suggested fix** (upgrade, pin, patch, workaround, or upstream report), **Next** (todo, planned, open questions), **Source** (links upstream: issue, PR, release note, commit, and downstream materializations in this repo). Git history is the edit log.
 
 Do not open drive-by dependency hunts; record only issues encountered while doing the requested work and only when the defect is evident from behavior or published upstream facts, not speculation.
 
@@ -117,6 +127,8 @@ Before writing code, stop at each step until one applies:
 - can the change be one line; if so, make it one line?
 - only then write the minimum code that works.
 
+Before generating the main implementation of an unproven method, require a small runnable check that records a feasibility number or a failure verdict.
+
 Before adding a new library directory or first-party package, stop until one applies:
 - one product owns the contract and is the only caller: keep source in that tree;
 - a second in-repo caller, or no product runtime: unpublished in-repo package (own manifest, own tests, path-linked, 0.x, registry publish blocked);
@@ -149,7 +161,8 @@ Related: `keep-the-work` covers the failed place after a refusal; `dependency-po
 
 - model lifecycles with explicit finite state machines when status, allowed transitions, and side effects matter; prefer named states and guarded transitions over scattered conditionals and implicit enums alone; when who and when matter, model the event as a record, not a boolean flag;
 - finite state machines can compactly represent ordered sets or maps of strings supporting fast prefix, suffix, and fuzzy search; consider tries and automata when matching catalogs, codes, routes, or searchable vocabularies at scale;
-- when digital reported state and physical process state can diverge, name both machines and the observation that couples them; occupancy listing is not the lock; a reported identity is not the person or sample at the station.
+- when digital reported state and physical process state can diverge, name both machines and the observation that couples them; occupancy listing is not the lock; a reported identity is not the person or sample at the station;
+- a later artifact does not prove an earlier gate; a cache generation is not the durable commit; a lease is not ownership of the object; bound generated plans and refine after each completed step.
 
 Related: `engineering-audit` boundary mode asks when those states disagree without an alarm; `io-simulation` injects the faults that cause the split.
 <!-- pray:120c3507 -->
@@ -184,9 +197,12 @@ Examples:
 - elixir for concurrent and distributed systems, and for its actor model and fault tolerance
 - rust for system programming and performance-critical code
 - javascript, html, css for native browser experience
-- humane and accessible design principles for UI/UX, and for clear communication of intent and feedback; label icon-only controls; hide decorative duplicates from the accessibility tree
+- humane and accessible visual-surface principles for UI/UX, and for clear communication of intent and feedback; label icon-only controls; hide decorative duplicates from the accessibility tree
+- when the change presents a screen, document, or other person-facing surface, name that surface in the work product (reply, pull request, live-work note) and record a visual assessment: hierarchy, copy, interactive states, empty/loading/error, a narrow surface, and whether a person can finish the task; record what was assessed and what remains for a human; skip and say so when there is no such surface
+- pictures, previews, tickets, and chat threads are source locators for that signal; the assessment is the running product plus the written need
+- product-contract and architecture work stay distinct from this visual-surface assessment
 
-Related: `keep-the-work` covers staying on the failed place and keeping answers after a refusal.
+Related: `keep-the-work` covers staying on the failed place after a refusal.
 <!-- pray:f528eeca -->
 
 <!-- pray:d3b0d939 -->
@@ -206,12 +222,18 @@ Related: `engineering-audit` enumerates those boundary conditions; `finite-state
 ## Writing and changelog prose checks
 
 Review for marketing language, invented objections, empty contrasts, stray em dashes, and paragraph flow; keep notes and metadata honest and plain.
-- repo trace under usr/docs: plain prose readable without a rendered preview. No markdown tables, bold, italic, or other styling. Prioritize factual accuracy over presentation.
+- docs timestamp trees: plain prose readable without a rendered preview. No markdown tables, bold, italic, or other styling. Prioritize factual accuracy over presentation.
 - Ease, lexical diversity, coherence, mechanics, and claim integrity are separate constructs. Automated matches, readability grades, similarity, and model preference are review prompts; preserve meaning, necessary negation, scope, and uncertainty when editing.
 - Keep agency on the person who acts. Tools and process nouns do mechanical work.
 - Technical names, APIs, CLI verbs, RFC titles, identifiers, and UI copy use instrument and protocol words: check-in, last-seen, probe, monitor, expected tick. Body and organism metaphors such as heartbeat, pulse, and organ stay out of contracts and code. HTTP `/health` remains the liveness probe until a later RFC.
 - One sentence holds one beat. Consecutive short sentences that only restated the same beat are a punchline stack.
 - For material external claims, quotations, dates, or research summaries, use the claims-audit skill.
+- signed comments on a public tracker speak as the account holder to the named person; chat stays in chat
+- cite only what a public reader can open and check; confidential traces, unique working locators, and unverifiable session evidence stay in chat; do not expose source material that is not already public, and do not post source material without the person's consent
+- greeting names the person, then a short body, a close, and the name from the tracker identity; first person when that person did the work
+- one primary commit, pull request, or release link; comment when asked; do not close, assign, or reopen unless asked
+
+Related: `security` forbids secrets in issues and owns the session notice when confidential material hits inference.
 <!-- pray:ca94e22d -->
 
 <!-- pray:d893ab3d -->
@@ -222,9 +244,10 @@ Treat checkable facts, quotations, dates, quantities, and causal statements as c
 - Inventing scenes, sources, numbers, or quotations is out of scope.
 - A link or citation in the text is not verification. The cited passage must support the claim's scope, date, population, and causal strength.
 - If a material external claim cannot be checked in this run, mark it unverifiable rather than rounding it to certainty.
+- Keep statement, domain, and quantifiers on a formal claim. Freeze quantities from the producing artifact. A later file does not prove an earlier check.
 - Run the claims-audit skill when asked to verify, fact-check, or research checkable claims, or when prose under edit states material external facts, quotations, dates, or research summaries.
 
-Related: `writing-prose` covers voice and quality constructs; `engineering-audit` covers code and pipeline behavior.
+Related: `writing-prose` covers voice and quality constructs; `engineering-audit` covers code and pipeline behavior; `derivation-audit` covers symbolic derivation when a consumer asks for that job.
 <!-- pray:d893ab3d -->
 
 <!-- pray:b1ea9b07 -->
@@ -243,6 +266,7 @@ Claim `rfcs/ids/NNNN` before writing `rfcs/NNNN-slug.md`. Copy `rfcs/0000-templa
 - non-trivial changes without tests
 - style-only rewrites without behavior change
 - AI-generated-looking code the author does not understand
+- compatibility aliases, shims, and legacy input shapes that remain accepted even though the change should remove them
 <!-- pray:08c294fb -->
 
 <!-- pray:2543c1cc -->
@@ -254,6 +278,7 @@ Claim `rfcs/ids/NNNN` before writing `rfcs/NNNN-slug.md`. Copy `rfcs/0000-templa
 - add screenshots or screen recordings for UI changes
 - keep one pull request to one concern
 - understand any AI-assisted code you submit
+- review generated changes before requesting revisions; write review replies from the author's own understanding
 <!-- pray:2543c1cc -->
 
 <!-- pray:48e8a6b3 -->
@@ -262,5 +287,5 @@ Claim `rfcs/ids/NNNN` before writing `rfcs/NNNN-slug.md`. Copy `rfcs/0000-templa
 - record durable project value in the live-work queue, including improvements to shared guidance or a skill;
 - keep only decision-bearing material; omit generic notes, copied chat, and filler;
 - use the lightest trace that preserves context; design-only work needs no branch unless implementation starts;
-- follow docs-conventions for `docs/` and `usr/docs/`; when encoding how this tree writes, use infer-conventions.
+- follow docs-conventions for `docs/` and `usr/`; when encoding how this tree writes, use infer-conventions.
 <!-- pray:48e8a6b3 -->

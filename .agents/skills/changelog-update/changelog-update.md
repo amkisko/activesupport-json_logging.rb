@@ -2,17 +2,17 @@
 
 ## Two layers
 
-1. `usr/docs/changelogs/` — engineering draft: intent, reproduction steps, implementation notes, pull request links.
+1. `docs/changelogs/` — engineering draft: intent, reproduction steps, implementation notes, pull request links.
 2. `CHANGELOG.md` — product-facing release notes: describe what people see and can do, not how it is built.
 
-File name for new engineering notes: `usr/docs/changelogs/#{YYYYMMDDHHMMSS}_<title>.md` with kebab-case title.
+File name for new engineering notes: `docs/changelogs/#{YYYYMMDDHHMMSS}_<title>.md` with kebab-case title.
 
 ## Audience split
 
 | Layer | Reader | Voice |
 |-------|--------|-------|
 | `CHANGELOG.md` | users, operators, product owners | outcome, screen, workflow; plain language |
-| `usr/docs/changelogs/` | engineers and reviewers | classes, files, trade-offs, links |
+| `docs/changelogs/` | engineers and reviewers | classes, files, trade-offs, links |
 
 `CHANGELOG.md` may name an operator surface when that is the user-visible place, but still describe the workflow benefit, not internal adapter or job names.
 
@@ -20,7 +20,7 @@ File name for new engineering notes: `usr/docs/changelogs/#{YYYYMMDDHHMMSS}_<tit
 
 - user-visible features, fixes, and breaking behavior: yes;
 - library upgrades, internal refactors, dev-only tooling: no unless they change a public contract or operator workflow users rely on;
-- do not invent behavior; gather facts from `usr/docs/changelogs/`, git diff, or commits since the last release tag.
+- do not invent behavior; gather facts from `docs/changelogs/`, git diff, or commits since the last release tag.
 
 ## CHANGELOG.md shape
 
@@ -44,7 +44,7 @@ Rules:
 
 ## Workflow
 
-1. capture engineering detail in `usr/docs/changelogs/` when the change is significant enough to mention;
+1. capture engineering detail in `docs/changelogs/` when the change is significant enough to mention;
 2. distill user-visible outcomes into `CHANGELOG.md` when cutting a release;
 3. review for marketing language, invented objections, empty contrasts, and stray em dashes; preserve meaning, necessary negation, scope, and uncertainty;
 4. keep version headings and release tags aligned when the repository uses tagged releases.

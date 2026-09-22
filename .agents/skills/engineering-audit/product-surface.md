@@ -14,13 +14,14 @@ Layer the work:
 - checks on the rendered tree against a published accessibility standard (WCAG is the usual web frame);
 - keyboard-only (or equivalent non-pointer) contracts for forms, menus, dialogs, and focus order;
 - contrast, text resize, and reduced-motion where the platform exposes them;
-- human review of meaning, labels, and whether the person can complete the task.
+- human review of meaning, labels, and whether the person can complete the task;
+- distinction between unlabeled controls and explicitly decorative elements; `preferred-stack` already hides decorative duplicates from the accessibility tree.
 
 Do not quote a tool pass as fully accessible. Separate automated findings from human judgement.
 
 ## Presentation quality
 
-Ask whether the person can complete the task on a narrow surface, a short surface, a high-density display, and with pointer or keyboard only. Check empty, loading, error, and long-text states. Check that destructive actions have friction and that error text tells the person what to do next. Ask whether a live refresh or reconnect wipes the work still on the place.
+Ask whether the person can complete the task on a narrow surface, a short surface, a high-density display, and with pointer or keyboard only. Check empty, loading, error, and long-text states. Check that destructive actions have friction and that error text tells the person what to do next. Ask whether a live refresh or reconnect wipes the work still on the place. For paginated or overflow-prone surfaces, measure clipping on the compiled artifact, not only on markup.
 
 Related: `keep-the-work` keeps the place and in-progress answers after a refusal. This mode asks whether the surface is usable before that refusal.
 

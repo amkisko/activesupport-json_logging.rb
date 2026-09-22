@@ -9,7 +9,7 @@ Structured ledger fields stay as specified. Free-form notes stay blunt and evide
 - no sales language or methodology pitches;
 - state the fact and move on;
 - prefer commas, colons, semicolons, and full stops over em dashes;
-- notes destined for `usr/docs/`: plain prose, no markdown tables, bold, italic, or other styling unless the repository explicitly allows it.
+- notes destined for `docs/issues`, `docs/changelogs`, `docs/meetings`, or `docs/dependencies`: plain prose, no markdown tables, bold, italic, or other styling unless the repository explicitly allows it.
 
 ## Build a claim ledger
 
@@ -37,6 +37,20 @@ When a working evidence bundle exists, reconcile the ledger with it. Add sources
 7. Search for credible contrary evidence and alternative explanations for central claims. Favorable sources alone are insufficient.
 
 Assign one outcome per claim: `supported`, `partially supported`, `unsupported`, `outdated`, `contested`, or `unverifiable`.
+
+## Formal claims
+
+When a claim is an identity, an implication, or a solver or test result, keep the statement, the domain, and the quantifiers. Distinguish identity, equivalent solution sets, and one-way implication. Timeout, unevaluated output, and a failed solver check stay unresolved until a counterexample or a closed proof exists. A Boolean check table certifies only its registered rows. A numeric example does not replace a quantified claim. Solver or test order is not uniqueness. When a condition is rewritten, show both sides and the domain of the rewrite.
+
+A cited standard or theorem used as support needs a recorded statement with its hypotheses, not a name-drop.
+
+## Freeze
+
+Quantities that come from code or experiments stay unverifiable until they are frozen from those artifacts. Do not hand-edit the freeze. The same quantity in two artifacts is one claim; mismatch is a fail. A chat "done" is not evidence; the producer artifact on disk is. A freeze older than the source it describes is stale; re-freeze before more prose. A figure or table must exist and support the stated claim. A superiority or "better than" claim needs a named baseline and a robustness or sensitivity check. Do not auto-fill a human judgment field; leave a visible gap.
+
+## Contrary pass
+
+Write the attack log, contrary cases, and alternative explanations before reading the constructive ledger or the author's defense. This is procedure, not a mechanical guarantee. Name parent-prompt contamination when the same context both built the claim and is asked to refute it. Favorable sources alone are insufficient.
 
 ## Repair
 

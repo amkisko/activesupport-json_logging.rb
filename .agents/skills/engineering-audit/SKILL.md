@@ -4,8 +4,9 @@ description: >-
   Audit code with an evidence-first, pipeline-aware review format. Use for
   engineering audits, systems reviews, hot-path and Big-O analysis, pipeline
   inspection, resource and budget, trace and identification, product-surface,
-  privacy, performance, observability, security, contract, and learned-systems
-  reviews. Modes skip when they do not apply. Language- and framework-agnostic.
+  privacy, performance, observability, security, contract, learned-systems,
+  and lineage reviews. Modes skip when they do not apply. Language- and
+  framework-agnostic.
   When the system has external services, devices, operators, or physical
   actuators, also run boundary and control mode. For every executable tree,
   also run resource and budget mode and trace and identification mode.
@@ -18,7 +19,7 @@ Use when asked for an engineering audit, systems review, hot-path analysis, Big-
 
 Read `engineering-audit.md` in this skill directory for dimensions, indicators, stage checks, boundary and control mode, optional product modes, finding format, and ranking. Read `resource-and-budget.md` and `trace-and-identification.md` for every tree that can execute. Skip those two files only when the tree never becomes executed bytes, and state that reason.
 
-Read the matching optional file when the product has that surface: `product-surface.md`, `privacy.md`, `performance.md`, `observability.md`, `security.md`, `contracts.md`, `learned-systems.md`. Skip and state the reason when it does not. Stay on concepts. Do not require a named framework or vendor tool.
+Read the matching optional file when the product has that surface: `product-surface.md`, `privacy.md`, `performance.md`, `observability.md`, `security.md`, `contracts.md`, `learned-systems.md`, `lineage.md`. When security mode runs, also read every applicable companion: `http-identity.md`, `client-surface.md`, and `native-interface.md`. Skip each file whose surface is absent and state the reason. Stay on concepts. Do not require a named framework or vendor tool.
 
 ## Quick reference
 
