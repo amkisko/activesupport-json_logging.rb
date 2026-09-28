@@ -4,12 +4,21 @@ require_relative "message_parser"
 require_relative "severity"
 require_relative "payload_builder"
 require_relative "structured_hash_json_encoder"
+require_relative "line_cap"
 
 module JsonLogging
   module LineEncoder
     module_function
 
+    # Keywords are forwarded one by one because a **options splat allocates a
+    # Hash on every log call.
     def build_line(msg:, severity:, timestamp:, tags:, additional_context:, additional_context_sanitized: false, sanitize_tags: true)
+      LineCap.apply(
+        encode_line(msg:, severity:, timestamp:, tags:, additional_context:, additional_context_sanitized:, sanitize_tags:)
+      )
+    end
+
+    def encode_line(msg:, severity:, timestamp:, tags:, additional_context:, additional_context_sanitized: false, sanitize_tags: true)
       if simple_string_line?(msg, tags, additional_context)
         return simple_string_json_line(
           message: msg,
@@ -81,7 +90,7 @@ module JsonLogging
     def to_json_line(payload_hash)
       compacted = payload_hash.compact
       json_payload = string_keyed_structure?(compacted) ? compacted : compacted.deep_stringify_keys
-      "#{json_payload.to_json}\n"
+      LineCap.apply("#{json_payload.to_json}\n")
     end
 
     def string_keyed_structure?(object)

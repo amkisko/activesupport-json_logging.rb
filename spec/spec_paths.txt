@@ -10,6 +10,7 @@ spec/json_logging_event_subscriber_spec.rb
 spec/json_logging_formatter_advanced_spec.rb
 spec/json_logging_formatter_spec.rb
 spec/json_logging_helpers_spec.rb
+spec/json_logging_max_line_bytes_spec.rb
 spec/json_logging_message_parser_advanced_spec.rb
 spec/json_logging_message_parser_spec.rb
 spec/json_logging_optimizations_spec.rb

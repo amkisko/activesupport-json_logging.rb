@@ -1,5 +1,9 @@
 module JsonLogging
   VERSION: String
+  MINIMUM_MAX_LINE_BYTES: Integer
+
+  def self.max_line_bytes: () -> Integer?
+  def self.max_line_bytes=: (Integer? value) -> Integer?
 
   class EventSubscriber
     def initialize: (?logger: untyped, ?io: untyped) -> void

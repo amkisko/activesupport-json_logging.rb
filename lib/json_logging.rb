@@ -17,8 +17,27 @@ require_relative "json_logging/event_subscriber"
 module JsonLogging
   THREAD_CONTEXT_KEY = :__json_logging_context
   SANITIZED_CONTEXT_CACHE_KEY = :__json_logging_sanitized_context
+  # The overflow notice that replaces an unshrinkable line must fit the budget.
+  MINIMUM_MAX_LINE_BYTES = 256
   @additional_context_warned = Set.new
   @additional_context_transformer = nil
+  @max_line_bytes = nil
+
+  # Byte budget for one emitted JSON line, excluding the trailing newline.
+  # nil (the default) leaves lines uncapped.
+  #
+  # @example Heroku Logplex splits lines over 10,000 bytes
+  #   JsonLogging.max_line_bytes = 9_500
+  def self.max_line_bytes
+    @max_line_bytes
+  end
+
+  def self.max_line_bytes=(value)
+    valid = value.nil? || (value.is_a?(Integer) && value >= MINIMUM_MAX_LINE_BYTES)
+    raise ArgumentError, "max_line_bytes must be nil or an Integer of at least #{MINIMUM_MAX_LINE_BYTES}" unless valid
+
+    @max_line_bytes = value
+  end
 
   def self.context_storage
     if defined?(ActiveSupport::IsolatedExecutionState)
