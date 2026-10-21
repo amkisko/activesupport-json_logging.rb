@@ -14,12 +14,10 @@ There is no established correlation between libyears and work hours. Do not quot
 
 Use more than one signal.
 
-| Metric | Role |
-|--------|------|
-| Total libyears (or equivalent) | stack-wide lag versus current releases |
-| Average per package | total divided by package count; flags concentrated drift |
-| Major-version distance | how many major versions behind; include in risk |
-| Test coverage | safety net for upgrades |
+- Total libyears (or equivalent): stack-wide lag versus current releases
+- Average per package: total divided by package count; flags concentrated drift
+- Major-version distance: how many major versions behind; include in risk
+- Test coverage: safety net for upgrades
 
 Lag does not show compatibility of newer versions. A low total does not guarantee an easy upgrade.
 

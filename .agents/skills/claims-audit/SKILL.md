@@ -12,12 +12,12 @@ description: >-
 
 Separate factual verification from prose preference. Testimony and clearly framed interpretation may be unverifiable without being defects. This skill does not score style, readability, lexical diversity, or narrative craft.
 
-Read `claims-audit.md` in this skill directory for the ledger, verification steps, outcomes, formal-claim scope, freeze rules, contrary-pass procedure, repair rules, and report shape. Read `references/evidence-bundle.md` when the work needs a reusable source ledger.
+Read `claims-audit.md` in this skill directory for the ledger, verification steps, outcomes, formal-claim scope, freeze rules, contrary-pass procedure, repair rules, and report shape. Read `references/evidence-bundle.md` when the work needs a reusable source ledger. Read `references/external-skill-intake.md` when researching a public skill or prompt pack for possible addition to a prayers catalog.
 
 ## Quick reference
 
 ```text
-inventory claims → contrary pass before the constructive ledger → follow cited sources → prefer primary evidence → freeze quantities from artifacts → assign outcomes → repair or qualify
+inventory claims -> contrary pass before the constructive ledger -> follow cited sources -> prefer primary evidence -> freeze quantities from artifacts -> assign outcomes -> repair or qualify
 ```
 
 Outcomes: `supported`, `partially supported`, `unsupported`, `outdated`, `contested`, `unverifiable`. A citation in the text is not an outcome.

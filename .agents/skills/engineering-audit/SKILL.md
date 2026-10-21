@@ -19,14 +19,14 @@ Use when asked for an engineering audit, systems review, hot-path analysis, Big-
 
 Read `engineering-audit.md` in this skill directory for dimensions, indicators, stage checks, boundary and control mode, optional product modes, finding format, and ranking. Read `resource-and-budget.md` and `trace-and-identification.md` for every tree that can execute. Skip those two files only when the tree never becomes executed bytes, and state that reason.
 
-Read the matching optional file when the product has that surface: `product-surface.md`, `privacy.md`, `performance.md`, `observability.md`, `security.md`, `contracts.md`, `learned-systems.md`, `lineage.md`. When security mode runs, also read every applicable companion: `http-identity.md`, `client-surface.md`, and `native-interface.md`. Skip each file whose surface is absent and state the reason. Stay on concepts. Do not require a named framework or vendor tool.
+Read the matching optional file when the product has that surface: `product-surface.md`, `privacy.md`, `performance.md`, `observability.md`, `security.md`, `contracts.md`, `learned-systems.md`, `lineage.md`. When security mode runs, also read every applicable companion named in `security.md`. Skip each file whose surface is absent and state the reason. Stay on concepts. Do not require a named framework or vendor tool.
 
 ## Quick reference
 
 Pipeline:
 
 ```text
-ingress → app logic → cache → database → queue → worker → external API → egress
+ingress -> app logic -> cache -> database -> queue -> worker -> external API -> egress
 ```
 
 Order findings by danger, then certainty, then impact, then fix cost. Present the smallest credible fix before structural rewrite. Separate missing coverage from futile coverage. Indicators are categorizable, measurable, and representable.

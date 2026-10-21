@@ -13,7 +13,7 @@ Read `rfc-process.md` in this skill directory for claim, template, types, status
 ## Quick reference
 
 ```text
-read rfcs/README.md → claim ids/NNNN → copy template → omit empty sections → PR rfc: NNNN title → implementation cites RFC-NNNN
+read rfcs/README.md -> claim ids/NNNN -> copy template -> omit empty sections -> PR rfc: NNNN title -> implementation cites RFC-NNNN
 ```
 
 Keep existing RFC numbers. Project bands and extra tests stay in that repo's `rfcs/README.md`. Product RFCs specify a design (suggestion, motivation, specification, effects, alternatives, prior art). Version numbers belong in changelogs.

@@ -23,9 +23,9 @@ Choose the smallest matching path:
 ## Quick reference
 
 ```text
-observed security signal → target-scoped assessment → durable record
-dependency change → selection and alteration checks
-requested full audit → recon (OSINT) → security → freshness → ecosystem synthesis
+observed security signal -> target-scoped assessment -> durable record
+dependency change -> selection and alteration checks
+requested full audit -> recon (OSINT) -> security -> freshness -> ecosystem synthesis
 ```
 
 Tool-only output (advisory scanner alone, outdated list alone) is a partial audit. State that explicitly when depth was limited.

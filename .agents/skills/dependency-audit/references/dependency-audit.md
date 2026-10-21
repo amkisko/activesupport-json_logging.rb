@@ -18,20 +18,18 @@ Evidence-first. List exact commands, queries, and URLs consulted. Never claim ad
 Operate as a supply-chain reviewer with recon discipline. Map each finding to:
 
 ```text
-recon sources → selection → manifest contract → lockfile snapshot → CI matrix → hot-path runtime → dev/test tooling
+recon sources -> selection -> manifest contract -> lockfile snapshot -> CI matrix -> hot-path runtime -> dev/test tooling
 ```
 
 ## Audit depth
 
-| Depth | What it covers | When enough |
-|-------|----------------|-------------|
-| Baseline | advisory scan + outdated on root lockfile | never for a requested full audit |
-| Standard | all CI lockfiles + registry latest for direct runtime | security-only follow-up |
-| Full | baseline + standard + OSINT on every hot-path direct and transitive package | default for "audit dependencies" |
+- Baseline: advisory scan + outdated on root lockfile; never enough for a requested full audit
+- Standard: all CI lockfiles + registry latest for direct runtime; enough for security-only follow-up
+- Full: baseline + standard + OSINT on every hot-path direct and transitive package; default for "audit dependencies"
 
 State the depth reached. If only baseline ran, call it partial.
 
-## Pass 0 — Deep recon and OSINT
+## Pass 0 - Deep recon and OSINT
 
 Goal: gather external intelligence about packages in the graph before synthesizing risk. Run this pass for full audits. Scale effort by tier.
 
@@ -39,19 +37,19 @@ Goal: gather external intelligence about packages in the graph before synthesizi
 
 Adapt names; concepts are universal.
 
-- registry API — latest version, publish date, download counts, homepage, source URI, license, maintainers;
-- upstream source host — last push, default branch, open issues, open pull requests, release tags, contributor count;
-- advisory feeds — ecosystem advisory DB, GHSA, CVE, vendor security advisories;
-- issue and pull request search — recent security-related threads, unfixed regressions, release-blocking bugs;
-- release notes and changelog — breaking changes, security sections, migration cost;
-- dependency graph of the upstream package — what it pulls in; overlap with your graph;
-- maintainer identity — authors, org membership, overlap across your hot-path packages (trusted cluster vs lone maintainer);
-- license and export metadata — SPDX, COPYING, patent or export notices when relevant;
-- automation config in the consumer repo — CI advisory gates, dependabot ecosystems, dead bot targets.
+- registry API - latest version, publish date, download counts, homepage, source URI, license, maintainers;
+- upstream source host - last push, default branch, open issues, open pull requests, release tags, contributor count;
+- advisory feeds - ecosystem advisory DB, GHSA, CVE, vendor security advisories;
+- issue and pull request search - recent security-related threads, unfixed regressions, release-blocking bugs;
+- release notes and changelog - breaking changes, security sections, migration cost;
+- dependency graph of the upstream package - what it pulls in; overlap with your graph;
+- maintainer identity - authors, org membership, overlap across your hot-path packages (trusted cluster vs lone maintainer);
+- license and export metadata - SPDX, COPYING, patent or export notices when relevant;
+- automation config in the consumer repo - CI advisory gates, dependabot ecosystems, dead bot targets.
 
 ### Recon actions by tier
 
-Hot path direct and hot path transitive — for each package:
+Hot path direct and hot path transitive - for each package:
 
 1. resolve canonical upstream repository from registry metadata;
 2. collect activity signals: last commit, last registry publish, latest release tag date;
@@ -62,7 +60,7 @@ Hot path direct and hot path transitive — for each package:
 7. read recent advisories and open security issues, not only the advisory DB snapshot;
 8. note native extension or multi-platform cost when the registry ships platform gems or FFI.
 
-Dev and test only — lighter pass unless advisory DB flags them: registry latest, advisory status, obvious abandonment (no push over ~12 months and meaningful open backlog).
+Dev and test only - lighter pass unless advisory DB flags them: registry latest, advisory status, obvious abandonment (no push over ~12 months and meaningful open backlog).
 
 ### OSINT synthesis rules
 
@@ -84,7 +82,7 @@ For each hot-path package audited, report:
 - watch / healthy / concern classification with confidence;
 - links or identifiers for sources consulted.
 
-## Pass 1 — Security assessment
+## Pass 1 - Security assessment
 
 Goal: every plausible dependency security signal is assessed. Every affected target has an explicit disposition; every `under_investigation` assessment has a responsible person and a review date or evidence condition in Next.
 
@@ -101,7 +99,7 @@ Actions (adapt to ecosystem):
 
 Report: trigger or advisory id, package and version, assessment target, status, applicability evidence, priority inputs, disposition, Next when required, and source URL when available.
 
-## Pass 2 — Freshness (locked vs registry)
+## Pass 2 - Freshness (locked vs registry)
 
 Goal: direct runtime and hot-path transitive packages at latest published safe version. Record lag metrics (libyears or equivalent): total, average per package, major-version distance, paired with test coverage. Procedure in `references/libyears.md`. Lag is not effort and not a CVE.
 
@@ -116,20 +114,18 @@ Actions:
 
 Report: package, locked, latest, gap type (patch, minor, major), tier; plus graph-level total lag, average lag, coverage, and spike result when attempted.
 
-## Pass 3 — Ecosystem synthesis
+## Pass 3 - Ecosystem synthesis
 
 Goal: combine OSINT signals into actionable watch items before they become security lag.
 
 Synthesize recon data; do not re-query blindly. Heuristics (inferential; state confidence):
 
-| Signal | Healthy read | Watch read |
-|--------|--------------|------------|
-| Last commit / push | within ~90 days on hot-path deps | over ~180 days with open security-relevant issues |
-| Registry publish vs upstream tag | publish date recent | active commits but no publish in ~12 months |
-| Open issues per star | under ~5% on small repos | over ~10% with slow merge rate |
-| Open PR backlog | low or steady merge | large backlog on a small repo |
-| Downloads / dependents | high or clear niche | micro-package on hot path with low adoption |
-| Maintainer cluster | same trusted group as existing stack | lone maintainer for critical protocol piece |
+- Last commit / push - healthy: within ~90 days on hot-path deps; watch: over ~180 days with open security-relevant issues
+- Registry publish vs upstream tag - healthy: publish date recent; watch: active commits but no publish in ~12 months
+- Open issues per star - healthy: under ~5% on small repos; watch: over ~10% with slow merge rate
+- Open PR backlog - healthy: low or steady merge; watch: large backlog on a small repo
+- Downloads / dependents - healthy: high or clear niche; watch: micro-package on hot path with low adoption
+- Maintainer cluster - healthy: same trusted group as existing stack; watch: lone maintainer for critical protocol piece
 
 Also confirm:
 
@@ -141,28 +137,24 @@ Also confirm:
 
 Apply every rule with tier in mind.
 
-| Tier | Examples | Audit strictness |
-|------|----------|------------------|
-| Hot path direct | auth, crypto, HTTP client, framework core, RPC | recon mandatory; assess every match; latest safe version |
-| Hot path transitive | OAuth client, JWT, TLS, serializer on boundary | recon mandatory; assess every match; upgrade with parent or explicitly |
-| Dev / test only | linter, test framework, local server, coverage | advisories if installed; recon light unless flagged |
-| Automation | CI actions, release tooling | pin hygiene; upstream release notes on bump |
+- Hot path direct (auth, crypto, HTTP client, framework core, RPC): recon mandatory; assess every match; latest safe version
+- Hot path transitive (OAuth client, JWT, TLS, serializer on boundary): recon mandatory; assess every match; upgrade with parent or explicitly
+- Dev / test only (linter, test framework, local server, coverage): advisories if installed; recon light unless flagged
+- Automation (CI actions, release tooling): pin hygiene; upstream release notes on bump
 
 ## Required output per finding
 
-| Field | Content |
-|-------|---------|
-| Tier | hot path direct, hot path transitive, dev/test, automation |
-| Kind | recon, security, freshness, ecosystem, policy, automation gap |
-| Severity | critical, high, medium, low |
-| Confidence | high, medium, low |
-| Package | name and locked version |
-| Why it matters | one concrete sentence |
-| Kind of evidence | observed (command output, API response) vs inference (heuristic) |
-| Sources | advisory id, registry URL, repo, issue link, or command run |
-| Smallest fix | bump lock, tighten manifest floor, remove duplicate, add CI gate, pin with documented reason |
-| Deeper fix | cluster consolidation, vendor/fork, replace package |
-| Security fields | trigger or advisory, assessment target, status, applicability, priority inputs, disposition, and required Next |
+- Tier: hot path direct, hot path transitive, dev/test, automation
+- Kind: recon, security, freshness, ecosystem, policy, automation gap
+- Severity: critical, high, medium, low
+- Confidence: high, medium, low
+- Package: name and locked version
+- Why it matters: one concrete sentence
+- Kind of evidence: observed (command output, API response) vs inference (heuristic)
+- Sources: advisory id, registry URL, repo, issue link, or command run
+- Smallest fix: bump lock, tighten manifest floor, remove duplicate, add CI gate, pin with documented reason
+- Deeper fix: cluster consolidation, vendor/fork, replace package
+- Security fields: trigger or advisory, assessment target, status, applicability, priority inputs, disposition, and required Next
 
 ## Ranking
 

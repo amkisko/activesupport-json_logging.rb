@@ -21,7 +21,7 @@ Do not quote a tool pass as fully accessible. Separate automated findings from h
 
 ## Presentation quality
 
-Ask whether the person can complete the task on a narrow surface, a short surface, a high-density display, and with pointer or keyboard only. Check empty, loading, error, and long-text states. Check that destructive actions have friction and that error text tells the person what to do next. Ask whether a live refresh or reconnect wipes the work still on the place. For paginated or overflow-prone surfaces, measure clipping on the compiled artifact, not only on markup.
+Ask whether the person can complete the task on a narrow surface, a short surface, a high-density display, and with pointer or keyboard only. Check empty, loading, error, and long-text states. Check that destructive actions have friction and that error text tells the person what to do next. Ask whether a live refresh or reconnect wipes the work still on the place. For paginated or overflow-prone surfaces, measure clipping on the compiled artifact, not only on markup. Ask whether date and time inputs follow the product locale or the browser native widget. Ask whether an association picker embeds the full catalog or queries a paged live list. Ask whether further pages load as the person types or scrolls. Ask whether an assignment catalog preselects a row. Ask whether nested destroy consent actually fires when the page has disabled confirm.
 
 Related: `keep-the-work` keeps the place and in-progress answers after a refusal. This mode asks whether the surface is usable before that refusal.
 

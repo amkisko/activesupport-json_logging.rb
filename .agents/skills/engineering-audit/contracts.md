@@ -11,7 +11,8 @@ Run this mode when the audited system publishes or consumes a protocol, API, or 
 - error shape that matches the transport status;
 - webhook or callback verification and replay protection;
 - destination failure recorded as completed versus retried as if our code failed;
-- backward compatibility for callers you still support.
+- backward compatibility for callers you still support;
+- when primary key type is uuid, treat uuid and id as one field unless a second column exists; do not plan a numeric last resort the schema cannot hold.
 
 Authentication, object-level authorization, extra-field writes, and trusted-layer validation for each operation stay in security review mode.
 

@@ -9,7 +9,7 @@ Structured ledger fields stay as specified. Free-form notes stay blunt and evide
 - no sales language or methodology pitches;
 - state the fact and move on;
 - prefer commas, colons, semicolons, and full stops over em dashes;
-- notes destined for `docs/issues`, `docs/changelogs`, `docs/meetings`, or `docs/dependencies`: plain prose, no markdown tables, bold, italic, or other styling unless the repository explicitly allows it.
+- notes destined for `docs/issues`, `docs/changelogs`, `docs/meetings`, or `docs/dependencies`: plain prose per writing-prose (no markdown tables, bold, italic, or other styling; keyboard-accessible ASCII only for structure) unless the repository explicitly allows otherwise.
 
 ## Build a claim ledger
 

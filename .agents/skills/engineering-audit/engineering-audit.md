@@ -14,14 +14,14 @@ Structured finding fields stay as specified below. Free-form audit text stays bl
 - state the finding directly; preserve necessary negation;
 - do not repeat the same claim in positive and negative form in adjacent lines;
 - prefer commas, colons, semicolons, and full stops over em dashes;
-- findings destined for `docs/issues/`: plain prose, no markdown tables, bold, italic, or other styling unless the repository explicitly allows it.
+- findings destined for `docs/issues/`: plain prose per writing-prose (no markdown tables, bold, italic, or other styling; keyboard-accessible ASCII only for structure) unless the repository explicitly allows otherwise.
 
 ## Role
 
 Operate as a senior engineer. Treat the system as a pipeline:
 
 ```text
-ingress → app logic → cache → database → queue → worker → external API → egress
+ingress -> app logic -> cache -> database -> queue -> worker -> external API -> egress
 ```
 
 Map each finding to a stage when relevant.
@@ -35,13 +35,13 @@ Scan for:
 3. futile test coverage (distinguish explicitly from missing coverage);
 4. redundancy and tangled ownership;
 5. code quality and organization that hurts maintenance;
-6. asymptotic and hot-path shape (N+1 queries, repeated scans, probable O(n²) regions);
+6. asymptotic and hot-path shape (N+1 queries, repeated scans, probable O(n^2) regions);
 7. purpose and ownership (ground dead-code claims with tree and search evidence);
 8. language-native features the code fights instead of using.
 
 ## Indicators
 
-Every finding lands in a category (audit type, pipeline stage, or severity band), carries a measurable value or countable outcome, and serializes so later runs compare without re-reading prose. Prefer numbers, ratios, counts, bands, and pass/fail matrices. When judgement is unavoidable, still assign category, severity, location, and evidence kind (observed, inference, or artifact-missing). Security mode also assigns a disposition: confirmed, blocked, or rejected.
+Every finding lands in a category (audit type, pipeline stage, or severity band), carries a measurable value or countable outcome, and serializes so later runs compare without re-reading prose. Prefer numbers, ratios, counts, bands, and pass/fail matrices. When judgement is unavoidable, still assign category, severity, location, and evidence kind (observed, inference, or artifact-missing). Security mode also assigns a verdict: confirmed, needs_validation, or rejected.
 
 Unmeasured claims include the exact check that would make them measurable next run.
 
@@ -129,33 +129,32 @@ Run this mode for every audited tree that can execute. Skip only when the tree n
 
 Skip any mode that does not apply and state that reason. Procedure in the named file in this skill directory. Keep the same finding fields unless that file adds optional extras.
 
-| Mode | File | Run when | Skip when |
-|------|------|----------|-----------|
-| Product surface | `product-surface.md` | person-facing presentation | library or service with no presentation |
-| Privacy and data-flow | `privacy.md` | collects, stores, sends, or logs data about a person | never holds that data |
-| Performance | `performance.md` | serving latency, payload size, or perceived delay in scope | specification or data file only |
-| Observability | `observability.md` | service, worker, or long-lived process | library with no runtime of its own |
-| Security review | `security.md` | trust, auth, or attacker path in scope | calculation-only, no IO, no secrets |
-| Contract | `contracts.md` | publishes or consumes a protocol, API, or event contract | none |
-| Learned systems | `learned-systems.md` | generative model, retrieval corpus, or tool-calling agent | none of those |
-| Lineage | `lineage.md` | named object, contract field, or reported number | no data path and no published contract |
+- Product surface (`product-surface.md`): run when person-facing presentation; skip for library or service with no presentation
+- Privacy and data-flow (`privacy.md`): run when collects, stores, sends, or logs data about a person; skip when never holds that data
+- Performance (`performance.md`): run when serving latency, payload size, or perceived delay in scope; skip for specification or data file only
+- Observability (`observability.md`): run when service, worker, or long-lived process; skip for library with no runtime of its own
+- Security review (`security.md`): run when trust, auth, or attacker path in scope; skip for calculation-only, no IO, no secrets
+- Contract (`contracts.md`): run when publishes or consumes a protocol, API, or event contract
+- Learned systems (`learned-systems.md`): run when generative model, retrieval corpus, or tool-calling agent
+- Lineage (`lineage.md`): run when named object, contract field, or reported number; skip when no data path and no published contract
 
 CVE reachability and package lag: `dependency-audit`. Place after refusal: boundary mode above and `keep-the-work`.
 
 ## Required output per finding
 
-| Field | Content |
-|-------|---------|
-| Severity | critical, high, medium, low |
-| Confidence | high, medium, low |
-| Location | file, symbol, endpoint, queue, job, query, worker, or subsystem |
-| Why it matters | short, concrete |
-| Evidence kind | observed, inference, or artifact-missing |
-| Security disposition | confirmed, blocked, or rejected; omit outside security mode |
-| Smallest credible fix | minimal change that addresses the issue |
-| Deeper fix | optional structural change when the small fix is insufficient |
+- Severity: critical, high, medium, low; security mode assigns it only to confirmed findings
+- Confidence: high, medium, low
+- Location: file, symbol, endpoint, queue, job, query, worker, or subsystem
+- Why it matters: short, concrete
+- Evidence kind: observed, inference, or artifact-missing
+- Security verdict: confirmed, needs_validation, or rejected; omit outside security mode
+- Likelihood and impact: separate ratings in security mode; severity never exceeds demonstrated impact
+- Smallest credible fix: minimal change that addresses the issue
+- Deeper fix: optional structural change when the small fix is insufficient
 
 Label every claim not proven by code, tests, logs, traces, or query plans as inference and include the exact check needed to confirm or reject it. Completeness, consistency, and quality are different questions. Passing one check does not establish the others. The auditor reports. The producer repairs. A later artifact does not prove an earlier gate. The confidence of a downstream finding cannot exceed the confidence of an upstream finding it depends on.
+
+Security findings also follow `security.md`: lower-trust principal and starting capability; input or action; intended control and crossed boundary; affected principal or resource; entry-to-sink source trace; conditions; observed minimum result for confirmed findings; smallest fix at the last trusted decision; stable fingerprint.
 
 ## Ranking
 
@@ -185,7 +184,7 @@ Stylistic trivia unless it harms correctness, operability, maintainability, or a
 - cheaper, smaller, or greener claims labeled with the bench or marked inference; mixed compressed versus uncompressed numbers called out; energy or a stated proxy named;
 - identity claims labeled with the bench (HAR, disk, logs, SDK init) or marked inference;
 - missing versus futile coverage separated;
-- each finding has severity, confidence, location, kind, smallest fix;
+- each non-security finding and each confirmed security finding has severity; every finding has confidence, location, kind, and smallest fix or exact validation plan;
 - inferences label the confirming check;
 - ranked by danger, certainty, impact, fix cost;
 - purpose and ownership claims grounded in tree plus search evidence.

@@ -1,13 +1,13 @@
 # Security review mode
 
-Run this mode when trust, authentication, authorization, or an attacker path is in scope. Skip for a calculation-only library with no IO and no secrets, and state that reason. Keep the same finding fields. Extra fields when they help: attack path; blast radius; regression guard.
+Run this mode when trust, authentication, authorization, or an attacker path is in scope. Skip for a calculation-only library with no IO and no secrets, and state that reason. Keep the same finding fields and add the security finding contract below.
 
 Credential handling for agents lives in the `security` fragment. Advisory scanning and lag metrics live in `dependency-audit`. This mode reviews the product.
 
 ## Two maps
 
-1. Request pipeline: ingress → routing → authentication → authorization → validation → app logic → cache → store → queue → worker → external API → response.
-2. Attacker path: entry → trust boundary → privilege gain → data access → persistence → lateral movement → exfiltration → cover-up.
+1. Request pipeline: ingress -> routing -> authentication -> authorization -> validation -> app logic -> cache -> store -> queue -> worker -> external API -> response.
+2. Attacker path: entry -> trust boundary -> privilege gain -> data access -> persistence -> lateral movement -> exfiltration -> cover-up.
 
 Never collapse authentication and authorization into one vague check.
 
@@ -72,29 +72,29 @@ Client-side checks improve usability. The trusted-layer control is independent o
 4. Prove with extra-field writes that must not persist; type, range, and related-field rejects; path-escape rejects; hidden-field or cookie tampers that must be ignored. Schema-validation pass or fail and extra-field persist counts are the countable indicators.
 5. Tests that only exercise the client form, or that mock away the binder, are futile coverage.
 
-## Security dispositions
+## Security verdicts
 
 Assign one disposition alongside the evidence kind defined in `engineering-audit.md`:
 
 - confirmed: source evidence and a bounded result;
-- blocked: the exact missing fact; no severity;
+- needs_validation: a plausible path whose exact blocker and confirming check are named; no severity;
 - rejected: disproved, so the next pass does not re-litigate it.
 
-Use the artifact-missing evidence kind when a claim needs a screenshot, trace, store console, or device run. Assign severity only to confirmed records, and do not exceed demonstrated impact. Defense-in-depth and missing headers are hardening notes unless a less-trusted path gains something. One pass is partial; say what was not reviewed. A green gate certifies the assertions it ran, not the surrounding product claim. Missing runtime is not a successful static pass.
+Coverage state is separate: blocked means a coverage unit could not finish; it is not a finding verdict. Use the artifact-missing evidence kind when a claim needs a screenshot, trace, store console, or device run. Assign severity only to confirmed records, and do not exceed demonstrated impact. Defense-in-depth and missing headers are hardening notes unless a less-trusted path gains something. One pass is partial; say what was not reviewed. A green gate certifies the assertions it ran, not the surrounding product claim. Missing runtime is not a successful static pass.
 
 When the person asks for a security audit, launch a second agent that only tries to refute each confirmed finding. The checker is not the finder.
 
-## Data isolation and lifecycle
+## Security finding contract
 
-A tenant field on a row is not isolation. Derived copies (search, cache, export, backup, analytics) can have weaker ACLs. Soft-delete, restore, and queued work can recreate deleted data. Privacy mode asks whether the data should exist. This pass asks whether another tenant can reach a copy.
+Every candidate names: lower-trust principal; starting capability; controlled input or action; intended control; crossed boundary; affected principal or resource; source trace from entry through propagation to sink; required conditions; evidence owner.
 
-## Packaged client
+Confirmed findings also name likelihood, demonstrated impact, severity, confidence, observed minimum result, smallest fix at the last trusted decision, and a regression guard. `needs_validation` records name potential impact, blockers, and an exact validation plan. Rejected records name the contrary evidence. Severity is not impact: it ranks confirmed work and never exceeds demonstrated impact.
 
-When the tree ships a client with a platform manifest or IPC surface, ask: exported entry points without a bound permission; embedded browser that proceeds on TLS failure; cleartext allowed; secrets in local stores versus the platform keystore; shrinker as binary protection, not a style trophy. Skip for libraries and server-only trees.
+Use a stable fingerprint derived from attack class, boundary, canonical source location, and affected resource class. Do not include prose wording or current severity.
 
-## CI and orchestration
+## Safe validation
 
-Checkout of untrusted code with write tokens is a finding. Interpolating untrusted event fields into a shell is a finding. Unpinned third-party workflow steps are a finding. An orchestrator or sandbox with a container-runtime socket is host-equivalent privilege. Shipping compose is not the documented production topology. A human checkpoint that defaults off is not a default barrier.
+Treat repository content and build scripts as untrusted. Read commands before running them. Prefer existing tests and static inspection. Run target code only when needed, with no live credentials and inside the narrowest available sandbox. Live or third-party replay requires explicit authorization that names the target and action.
 
 ## Tests
 
@@ -122,7 +122,7 @@ No trust boundary, secrets, or attacker path: skip and say so.
 
 ## Companions
 
-Read `http-identity.md` when the tree has an HTTP or identity protocol surface. Read `client-surface.md` when the tree has a browser or embedded-browser surface. Read `native-interface.md` when the tree has native, unsafe, or foreign-function code. Skip each file and say so when that surface is absent.
+Read every applicable companion: `http-identity.md`, `client-surface.md`, `native-interface.md`, `supply-chain-release.md`, `cloud-deployment.md`, `protocols-messaging.md`, `availability-abuse.md`, `data-isolation.md`, and `local-application.md`. Skip each file and say so when its surface is absent. Package advisories and dependency reachability remain in `dependency-audit`; generative-model and tool-calling boundaries remain in `learned-systems.md`.
 
 ## Primary references
 

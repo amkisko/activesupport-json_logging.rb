@@ -28,7 +28,7 @@ To change shared guidance, update `Prayfile` and run `pray install`.
 - if process state and local cache files are both cleared, name what must be rebuilt and from which durable source;
 - side effects read committed state from a cursor; they are not steps of the write;
 - on a store or network hot path, name the expensive unit and keep a before-and-after budget;
-- after changing a published number, identifier, or contract field, search dependents and mark them stale or update them.
+- after changing a published number, identifier, or contract field, search dependents and mark them stale or update them; when a published identifier shape changes, search path helpers that pass a string id, not only those that pass a record.
 <!-- pray:9068e4a2 -->
 
 <!-- pray:781b7711 -->
@@ -51,6 +51,7 @@ To change shared guidance, update `Prayfile` and run `pray install`.
 - Lookups go through an ownership set; request parameters pick which row; fail closed when access cannot be proven.
 - Treat user-supplied URLs as untrusted; rate-limit authentication and abuse-prone endpoints.
 - An invalid or expired credential gets a protocol-level failure status. A hop's own credential is never the caller's. Modes that relax access controls must remain disabled when their configuration is missing or invalid.
+- Crawl preferences in `robots.txt` and Content-Signal style directives declare intent to cooperative clients. They are not authentication, ownership proof, or a technical block. They do not replace rate limits or fail-closed access checks.
 
 Related: `engineering-audit` security mode asks whether a parameter establishes access and whether a worker skipped policy.
 <!-- pray:781b7711 -->
@@ -59,9 +60,17 @@ Related: `engineering-audit` security mode asks whether a parameter establishes 
 - `docs/` holds maintained explanations and working records; use stable descriptive filenames for guides; placement does not imply polish or currency;
 - keep inference input (AGENTS.md, `.agents/`) separate from `docs/`; conventions that matter fail a command;
 - `usr/` is the workshop for working tools and operational material;
-- `usr/migrate/` holds console-first scripts that must run before new code is on the process; later schema migrate is schema-only and idempotent;
-- four `docs/` timestamp trees, no README index, filename `YYYYMMDDHHMMSS_<kebab-case-title>.md`: `issues` (live work: contract, findings, open next; pitch, plan, and queue stay here), `changelogs` (what shipped), `meetings` (one sitting: who was there and what they agreed), `dependencies` (upstream defects from real work);
-- issues, changelogs, and meetings make five things findable (use `##` headings or equivalent; omit empty sections): **Participants** (humans only; omit agents, tools, and binaries), **Decisions** (what was agreed), **Effects** (done, failed, recovered, rolled back), **Next** (todo, planned, open questions), **Source** (links upstream: meeting, issue, PR, commit, and downstream materializations); git history is the edit log; add an explicit note only when a later pass changes meaning (scope cut, rollback, decision reversed);
+- `usr/scripts/` holds maintainer scripts invoked from a checkout, Makefile, CI, or a runner on a named path; not paste-into-live-console support or migrate work;
+- `usr/reports/` holds read-only analysis and investigation console scripts; no mutations;
+- `usr/support/` holds product and customer support console scripts that mutate or write; a person pastes or runs them after review; programmable agents do not run them against a live process;
+- `usr/migrate/` holds schema and data migration scripts for manual running before new code is on the process; later schema migrate is schema-only and idempotent;
+- six `docs/` timestamp trees, no README index, filename `YYYYMMDDHHMMSS_<kebab-case-title>.md`: `plans` (uncertain future: design-only notes before work is committed), `issues` (certain current: live work in play; contract, findings, open next; the open queue stays here), `reviews` (one review episode: session or CI scope, coverage, recommendations, outcome), `changelogs` (factual past: what shipped), `meetings` (one sitting: who was there and what they agreed), `dependencies` (upstream defects from real work);
+- issues, reviews, changelogs, and meetings make five things findable with `##` headings or equivalent: Participants (humans), Decisions (what was agreed), Effects (done, failed, recovered, rolled back), Next (todo, planned, open questions), Source (links upstream and downstream);
+- name the current operator under Participants when the current session provides their display name or that person confirms it; solo sessions still get one Participants line;
+- if the current operator cannot be identified without inference, omit Participants rather than guess from git configuration, commit history, filesystem paths, OS accounts, or login names;
+- list other humans who decided or reported in that episode when known; do not list agents, tools, binaries, or every person who touched related code;
+- omit other empty sections; git history is the edit log; add an explicit note only when a later pass changes meaning (scope cut, rollback, decision reversed);
+- Problem / Fix and similar ticket outlines do not replace the five headings; map that content into Decisions and Effects; keep Participants, Next, and Source as their own headings;
 - mention software, tools, agents, or binaries in a note only when that detail is needed for execution or later analysis; put it under Decisions, Effects, or Source, not under Participants;
 - never put local absolute paths or private material in `docs/` or under `usr/`: no home-directory or machine-specific filesystem paths, secrets, credentials, tokens, API keys, or personal private data; prefer repository-relative paths;
 - one home per fact; link, do not duplicate; goal and acceptance live apart from operating rules; when a decision changes shape, supersede it in place; name what the product does not do next to what it does;
@@ -72,7 +81,7 @@ Related: `engineering-audit` security mode asks whether a parameter establishes 
 
 When work surfaces a clearly visible bug or defect in a dependency (wrong behavior, broken API contract, regression between versions, or a fix already merged upstream but not released), say so in the task output and suggest a concrete fix path: upgrade, pin, patch, vendor, workaround, or upstream report.
 
-Store evidence under `docs/dependencies/#{YYYYMMDDHHMMSS}_<kebab-case-title>.md`; no README index in that tree. Each file should make these findable (use `##` headings or equivalent; omit empty sections): **Dependency** (name, version constraint, lockfile entry if any), **Symptom** (what breaks and where), **Evidence** (repro steps, logs, stack traces, links to issues or commits), **Suggested fix** (upgrade, pin, patch, workaround, or upstream report), **Next** (todo, planned, open questions), **Source** (links upstream: issue, PR, release note, commit, and downstream materializations in this repo). Git history is the edit log.
+Store evidence under `docs/dependencies/#{YYYYMMDDHHMMSS}_<kebab-case-title>.md`; no README index in that tree. Each file should make these findable (use `##` headings or equivalent; omit empty sections): Dependency (name, version constraint, lockfile entry if any), Symptom (what breaks and where), Evidence (repro steps, logs, stack traces, links to issues or commits), Suggested fix (upgrade, pin, patch, workaround, or upstream report), Next (todo, planned, open questions), Source (links upstream: issue, PR, release note, commit, and downstream materializations in this repo). Git history is the edit log.
 
 Do not open drive-by dependency hunts; record only issues encountered while doing the requested work and only when the defect is evident from behavior or published upstream facts, not speculation.
 
@@ -86,10 +95,10 @@ Rules for adding, changing, or removing third-party packages. Apply across langu
 
 Terminology:
 
-- package manifest — declares intent (`gemspec`, `package.json`, `Cargo.toml`, `mix.exs`, etc.)
-- lockfile — pins the resolved graph CI and developers install
-- registry — published versions consumers resolve (`RubyGems`, `npm`, `crates.io`, `Hex`, etc.)
-- hot path — code on the security, auth, crypto, IO, or request/response boundary users rely on
+- package manifest - declares intent (`gemspec`, `package.json`, `Cargo.toml`, `mix.exs`, etc.)
+- lockfile - pins the resolved graph CI and developers install
+- registry - published versions consumers resolve (`RubyGems`, `npm`, `crates.io`, `Hex`, etc.)
+- hot path - code on the security, auth, crypto, IO, or request/response boundary users rely on
 
 Stop until one of these applies before adding a dependency:
 
@@ -111,8 +120,14 @@ Related: `dependency-issues` records upstream defects found during real work; `m
 - log progress as `processed_count/total_records` or `print "."`;
 - unpublished in-repo gem: gemspec next to the library, Gemfile `path:` link, version 0.x, metadata `allowed_push_host` empty so gem push fails;
 - development and test isolation: declare the path gem in `group :development, :test` so production never requires it;
+- generate the public path from the slug column when present, otherwise the primary key; lookup uuid-shaped text as primary key, then slug, then integer primary key only when the schema holds integers; do not put display names in HTTP paths;
+- do not override `Model.find` or enable global FriendlyId finders; a `belongs_to` finder must exist on the relation;
+- `path(record)` uses `to_param`; path of a raw id string does not;
+- person-facing date and datetime fields are text (or a widget bound to the product form), not native `date` or `datetime-local`, when the product locale is not the browser locale;
+- ActiveRecord `TimeZoneConverter` converts strings through `in_time_zone` before DateTime cast; a parse prepend on Date or DateTime does not see those strings unless the converter is also prepended; ISO JSON and params stay on the default caster;
+- association pickers reuse the existing admin list API with a bounded page; they do not pluck the full table into the form;
 
-Related: `docs-conventions` names `usr/migrate` for console-first scripts that must run before new code is on the process.
+Related: `docs-conventions` names `usr/scripts` for maintainer scripts run from a checkout or CI, `usr/reports` for read-only investigation scripts, `usr/support` for support console scripts that mutate, and `usr/migrate` for schema and data migration scripts for manual running.
 <!-- pray:ad13bd27 -->
 
 <!-- pray:bf7304a6 -->
@@ -143,7 +158,7 @@ Rules:
 - deletion over addition; boring over clever; fewest files that stay readable;
 - when a request sounds overbuilt, ask whether a simpler existing path already covers it;
 - when two stdlib approaches are the same size, pick the edge-case-correct one; less code is not an excuse for a flimsier algorithm;
-- document deliberate shortcuts with an intent comment: name the known ceiling (global lock, O(n²) scan, naive heuristic) and the upgrade path when that ceiling matters.
+- document deliberate shortcuts with an intent comment: name the known ceiling (global lock, O(n^2) scan, naive heuristic) and the upgrade path when that ceiling matters.
 
 Not optional even when minimizing scope:
 - input validation at trust boundaries;
@@ -174,10 +189,10 @@ Use kebab-case after the prefix.
 
 Prefixes:
 
-- `feature/<title>` — new capability
-- `patch/<title>` — bugfix or chore
-- `trunk/<title>` — release candidate or integration work before `main`
-- `plan/<title>` — exploration or ideation
+- `feature/<title>` - new capability
+- `patch/<title>` - bugfix or chore
+- `trunk/<title>` - release candidate or integration work before `main`
+- `plan/<title>` - exploration or ideation
 
 Examples:
 
@@ -201,6 +216,10 @@ Examples:
 - when the change presents a screen, document, or other person-facing surface, name that surface in the work product (reply, pull request, live-work note) and record a visual assessment: hierarchy, copy, interactive states, empty/loading/error, a narrow surface, and whether a person can finish the task; record what was assessed and what remains for a human; skip and say so when there is no such surface
 - pictures, previews, tickets, and chat threads are source locators for that signal; the assessment is the running product plus the written need
 - product-contract and architecture work stay distinct from this visual-surface assessment
+- person-facing dates and times follow the product locale form; native HTML date and datetime-local follow the browser locale and are not that form; machine APIs, data attributes, filenames, and CSV machine columns stay ISO unless the product already published another contract
+- a catalog picker for growing association lists is a combobox that queries the product's live list API as the person types; each request takes a bounded page; further rows load on type or on scroll; a datalist or a select of every row is not that control
+- catalog assignment starts empty when a default first row would apply a change
+- a command that writes a record must look like a command
 
 Related: `keep-the-work` covers staying on the failed place after a refusal.
 <!-- pray:f528eeca -->
@@ -222,7 +241,8 @@ Related: `engineering-audit` enumerates those boundary conditions; `finite-state
 ## Writing and changelog prose checks
 
 Review for marketing language, invented objections, empty contrasts, stray em dashes, and paragraph flow; keep notes and metadata honest and plain.
-- docs timestamp trees: plain prose readable without a rendered preview. No markdown tables, bold, italic, or other styling. Prioritize factual accuracy over presentation.
+- docs timestamp trees, shared prayer sources (fragments, skill bodies, prompt templates, files under `prayers/`), and agent deliverable templates: plain prose readable without a rendered preview. No markdown tables, bold, italic, or other styling. Prioritize factual accuracy over presentation.
+- Prefer characters typed from a normal keyboard layout. Do not use special Unicode punctuation or symbols for structure or emphasis: no Unicode arrows, em or en dashes, ellipsis characters, not-equal signs, curly quotes, section signs, or similar. Use ASCII stand-ins (`->`, `-`, `...`, `!=`, straight `"` / `'`) or plain words (`then`, `section`). Do not draw pipelines or diagrams with inaccessible glyphs; use a numbered or bulleted list, or a `text` fence with ASCII only.
 - Ease, lexical diversity, coherence, mechanics, and claim integrity are separate constructs. Automated matches, readability grades, similarity, and model preference are review prompts; preserve meaning, necessary negation, scope, and uncertainty when editing.
 - Keep agency on the person who acts. Tools and process nouns do mechanical work.
 - Technical names, APIs, CLI verbs, RFC titles, identifiers, and UI copy use instrument and protocol words: check-in, last-seen, probe, monitor, expected tick. Body and organism metaphors such as heartbeat, pulse, and organ stay out of contracts and code. HTTP `/health` remains the liveness probe until a later RFC.
@@ -286,6 +306,6 @@ Claim `rfcs/ids/NNNN` before writing `rfcs/NNNN-slug.md`. Copy `rfcs/0000-templa
 
 - record durable project value in the live-work queue, including improvements to shared guidance or a skill;
 - keep only decision-bearing material; omit generic notes, copied chat, and filler;
-- use the lightest trace that preserves context; design-only work needs no branch unless implementation starts;
+- use the lightest trace that preserves context; design-only work needs no branch unless implementation starts; put that exploration under `docs/plans`;
 - follow docs-conventions for `docs/` and `usr/`; when encoding how this tree writes, use infer-conventions.
 <!-- pray:48e8a6b3 -->
