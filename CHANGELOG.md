@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Add opt-in `JsonLogging.max_line_bytes` to keep each emitted line valid JSON within a byte budget, for transports that split long lines such as Heroku (10,000 bytes)
+
 ## 1.3.1 (2026-09-04)
 
 - Copy large structured hashes before Rails parameter filtering so caller fields stay intact

@@ -401,6 +401,21 @@ lowlevel_error_handler do |e|
 end
 ```
 
+### Line size limit
+
+Some log transports limit the size of one line. Heroku splits dyno output longer than 10,000 bytes into separate 10,000-byte lines, which leaves each part as invalid JSON. The per-string limit below does not prevent this, because a line with many medium-sized fields can still be too long.
+
+Set a byte budget for the whole line (off by default):
+
+```ruby
+# config/initializers/json_logging.rb
+JsonLogging.max_line_bytes = 9_500
+```
+
+Set it in `config/puma.rb` too when Puma formats lines before the Rails application loads.
+
+A line over the budget stays one valid JSON object. The longest string values are shortened and end with `...[truncated]`, and the line gets `"truncated": true`. When shortening strings cannot fit the budget, for example a long array of numbers, the line is replaced by `severity`, `timestamp`, `"truncated": true`, and a `message` that names the budget. The budget excludes the trailing newline and must be at least 256 bytes.
+
 ## API
 
 ### JsonLogging.logger(*args, **kwargs)
@@ -621,6 +636,7 @@ logger.reopen                       # Reopen the logger (if supported by logdev)
   - Maximum context hash size: 50 keys (additional keys are truncated; overflow keys that match sensitive patterns or `filter_parameters` still appear as `[FILTERED]`)
   - Maximum nesting depth: 10 levels (deeper structures return `{"error" => "max_depth_exceeded"}`)
   - Maximum backtrace lines: 20 lines per exception
+  - Maximum line size: off by default, see [Line size limit](#line-size-limit)
 - **Single-line JSON**: Emits single-line JSON to avoid log injection via newlines
 - **Never fails**: Formatter and logger never raise; fallback to safe entries on serialization errors
 - **Sensitive key detection**: Falls back to pattern matching when Rails ParameterFilter isn't available
