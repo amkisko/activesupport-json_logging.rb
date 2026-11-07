@@ -2,6 +2,7 @@ require_relative "structured_hash_sanitizer"
 require_relative "sanitizer_hash_limit"
 
 module JsonLogging
+  # rubocop:disable Metrics/ModuleLength -- sanitizer owns string/hash/tag policy in one place
   module Sanitizer
     # Control characters that should be escaped or removed from log messages
     CONTROL_CHARS = /[\x00-\x1F\x7F]/
@@ -75,7 +76,7 @@ module JsonLogging
       return [] if flat.empty?
 
       if tag_source && flat.none? { |t| t.match?(CONTROL_CHARS) } && flat.all? { |t| t.length <= MAX_STRING_LENGTH }
-        cache = (Thread.current[:__json_logging_prepared_tags] ||= {})
+        cache = ExecutionState.prepared_tags_cache
         key = [tag_source, flat]
         return cache[key] if cache.key?(key)
 
@@ -269,4 +270,5 @@ module JsonLogging
       str.gsub(/#{Regexp.escape(prefix)}(?=\/|\\|\z)/, "~")
     end
   end
+  # rubocop:enable Metrics/ModuleLength
 end

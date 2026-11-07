@@ -4,6 +4,7 @@
 
 - Prefer `JSON.fast_generate` on generic `to_json_line`, structured-hash encoder assembly, and `LineEncoder` fast-path lines
 - Keep hot-path optimizations always on: timestamp cache per UTC second, sanitizer and context fast paths, tag-list cache, single `Severity.name_for` per line
+- Experimental: add `JsonLogging.isolation_level = :fiber` so context, tags, and hot-path caches isolate per Fiber (`:thread` remains default)
 - Emit valid JSON when a large structured hash body is empty after field overrides
 - Resolve the home-directory prefix without ActiveSupport `blank?`
 - Stop release when confirmation input closes before an answer

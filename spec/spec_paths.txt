@@ -7,6 +7,7 @@ spec/json_logger_spec.rb
 spec/json_logging_conflict_analysis_spec.rb
 spec/json_logging_context_spec.rb
 spec/json_logging_event_subscriber_spec.rb
+spec/json_logging_fiber_isolation_spec.rb
 spec/json_logging_formatter_advanced_spec.rb
 spec/json_logging_formatter_spec.rb
 spec/json_logging_helpers_spec.rb

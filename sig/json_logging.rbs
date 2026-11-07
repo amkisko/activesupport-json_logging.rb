@@ -1,5 +1,9 @@
 module JsonLogging
   VERSION: String
+  ISOLATION_LEVELS: Array[Symbol]
+
+  def self.isolation_level: () -> Symbol
+  def self.isolation_level=: (Symbol | String) -> Symbol
 
   class EventSubscriber
     def initialize: (?logger: untyped, ?io: untyped) -> void

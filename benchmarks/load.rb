@@ -11,8 +11,9 @@
 # In some Cursor/sandbox environments BUNDLE_PATH points at a stale bundle; unset it first.
 #
 # Env:
-#   SCENARIO=matrix|simple|hash|tagged|smoke (default matrix)
-#   BENCH_SIMPLE_N, BENCH_HASH_N, BENCH_TAGGED_N — baseline iteration counts
+#   SCENARIO=matrix|simple|hash|tagged|fiber|smoke (default matrix)
+#   BENCH_SIMPLE_N, BENCH_HASH_N, BENCH_TAGGED_N, BENCH_FIBER_N — baseline iteration counts
+#   BENCH_FIBER_COUNT — concurrent Fibers per wave (default 8)
 #   PRESSURE_MULT — pressure round ops multiplier vs baseline (default 1.75, range ~1.5–2)
 #   TARGET_FACTOR — next-round resource ceiling vs baseline metrics (default 0.85)
 #   PRESSURE_POLYRUN_LIB — optional override path to polyrun lib/ (default ../../polyrun.rb/lib)
@@ -39,22 +40,25 @@ module JsonLogging
         factor = env_float("TARGET_FACTOR", Polyrun::Benchmark::Pressure::DEFAULT_TARGET_FACTOR)
         pressure_mult = env_float("PRESSURE_MULT", 1.75)
 
-        simple_n, hash_n, tagged_n = iteration_plan(scenario)
+        simple_n, hash_n, tagged_n, fiber_n = iteration_plan(scenario)
+        fiber_count = env_int("BENCH_FIBER_COUNT", 8)
 
-        puts "JsonLogging pressure scenario=#{scenario} simple_n=#{simple_n} hash_n=#{hash_n} tagged_n=#{tagged_n} pressure_mult=#{pressure_mult} target_factor=#{factor}"
+        puts "JsonLogging pressure scenario=#{scenario} simple_n=#{simple_n} hash_n=#{hash_n} tagged_n=#{tagged_n} fiber_n=#{fiber_n} fiber_count=#{fiber_count} pressure_mult=#{pressure_mult} target_factor=#{factor}"
 
         results =
           case scenario
           when "matrix"
-            run_matrix!(simple_n, hash_n, tagged_n, pressure_mult, factor)
+            run_matrix!(simple_n, hash_n, tagged_n, fiber_n, fiber_count, pressure_mult, factor)
           when "simple"
             [measure_simple!("baseline_simple_string", simple_n)]
           when "hash"
             [measure_hash!("baseline_nested_hash", hash_n)]
           when "tagged"
             [measure_tagged_context!("baseline_tagged_context", tagged_n)]
+          when "fiber"
+            run_fiber_matrix!(fiber_n, fiber_count, pressure_mult, factor)
           when "smoke"
-            run_matrix!(50, 20, 30, 1.5, factor)
+            run_matrix!(50, 20, 30, 40, 4, 1.5, factor)
           else
             raise ArgumentError, "Unknown SCENARIO=#{scenario.inspect}"
           end
@@ -63,11 +67,11 @@ module JsonLogging
         path = Polyrun::Benchmark::Pressure.write_results!(results, repository_root: repo_root, name: "load")
         results.each { |row| puts row["report"] }
         puts "wrote #{path}"
-        exit_code = results.any? { |row| row["pass"] == false } ? 1 : 0
+        exit_code = (results.any? { |row| row["pass"] == false }) ? 1 : 0
         exit exit_code
       end
 
-      def run_matrix!(simple_n, hash_n, tagged_n, pressure_mult, factor)
+      def run_matrix!(simple_n, hash_n, tagged_n, fiber_n, fiber_count, pressure_mult, factor)
         results = []
 
         # Simple string logs
@@ -90,6 +94,51 @@ module JsonLogging
         tag_hot = [(tagged_n * pressure_mult).round, 1].max
         tag_targets = scaled_targets(tag_b, tag_hot, factor)
         results << measure_tagged_context!("pressure_tagged_context_#{tag_hot}", tag_hot, targets: tag_targets)
+
+        results.concat(run_fiber_matrix!(fiber_n, fiber_count, pressure_mult, factor))
+        results
+      end
+
+      def run_fiber_matrix!(fiber_n, fiber_count, pressure_mult, factor)
+        results = []
+
+        # Sequential tagged+context under experimental :fiber (same shape as thread path)
+        seq_b = measure_tagged_context_fiber!("baseline_fiber_sequential", fiber_n)
+        results << seq_b
+        seq_hot = [(fiber_n * pressure_mult).round, 1].max
+        results << measure_tagged_context_fiber!(
+          "pressure_fiber_sequential_#{seq_hot}",
+          seq_hot,
+          targets: scaled_targets(seq_b, seq_hot, factor)
+        )
+
+        # Concurrent Fibers under :fiber (isolated)
+        conc_b = measure_concurrent_fibers!("baseline_fiber_concurrent", fiber_n, fiber_count: fiber_count)
+        results << conc_b
+        conc_hot = [(fiber_n * pressure_mult).round, 1].max
+        results << measure_concurrent_fibers!(
+          "pressure_fiber_concurrent_#{conc_hot}",
+          conc_hot,
+          fiber_count: fiber_count,
+          targets: scaled_targets(conc_b, conc_hot, factor)
+        )
+
+        # Concurrent Fibers under default :thread (shared storage; throughput comparison only)
+        thread_conc_b = measure_concurrent_fibers!(
+          "baseline_thread_concurrent_fibers",
+          fiber_n,
+          fiber_count: fiber_count,
+          isolation: :thread
+        )
+        results << thread_conc_b
+        thread_conc_hot = [(fiber_n * pressure_mult).round, 1].max
+        results << measure_concurrent_fibers!(
+          "pressure_thread_concurrent_fibers_#{thread_conc_hot}",
+          thread_conc_hot,
+          fiber_count: fiber_count,
+          isolation: :thread,
+          targets: scaled_targets(thread_conc_b, thread_conc_hot, factor)
+        )
 
         results
       end
@@ -126,24 +175,95 @@ module JsonLogging
       end
 
       def measure_tagged_context!(label, ops, targets: nil)
-        io = StringIO.new
-        logger = JsonLogging::JsonLogger.new(io)
-        start_size = io.size
-        result = Polyrun::Benchmark::Pressure.measure(
-          label: label,
-          ops: ops,
-          extras: {"targets" => targets}
-        ) do
-          ops.times do |i|
-            JsonLogging.with_context(user_id: i, request_id: "req-#{i}", trace: "t#{i % 100}") do
-              logger.tagged("HTTP", "json_logging") do
-                logger.info("tagged message with context")
+        with_isolation(:thread) do
+          io = StringIO.new
+          logger = JsonLogging::JsonLogger.new(io)
+          start_size = io.size
+          result = Polyrun::Benchmark::Pressure.measure(
+            label: label,
+            ops: ops,
+            extras: {"targets" => targets, "isolation_level" => "thread"}
+          ) do
+            ops.times do |i|
+              JsonLogging.with_context(user_id: i, request_id: "req-#{i}", trace: "t#{i % 100}") do
+                logger.tagged("HTTP", "json_logging") do
+                  logger.info("tagged message with context")
+                end
               end
             end
           end
+          add_storage!(result, io, start_size)
+          result
         end
-        add_storage!(result, io, start_size)
-        result
+      end
+
+      def measure_tagged_context_fiber!(label, ops, targets: nil)
+        with_isolation(:fiber) do
+          io = StringIO.new
+          logger = JsonLogging::JsonLogger.new(io)
+          start_size = io.size
+          result = Polyrun::Benchmark::Pressure.measure(
+            label: label,
+            ops: ops,
+            extras: {"targets" => targets, "isolation_level" => "fiber"}
+          ) do
+            ops.times do |i|
+              JsonLogging.with_context(user_id: i, request_id: "req-#{i}", trace: "t#{i % 100}") do
+                logger.tagged("HTTP", "json_logging") do
+                  logger.info("tagged message with context")
+                end
+              end
+            end
+          end
+          add_storage!(result, io, start_size)
+          result
+        end
+      end
+
+      def measure_concurrent_fibers!(label, ops, fiber_count:, targets: nil, isolation: :fiber)
+        with_isolation(isolation) do
+          io = StringIO.new
+          logger = JsonLogging::JsonLogger.new(io)
+          start_size = io.size
+          result = Polyrun::Benchmark::Pressure.measure(
+            label: label,
+            ops: ops,
+            extras: {
+              "targets" => targets,
+              "isolation_level" => isolation.to_s,
+              "fiber_count" => fiber_count
+            }
+          ) do
+            i = 0
+            while i < ops
+              batch = [fiber_count, ops - i].min
+              fibers = batch.times.map do |f|
+                idx = i + f
+                Fiber.new do
+                  JsonLogging.with_context(user_id: idx, fiber_id: f, request_id: "req-#{idx}") do
+                    logger.tagged("HTTP", "fiber-#{f}") do
+                      Fiber.yield
+                      logger.info("fiber concurrent message")
+                    end
+                  end
+                end
+              end
+              fibers.each(&:resume)
+              fibers.each(&:resume)
+              i += batch
+            end
+          end
+          add_storage!(result, io, start_size)
+          result
+        end
+      end
+
+      def with_isolation(level)
+        previous = JsonLogging.isolation_level
+        JsonLogging.isolation_level = level
+        yield
+      ensure
+        JsonLogging.isolation_level = previous
       end
 
       def nested_hash_payload
@@ -184,12 +304,20 @@ module JsonLogging
       def iteration_plan(scenario)
         case scenario
         when "smoke"
-          [50, 20, 30]
+          [50, 20, 30, 40]
+        when "fiber"
+          [
+            env_int("BENCH_SIMPLE_N", 10_000),
+            env_int("BENCH_HASH_N", 1_500),
+            env_int("BENCH_TAGGED_N", 5_000),
+            env_int("BENCH_FIBER_N", 5_000)
+          ]
         else
           [
             env_int("BENCH_SIMPLE_N", 10_000),
             env_int("BENCH_HASH_N", 1_500),
-            env_int("BENCH_TAGGED_N", 5_000)
+            env_int("BENCH_TAGGED_N", 5_000),
+            env_int("BENCH_FIBER_N", 5_000)
           ]
         end
       end

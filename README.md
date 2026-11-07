@@ -94,7 +94,20 @@ This gem does **not** automatically configure your Rails app. You set it up manu
 **Note:** 
 - In Rails apps, the gem is automatically required via Railtie, so you typically don't need to manually `require "json_logging"` in initializers (though it's harmless if you do).
 - In Rails 7.1+, Rails wraps the logger in `ActiveSupport::BroadcastLogger` so one logger can write to several destinations (for example STDOUT and a file). `JsonLogging` stays compatible: the JSON logger is wrapped and method calls delegate as usual.
-- In Rails 7.1+, tag storage uses `ActiveSupport::IsolatedExecutionState` for improved thread/Fiber safety.
+- In Rails 7.1+, default tag/context storage uses `ActiveSupport::IsolatedExecutionState` (thread isolation unless the app sets Rails fiber isolation).
+
+### Experimental Fiber isolation
+
+For Fiber-based servers or code that interleaves many Fibers on one Thread, enable JsonLogging's experimental fiber storage:
+
+```ruby
+# config/initializers/json_logging.rb
+JsonLogging.isolation_level = :fiber
+```
+
+This isolates `with_context`, logger tags, and JsonLogging hot-path caches per Fiber. It does **not** flip Rails' own `config.active_support.isolation_level`; Falcon-style apps usually set both.
+
+Default remains `:thread`.
 
 ### Service-specific loggers with tags
 
@@ -609,7 +622,8 @@ logger.reopen                       # Reopen the logger (if supported by logdev)
 - **Native tagged logging**: Use `logger.tagged("TAG")` just like Rails' tagged logger
 - **Message parsing**: Handles hashes, JSON strings, plain strings, and Exception objects (with class, message, and backtrace)
 - **Thread-safe context**: `JsonLogging.with_context` works across threads
-- **Rails 7.1+ thread/Fiber safety**: Uses `ActiveSupport::IsolatedExecutionState` for thread/Fiber isolation
+- **Rails 7.1+ isolation**: Default `:thread` storage uses `ActiveSupport::IsolatedExecutionState` when available
+- **Experimental Fiber isolation**: `JsonLogging.isolation_level = :fiber` isolates context, tags, and hot-path caches per Fiber (for Fiber servers / interleaved Fibers on one Thread). Does not change Rails `config.active_support.isolation_level`; set that separately for CurrentAttributes and the rest of Rails.
 - **Safe on encode errors**: Formatter and logger methods fall back to safe entries instead of raising
 - **Single-line JSON**: Each log entry is a single line, safe for log aggregation tools
 

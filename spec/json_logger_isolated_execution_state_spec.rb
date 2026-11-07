@@ -120,18 +120,32 @@ RSpec.describe JsonLogging::JsonLogger do
     end
   end
 
-  describe "Fiber isolation (Rails 7.1+)" do
-    it "isolates tags per Fiber when IsolatedExecutionState configured for Fiber" do
-      skip "Fiber isolation test requires Rails 7.1+" unless defined?(ActiveSupport::IsolatedExecutionState)
+  describe "Fiber isolation (experimental JsonLogging.isolation_level)" do
+    around do |example|
+      previous = JsonLogging.isolation_level
+      example.run
+    ensure
+      JsonLogging.isolation_level = previous
+    end
 
-      # This test would require setting IsolatedExecutionState.isolation_level = :fiber
-      # But we can't change that globally in tests as it affects other tests
-      # So we just verify the code path exists
+    it "isolates tags per Fiber when isolation_level is :fiber", :aggregate_failures do
+      JsonLogging.isolation_level = :fiber
 
-      logger.tagged("FIBER_TEST") do
-        tags = logger.send(:current_tags)
-        expect(tags).to include("FIBER_TEST")
+      seen = {}
+      fibers = 3.times.map do |i|
+        Fiber.new do
+          logger.tagged("FIBER_#{i}") do
+            Fiber.yield
+            seen[i] = logger.send(:current_tags).dup
+            logger.info("fiber #{i}")
+          end
+        end
       end
+
+      fibers.each(&:resume)
+      fibers.each(&:resume)
+
+      expect(seen).to eq(0 => ["FIBER_0"], 1 => ["FIBER_1"], 2 => ["FIBER_2"])
     end
   end
 

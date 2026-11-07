@@ -96,23 +96,14 @@ module JsonLogging
     end
 
     def current_tags
-      # Use IsolatedExecutionState (Rails 7.1+) for better thread/Fiber safety
-      # Falls back to Thread.current for Rails 7.0
-      if defined?(ActiveSupport::IsolatedExecutionState)
-        ActiveSupport::IsolatedExecutionState[tags_key] ||= []
-      else
-        Thread.current[tags_key] ||= []
-      end
+      tags = ExecutionState[tags_key]
+      return tags if tags
+
+      ExecutionState[tags_key] = []
     end
 
     def set_tags(new_tags)
-      # Use IsolatedExecutionState (Rails 7.1+) for better thread/Fiber safety
-      # Falls back to Thread.current for Rails 7.0
-      if defined?(ActiveSupport::IsolatedExecutionState)
-        ActiveSupport::IsolatedExecutionState[tags_key] = new_tags
-      else
-        Thread.current[tags_key] = new_tags
-      end
+      ExecutionState[tags_key] = new_tags
     end
 
     def push_tags(tags)

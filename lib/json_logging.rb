@@ -3,6 +3,7 @@ require "json"
 require "time"
 
 require_relative "json_logging/version"
+require_relative "json_logging/execution_state"
 require_relative "json_logging/helpers"
 require_relative "json_logging/sanitizer"
 require_relative "json_logging/message_parser"
@@ -17,15 +18,29 @@ require_relative "json_logging/event_subscriber"
 module JsonLogging
   THREAD_CONTEXT_KEY = :__json_logging_context
   SANITIZED_CONTEXT_CACHE_KEY = :__json_logging_sanitized_context
+  ISOLATION_LEVELS = [:thread, :fiber].freeze
+
   @additional_context_warned = Set.new
   @additional_context_transformer = nil
+  @isolation_level = :thread
+
+  # Experimental: +:fiber+ isolates JsonLogging context, tags, and caches per Fiber.
+  # Default +:thread+ keeps Rails IsolatedExecutionState / Thread.current behavior.
+  def self.isolation_level
+    @isolation_level
+  end
+
+  def self.isolation_level=(level)
+    normalized = level.to_sym
+    unless ISOLATION_LEVELS.include?(normalized)
+      raise ArgumentError, "isolation_level must be :thread or :fiber, got: #{level.inspect}"
+    end
+
+    @isolation_level = normalized
+  end
 
   def self.context_storage
-    if defined?(ActiveSupport::IsolatedExecutionState)
-      ActiveSupport::IsolatedExecutionState
-    else
-      Thread.current
-    end
+    ExecutionState
   end
   private_class_method :context_storage
 

@@ -19,16 +19,15 @@ module JsonLogging
     end
 
     def cached_log_timestamp
-      storage = JsonLogging.send(:context_storage)
       now = current_time
       sec_key = now.to_i
-      cache = storage[TIMESTAMP_CACHE_KEY]
+      cache = ExecutionState[TIMESTAMP_CACHE_KEY]
       if cache.is_a?(Array) && cache[0] == sec_key && cache[1]
         return cache[1]
       end
 
       formatted = format_timestamp(now)
-      storage[TIMESTAMP_CACHE_KEY] = [sec_key, formatted]
+      ExecutionState[TIMESTAMP_CACHE_KEY] = [sec_key, formatted]
       formatted
     end
 
