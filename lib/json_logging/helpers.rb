@@ -2,6 +2,9 @@ module JsonLogging
   module Helpers
     ISO8601_MICROSECOND_UTC_PATTERN = /\A\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}Z\z/
 
+    # Microsecond bundle exec / hot add path: avoid fresh iso8601(6) every line when still in the same UTC second.
+    TIMESTAMP_CACHE_KEY = :__json_logging_ts_cache
+
     module_function
 
     # Normalize timestamp to ISO8601 with microseconds
@@ -12,7 +15,21 @@ module JsonLogging
     end
 
     def current_timestamp
-      format_timestamp(current_time)
+      cached_log_timestamp
+    end
+
+    def cached_log_timestamp
+      storage = JsonLogging.send(:context_storage)
+      now = current_time
+      sec_key = now.to_i
+      cache = storage[TIMESTAMP_CACHE_KEY]
+      if cache.is_a?(Array) && cache[0] == sec_key && cache[1]
+        return cache[1]
+      end
+
+      formatted = format_timestamp(now)
+      storage[TIMESTAMP_CACHE_KEY] = [sec_key, formatted]
+      formatted
     end
 
     def format_timestamp(time)

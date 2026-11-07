@@ -38,6 +38,8 @@ module JsonLogging
         if filter
           filter.filter(stringify(hash))
         else
+          return Sanitizer.sanitize_primitive_hash(hash) if Sanitizer.primitive_log_hash?(hash)
+
           sanitize_without_filter(hash, depth: depth)
         end
       end

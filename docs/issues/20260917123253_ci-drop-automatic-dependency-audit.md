@@ -2,7 +2,7 @@ CI quality failed on a trailing blank line in spec/support/junit_formatter.rb. T
 
 ## Participants
 
-- amkisko
+Andrei Makarov (@amkisko)
 
 ## Decisions
 

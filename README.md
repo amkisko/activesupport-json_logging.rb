@@ -3,8 +3,8 @@
 [![Gem Version](https://badge.fury.io/rb/activesupport-json_logging.svg)](https://badge.fury.io/rb/activesupport-json_logging) [![Test Status](https://github.com/amkisko/activesupport-json_logging.rb/actions/workflows/test.yml/badge.svg)](https://github.com/amkisko/activesupport-json_logging.rb/actions/workflows/test.yml) [![codecov](https://codecov.io/gh/amkisko/activesupport-json_logging.rb/graph/badge.svg?token=UX80FTO0Y0)](https://app.codecov.io/github/amkisko/activesupport-json_logging.rb) [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=amkisko_activesupport-json_logging.rb&metric=alert_status)](https://sonarcloud.io/project/overview?id=amkisko_activesupport-json_logging.rb)
 
 Structured JSON logging for Rails and ActiveSupport with a safe, single-line formatter.
-No dependencies beyond Rails and Activesupport.
-Supports Ruby 3.2+ and Rails 7–8.
+No dependencies beyond Rails and ActiveSupport.
+Supports Ruby 3.2+ and Rails 7-8.
 
 ## Installation
 
@@ -35,10 +35,10 @@ end
 - `JsonLogging.logger(*args)` - Convenience method that creates an `ActiveSupport::Logger` and wraps it
 - Safe JSON serialization that never raises from the formatter
 - `JsonLogging.with_context` to attach contextual fields per-thread
-- Smart message parsing (handles hashes, JSON strings, plain strings, and Exception objects)
+- Message parsing for hashes, JSON strings, plain strings, and Exception objects
 - Native `tagged` method support - use it just like Rails' tagged logger
 - Service-specific tagged loggers - create loggers with permanent tags using `logger.tagged("service")` without a block
-- Full compatibility with `ActiveSupport::BroadcastLogger` (Rails 7.1+)
+- Compatible with `ActiveSupport::BroadcastLogger` (Rails 7.1+)
 - Opt-in `JsonLogging::EventSubscriber` for Rails 8.1 `ActiveSupport::EventReporter` / `Rails.event`
 - Automatic Rails integration via Railtie (auto-requires the gem in Rails apps)
 
@@ -93,7 +93,7 @@ This gem does **not** automatically configure your Rails app. You set it up manu
 
 **Note:** 
 - In Rails apps, the gem is automatically required via Railtie, so you typically don't need to manually `require "json_logging"` in initializers (though it's harmless if you do).
-- In Rails 7.1+, Rails automatically wraps your logger in `ActiveSupport::BroadcastLogger` to enable writing to multiple destinations (e.g., STDOUT and file simultaneously). This works seamlessly with our logger - your JSON logger will be wrapped and all method calls will delegate correctly. No special handling needed.
+- In Rails 7.1+, Rails wraps the logger in `ActiveSupport::BroadcastLogger` so one logger can write to several destinations (for example STDOUT and a file). `JsonLogging` stays compatible: the JSON logger is wrapped and method calls delegate as usual.
 - In Rails 7.1+, tag storage uses `ActiveSupport::IsolatedExecutionState` for improved thread/Fiber safety.
 
 ### Service-specific loggers with tags
@@ -159,7 +159,7 @@ end
 
 ### BroadcastLogger integration
 
-`ActiveSupport::BroadcastLogger` (Rails 7.1+) allows writing logs to multiple destinations simultaneously. `JsonLogging` works seamlessly with `BroadcastLogger`:
+`ActiveSupport::BroadcastLogger` (Rails 7.1+) writes the same log stream to multiple destinations. `JsonLogging` works with `BroadcastLogger`:
 
 ```ruby
 # Create JSON loggers for different destinations
@@ -203,7 +203,7 @@ end
 - Tagged logging (`tagged`) works correctly through `BroadcastLogger`
 - Service-specific tagged loggers work with `BroadcastLogger`
 - Each destination receives properly formatted JSON logs
-- No special configuration needed - just wrap your `JsonLogging` logger in `BroadcastLogger`
+- Wrap your `JsonLogging` logger in `BroadcastLogger` when you need multiple destinations
 
 ### Basic setup
 
@@ -443,13 +443,13 @@ logger.tagged("BCX").tagged("Jason").info("Stuff")
 **Wrapping Compatibility:** You can wrap loggers that have already been wrapped with `ActiveSupport::TaggedLogging`:
 
 ```ruby
-# Wrap a TaggedLogging logger - works perfectly
+# Wrap a TaggedLogging logger
 tagged_logger = ActiveSupport::TaggedLogging.new(Logger.new(STDOUT))
 json_logger = JsonLogging.new(tagged_logger)
 json_logger.tagged("TEST") { json_logger.info("message") }  # Tags appear at root level in JSON
 ```
 
-**Note:** If you wrap a `JsonLogging` logger with `ActiveSupport::TaggedLogging`, the TaggedLogging's text-based tags will appear as part of the message string in the JSON output, not as structured tags at the root level. For best results, wrap loggers with `JsonLogging` last.
+**Note:** If you wrap a `JsonLogging` logger with `ActiveSupport::TaggedLogging`, the TaggedLogging's text-based tags will appear as part of the message string in the JSON output, not as structured tags at the root level. Wrap loggers with `JsonLogging` last.
 
 ### JsonLogging::JsonLogger
 
@@ -551,7 +551,7 @@ end
 
 The transformer receives the current thread-local context hash and should return a hash. If the transformer raises an error, the base context will be returned to avoid breaking logging.
 
-**Note:** The transformer is called every time a log entry is created, so keep it lightweight to avoid performance issues.
+**Note:** The transformer is called every time a log entry is created, so keep it cheap to avoid slowing each line.
 
 ### Inherited Rails Logger Features
 
@@ -607,10 +607,10 @@ logger.reopen                       # Reopen the logger (if supported by logdev)
 ## Features
 
 - **Native tagged logging**: Use `logger.tagged("TAG")` just like Rails' tagged logger
-- **Smart message parsing**: Automatically handles hashes, JSON strings, plain strings, and Exception objects (with class, message, and backtrace)
+- **Message parsing**: Handles hashes, JSON strings, plain strings, and Exception objects (with class, message, and backtrace)
 - **Thread-safe context**: `JsonLogging.with_context` works across threads
-- **Rails 7.1+ thread/Fiber safety**: Uses `ActiveSupport::IsolatedExecutionState` for improved concurrency
-- **Never raises**: Formatter and logger methods handle errors gracefully with fallback entries
+- **Rails 7.1+ thread/Fiber safety**: Uses `ActiveSupport::IsolatedExecutionState` for thread/Fiber isolation
+- **Safe on encode errors**: Formatter and logger methods fall back to safe entries instead of raising
 - **Single-line JSON**: Each log entry is a single line, safe for log aggregation tools
 
 ## Security & privacy
@@ -622,9 +622,9 @@ logger.reopen                       # Reopen the logger (if supported by logdev)
   - Maximum nesting depth: 10 levels (deeper structures return `{"error" => "max_depth_exceeded"}`)
   - Maximum backtrace lines: 20 lines per exception
 - **Single-line JSON**: Emits single-line JSON to avoid log injection via newlines
-- **Never fails**: Formatter and logger never raise; fallback to safe entries on serialization errors
+- **Safe on encode errors**: Formatter and logger never raise; fallback to safe entries on serialization errors
 - **Sensitive key detection**: Falls back to pattern matching when Rails ParameterFilter isn't available
-- **You control context**: You decide what goes into context via `JsonLogging.with_context`; avoid sensitive data
+- **Caller-owned context**: You decide what goes into context via `JsonLogging.with_context`; avoid sensitive data
 
 ### Configuring sensitive parameter filtering
 

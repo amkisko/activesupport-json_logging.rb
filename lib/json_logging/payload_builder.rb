@@ -46,7 +46,11 @@ module JsonLogging
       end
 
       unless merged_context.empty?
-        payload["context"] = merged_context.transform_keys(&:to_s)
+        payload["context"] = if merged_context.keys.all? { |k| k.is_a?(String) }
+          merged_context
+        else
+          merged_context.transform_keys(&:to_s)
+        end
       end
       payload
     end
@@ -73,7 +77,8 @@ module JsonLogging
     end
 
     def merge_tags_only(payload, tags:, sanitize_tags:)
-      existing_tags = Array(payload["tags"])
+      raw = payload["tags"]
+      existing_tags = raw ? Array(raw) : []
       prepared_tags = sanitize_tags ? tags.map { |tag| Sanitizer.sanitize_string(tag.to_s) } : tags
       payload["tags"] = (existing_tags + prepared_tags).uniq
       payload
@@ -81,6 +86,7 @@ module JsonLogging
 
     def context_payload_portion(additional_context)
       return {} unless additional_context.is_a?(Hash)
+      return additional_context if additional_context.empty?
 
       additional_context.reject do |key, _|
         SYSTEM_CONTROLLED_KEYS.include?(key) || SYSTEM_CONTROLLED_KEYS.include?(key.to_s)

@@ -22,10 +22,11 @@ module JsonLogging
 
       msg = nil
       msg = extract_log_message(message, progname, &block)
+      timestamp = Helpers.cached_log_timestamp
       line = LineEncoder.build_line(
         msg: msg,
         severity: severity,
-        timestamp: Helpers.current_timestamp,
+        timestamp: timestamp,
         tags: formatter.current_tags,
         additional_context: JsonLogging.additional_context_for_payload,
         additional_context_sanitized: true,
@@ -77,8 +78,9 @@ module JsonLogging
 
     def write_add_fallback(severity, msg, error)
       msg ||= "<uninitialized>"
+      ts = Helpers.cached_log_timestamp
       fallback = {
-        timestamp: Helpers.current_timestamp,
+        timestamp: ts,
         severity: Severity.name_for(severity),
         message: Sanitizer.sanitize_string(Helpers.safe_string(msg)),
         logger_error: {
@@ -114,7 +116,7 @@ module JsonLogging
     end
 
     def push_tags(tags)
-      flat = Sanitizer.prepare_tags(tags)
+      flat = Sanitizer.prepare_tags(tags, tag_source: :logger_extension_push)
       return if flat.empty?
 
       set_tags(current_tags + flat)
@@ -154,7 +156,7 @@ module JsonLogging
       end
 
       def push_tags(tags)
-        flat = Sanitizer.prepare_tags(tags)
+        flat = Sanitizer.prepare_tags(tags, tag_source: :local_tag_stack)
         return [] if flat.empty?
 
         @tags.concat(flat)

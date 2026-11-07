@@ -1,6 +1,14 @@
 # CHANGELOG
 
-## Unreleased
+## 1.3.2 (2026-11-07)
+
+- Prefer `JSON.fast_generate` on generic `to_json_line`, structured-hash encoder assembly, and `LineEncoder` fast-path lines
+- Keep hot-path optimizations always on: timestamp cache per UTC second, sanitizer and context fast paths, tag-list cache, single `Severity.name_for` per line
+- Emit valid JSON when a large structured hash body is empty after field overrides
+- Resolve the home-directory prefix without ActiveSupport `blank?`
+- Stop release when confirmation input closes before an answer
+- Require a matching `CHANGELOG.md` version heading before publish
+- Run quality, test, and coverage jobs on pull requests to `main`
 
 ## 1.3.1 (2026-09-04)
 
@@ -17,7 +25,7 @@
 
 ## 1.3.0 (2026-07-25)
 
-- BREAKING: Require Ruby 3.2+ and Rails 7+ (drop Ruby 2.7–3.1 and Rails 6 support)
+- BREAKING: Require Ruby 3.2+ and Rails 7+ (drop Ruby 2.7-3.1 and Rails 6 support)
 - Add opt-in `JsonLogging::EventSubscriber` for Rails 8.1 `ActiveSupport::EventReporter` / `Rails.event` structured events
 
 ## 1.2.3 (2026-07-13)
@@ -51,7 +59,7 @@
 ## 1.2.0 (2025-11-07)
 
 - Add support for service-specific tagged loggers: create loggers with permanent tags using `logger.tagged("service")` without a block
-- Improve BroadcastLogger compatibility: service-specific loggers work seamlessly with `ActiveSupport::BroadcastLogger`
+- Improve BroadcastLogger compatibility: service-specific loggers work with `ActiveSupport::BroadcastLogger`
 - Fix LocalTagStorage implementation to match Rails' TaggedLogging behavior: use `tag_stack` attribute accessor pattern for proper tag isolation
 - Add comprehensive examples in README for service-specific loggers and BroadcastLogger integration
 

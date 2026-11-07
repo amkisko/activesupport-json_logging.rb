@@ -2,7 +2,7 @@
 
 ## Participants
 
-Repository maintainer asked to continue the engineering audit with findings 8 and 9.
+Andrei Makarov (@amkisko)
 
 ## Decisions
 

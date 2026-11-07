@@ -28,6 +28,25 @@ RSpec.describe JsonLogging::Sanitizer do
       result = described_class.sanitize_string(obj)
       expect(result).to eq("<sanitization_error>")
     end
+
+    it "redacts the home directory prefix in strings", :aggregate_failures do
+      home = described_class.home_directory_prefix
+      # rubocop:disable Rails/Blank -- mirror production home-prefix checks
+      skip "HOME unavailable" if home.nil? || home.empty?
+      # rubocop:enable Rails/Blank
+
+      expect(described_class.sanitize_string("#{home}/project/app.rb")).to eq("~/project/app.rb")
+      expect(described_class.sanitize_string("plain message")).to eq("plain message")
+    end
+
+    it "resolves a missing ENV HOME without calling blank?", :aggregate_failures do
+      allow(ENV).to receive(:[]).and_call_original
+      allow(ENV).to receive(:[]).with("HOME").and_return(nil)
+      allow(Dir).to receive(:home).and_return("/Users/example")
+
+      expect(described_class.home_directory_prefix).to eq("/Users/example")
+      expect(described_class.sanitize_string("/Users/example/app.rb")).to eq("~/app.rb")
+    end
   end
 
   describe ".sanitize_hash" do

@@ -7,7 +7,7 @@ Gem::Specification.new do |spec|
   spec.email = ["contact@kiskolabs.com"]
 
   spec.summary = "Structured JSON logging for Rails/ActiveSupport with safe, single-line entries."
-  spec.description = "Lightweight JSON logger and formatter integrating with Rails/ActiveSupport. No extra deps beyond Rails/Activesupport. Compatible with Rails 7–8."
+  spec.description = "JSON logger and formatter for Rails/ActiveSupport. No extra deps beyond Rails/ActiveSupport. Compatible with Rails 7-8."
   spec.homepage = "https://github.com/amkisko/activesupport-json_logging.rb"
   spec.license = "MIT"
 
@@ -27,7 +27,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "json", ">= 2.21.2"
 
   spec.add_development_dependency "rspec", "~> 3"
-  spec.add_development_dependency "polyrun", ">= 2.2.0"
+  spec.add_development_dependency "polyrun", ">= 2.2.9"
   spec.add_development_dependency "rake", "~> 13"
   spec.add_development_dependency "standard", "~> 1.52"
   spec.add_development_dependency "standard-custom", "~> 1.0"

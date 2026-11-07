@@ -2,7 +2,7 @@
 
 ## Participants
 
-Agent-assisted performance work on activesupport-json_logging.rb.
+Andrei Makarov (@amkisko)
 
 ## Decisions
 

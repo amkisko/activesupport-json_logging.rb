@@ -12,7 +12,7 @@ module JsonLogging
       shift_age = args[1] || 0
       shift_size = args[2]
 
-      # Handle both positional and keyword arguments for Rails 7–8 compatibility
+      # Handle both positional and keyword arguments for Rails 7-8 compatibility
       if kwargs.empty? && shift_size
         super(logdev, shift_age, shift_size)
       elsif kwargs.empty?

@@ -10,10 +10,12 @@ module JsonLogging
     module_function
 
     def build_line(msg:, severity:, timestamp:, tags:, additional_context:, additional_context_sanitized: false, sanitize_tags: true)
+      severity_string = Severity.name_for(severity)
+
       if simple_string_line?(msg, tags, additional_context)
         return simple_string_json_line(
           message: msg,
-          severity: Severity.name_for(severity),
+          severity: severity_string,
           timestamp: timestamp
         )
       end
@@ -21,7 +23,7 @@ module JsonLogging
       if tagged_simple_string_line?(msg, tags, additional_context)
         return tagged_simple_string_json_line(
           message: msg,
-          severity: Severity.name_for(severity),
+          severity: severity_string,
           timestamp: timestamp,
           tags: tags,
           sanitize_tags: sanitize_tags
@@ -31,7 +33,7 @@ module JsonLogging
       if contextual_simple_string_line?(msg, tags, additional_context, additional_context_sanitized: additional_context_sanitized)
         return contextual_simple_string_json_line(
           message: msg,
-          severity: Severity.name_for(severity),
+          severity: severity_string,
           timestamp: timestamp,
           additional_context: additional_context
         )
@@ -40,7 +42,7 @@ module JsonLogging
       if standalone_hash_line?(msg, tags, additional_context)
         return standalone_hash_json_line(
           message: msg,
-          severity: Severity.name_for(severity),
+          severity: severity_string,
           timestamp: timestamp
         )
       end
@@ -48,7 +50,7 @@ module JsonLogging
       if tagged_hash_line?(msg, tags, additional_context)
         return tagged_hash_json_line(
           message: msg,
-          severity: Severity.name_for(severity),
+          severity: severity_string,
           timestamp: timestamp,
           tags: tags,
           sanitize_tags: sanitize_tags
@@ -58,13 +60,13 @@ module JsonLogging
       if contextual_hash_line?(msg, tags, additional_context, additional_context_sanitized: additional_context_sanitized)
         return contextual_hash_json_line(
           message: msg,
-          severity: Severity.name_for(severity),
+          severity: severity_string,
           timestamp: timestamp,
           additional_context: additional_context
         )
       end
 
-      sev = Severity.name_for(severity)
+      sev = severity_string
       payload = PayloadBuilder.build_base_payload(msg, severity: sev, timestamp: timestamp)
       unless tags.empty? && PayloadBuilder.empty_additional_context?(additional_context)
         payload = PayloadBuilder.merge_context(
@@ -81,7 +83,7 @@ module JsonLogging
     def to_json_line(payload_hash)
       compacted = payload_hash.compact
       json_payload = string_keyed_structure?(compacted) ? compacted : compacted.deep_stringify_keys
-      "#{json_payload.to_json}\n"
+      "#{JSON.fast_generate(json_payload)}\n"
     end
 
     def string_keyed_structure?(object)
@@ -104,7 +106,7 @@ module JsonLogging
 
     def simple_string_json_line(message:, severity:, timestamp:)
       sanitized_message = Sanitizer.sanitize_string(message)
-      "#{JSON.generate("message" => sanitized_message, "severity" => severity, "timestamp" => timestamp)}\n"
+      "#{JSON.fast_generate("message" => sanitized_message, "severity" => severity, "timestamp" => timestamp)}\n"
     end
 
     def tagged_simple_string_line?(message, tags, additional_context)
@@ -116,8 +118,13 @@ module JsonLogging
 
     def tagged_simple_string_json_line(message:, severity:, timestamp:, tags:, sanitize_tags:)
       sanitized_message = Sanitizer.sanitize_string(message)
-      prepared_tags = sanitize_tags ? Sanitizer.prepare_tags(tags) : tags
-      "#{JSON.generate("message" => sanitized_message, "severity" => severity, "timestamp" => timestamp, "tags" => prepared_tags.uniq)}\n"
+      prepared_tags = if sanitize_tags
+        t = Sanitizer.prepare_tags(tags, tag_source: :line_encoder_tagged_simple)
+        t.uniq
+      else
+        tags
+      end
+      "#{JSON.fast_generate("message" => sanitized_message, "severity" => severity, "timestamp" => timestamp, "tags" => prepared_tags)}\n"
     end
 
     def contextual_simple_string_line?(message, tags, additional_context, additional_context_sanitized:)
@@ -137,7 +144,7 @@ module JsonLogging
       }
       context = PayloadBuilder.context_payload_portion(additional_context)
       payload["context"] = context unless context.empty?
-      "#{JSON.generate(payload)}\n"
+      "#{JSON.fast_generate(payload)}\n"
     end
 
     def standalone_hash_line?(message, tags, additional_context)
@@ -158,7 +165,7 @@ module JsonLogging
       payload = Sanitizer.sanitize_hash(hash)
       payload["severity"] = severity
       payload["timestamp"] = timestamp
-      "#{JSON.generate(payload)}\n"
+      "#{JSON.fast_generate(payload)}\n"
     end
 
     def tagged_hash_line?(message, tags, additional_context)
@@ -169,7 +176,11 @@ module JsonLogging
 
     def tagged_hash_json_line(message:, severity:, timestamp:, tags:, sanitize_tags:)
       hash = message.is_a?(Hash) ? message : message.to_hash
-      prepared_tags = sanitize_tags ? Sanitizer.prepare_tags(tags) : tags
+      prepared_tags = if sanitize_tags
+        Sanitizer.prepare_tags(tags, tag_source: :line_encoder_tagged_hash)
+      else
+        tags
+      end
       merged_tags = (Array(hash[:tags] || hash["tags"]) + prepared_tags).uniq
       field_overrides = {"tags" => merged_tags}
 
@@ -185,7 +196,7 @@ module JsonLogging
       payload["severity"] = severity
       payload["timestamp"] = timestamp
       payload["tags"] = merged_tags
-      "#{JSON.generate(payload)}\n"
+      "#{JSON.fast_generate(payload)}\n"
     end
 
     def contextual_hash_line?(message, tags, additional_context, additional_context_sanitized:)
@@ -220,7 +231,7 @@ module JsonLogging
         existing_context = payload["context"].is_a?(Hash) ? payload["context"] : {}
         payload["context"] = existing_context.merge(merged_context)
       end
-      "#{JSON.generate(payload)}\n"
+      "#{JSON.fast_generate(payload)}\n"
     end
 
     def deep_stringify_structure(obj)

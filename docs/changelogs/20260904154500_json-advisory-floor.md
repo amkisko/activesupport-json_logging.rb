@@ -2,7 +2,7 @@
 
 ## Participants
 
-Repository maintainer asked to clear bundle-audit flags on this branch.
+Andrei Makarov (@amkisko)
 
 ## Decisions
 

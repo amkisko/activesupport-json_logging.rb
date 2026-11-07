@@ -244,6 +244,21 @@ RSpec.describe JsonLogging do
         expect(line.scan('"tags"').size).to eq(1)
       end
 
+      it "emits valid JSON when every body key is omitted into field overrides", :aggregate_failures do
+        tags = Array.new(described_class::LEAF_THRESHOLD + 1) { |index| "t#{index}" }
+        line = described_class.encode_line(
+          {"tags" => tags},
+          severity: "INFO",
+          timestamp: timestamp,
+          field_overrides: {"tags" => tags + ["service"]}
+        )
+
+        payload = JSON.parse(line)
+        expect(payload["tags"]).to eq(tags + ["service"])
+        expect(payload["severity"]).to eq("INFO")
+        expect(payload["timestamp"]).to eq(timestamp)
+      end
+
       it "omits overridden context from the encoded body when merging logger context", :aggregate_failures do
         hash = benchmark_large_hash.merge(context: {"request_id" => "old"})
 

@@ -43,7 +43,7 @@ execute_command(test_command)
 
 puts "Tests passed. Checking git status..."
 
-git_status = `git diff --shortstat 2>/dev/null`.strip
+git_status = `git status --porcelain --untracked-files=all 2>/dev/null`.strip
 unless git_status.empty?
   puts "\033[1;31mgit working directory not clean, please commit your changes first \033[0m"
   puts "\033[1;33mNote: rubocop -a may have modified files. Review and commit changes before releasing.\033[0m"
@@ -54,18 +54,19 @@ version_content = File.read(VERSION_FILE)
 version = version_content.match(/VERSION\s*=\s*"([0-9.]+)"/)[1]
 gem_file = "#{gem_name}-#{version}.gem"
 
+ReleaseVersionCheck.require_changelog_version!(version: version)
 ReleaseVersionCheck.warn_if_already_released(version: version, package_name: gem_name, registry: :rubygems)
 
 execute_command("gem build #{gemspec}")
 
 puts "Ready to release #{gem_file} #{version}"
 print "Continue? [Y/n] "
-answer = $stdin.gets.chomp
-unless ["Y", ""].include?(answer)
+unless ReleaseVersionCheck.confirmation_accepted?($stdin.gets)
   puts "Exiting"
   exit 1
 end
 
 execute_command("gem push #{gem_file}")
-execute_command("git tag #{version} && git push --tags")
+execute_command("git tag #{version}")
+execute_command("git push origin HEAD \"refs/tags/#{version}\"")
 execute_command("gh release create #{version} --generate-notes")

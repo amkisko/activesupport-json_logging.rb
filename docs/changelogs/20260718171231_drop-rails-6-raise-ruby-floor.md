@@ -2,7 +2,7 @@
 
 ## Participants
 
-- amkisko
+Andrei Makarov (@amkisko)
 
 ## Decisions
 
@@ -13,7 +13,7 @@
 
 ## Effects
 
-- gemspec, Appraisals, test matrix, README, and CHANGELOG updated for Ruby 3.2+ / Rails 7–8.
+- gemspec, Appraisals, test matrix, README, and CHANGELOG updated for Ruby 3.2+ / Rails 7-8.
 - Removed gemfiles/rails6.* and gemfiles/rails_6.1.gemfile.
 - structured_hash_sanitizer no longer uses keyword_init: true.
 

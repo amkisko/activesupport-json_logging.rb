@@ -70,8 +70,21 @@ module JsonLogging
       @parameter_filter_requires_full_tree_walk = false
     end
 
-    def prepare_tags(tags)
-      tags.flatten.compact.map(&:to_s).reject(&:empty?).map { |tag| sanitize_string(tag) }
+    def prepare_tags(tags, tag_source: nil)
+      flat = tags.flatten.compact.map(&:to_s).reject(&:empty?)
+      return [] if flat.empty?
+
+      if tag_source && flat.none? { |t| t.match?(CONTROL_CHARS) } && flat.all? { |t| t.length <= MAX_STRING_LENGTH }
+        cache = (Thread.current[:__json_logging_prepared_tags] ||= {})
+        key = [tag_source, flat]
+        return cache[key] if cache.key?(key)
+
+        prepared = flat.map { |tag| sanitize_string(tag) }
+        cache[key] = prepared.freeze
+        return prepared
+      end
+
+      flat.map { |tag| sanitize_string(tag) }
     end
 
     # Sanitize a string by removing/escaping control characters and truncating
@@ -97,6 +110,7 @@ module JsonLogging
     def sanitize_hash(hash, depth: 0)
       return hash unless hash.is_a?(Hash)
       return {"error" => "max_depth_exceeded"} if depth > MAX_DEPTH
+      return hash if hash.empty?
 
       limited_hash = limited_hash_for_sanitization(hash)
       fast_path_result = fast_path_sanitized_hash(limited_hash, depth: depth)
@@ -108,6 +122,10 @@ module JsonLogging
     end
 
     def limited_hash_for_sanitization(hash)
+      if !rails_parameter_filter && hash.is_a?(Hash) && hash.size <= MAX_CONTEXT_SIZE
+        return hash
+      end
+
       SanitizerHashLimit.apply(hash, filter_config: rails_parameter_filter && @parameter_filter_config)
     end
 
@@ -146,6 +164,8 @@ module JsonLogging
       when Hash
         sanitize_hash(value, depth: depth)
       when Array
+        return [] if value.empty?
+
         sanitized = value.first(MAX_CONTEXT_SIZE).map { |v| sanitize_value(v, depth: depth + 1) }
         sanitized << "[truncated]" if value.size > MAX_CONTEXT_SIZE
         sanitized
@@ -232,7 +252,9 @@ module JsonLogging
 
     def home_directory_prefix
       prefix = ENV["HOME"]
-      prefix = Dir.home if prefix.blank?
+      # rubocop:disable Rails/Blank -- string path must not require ActiveSupport blank?
+      prefix = Dir.home if prefix.nil? || prefix.empty?
+      # rubocop:enable Rails/Blank
       prefix = prefix.to_s.chomp("/").chomp("\\")
       return if prefix.empty?
 

@@ -1,7 +1,7 @@
 PATH
   remote: ..
   specs:
-    activesupport-json_logging (1.3.1)
+    activesupport-json_logging (1.3.2)
       activesupport (>= 7.0, < 9.0)
       json (>= 2.21.2)
       railties (>= 7.0, < 9.0)
@@ -95,7 +95,7 @@ GEM
     parser (3.3.12.0)
       ast (~> 2.4.1)
       racc
-    polyrun (2.2.1)
+    polyrun (2.2.9)
     pp (0.6.4)
       prettyprint
     prettyprint (0.2.0)
@@ -248,7 +248,7 @@ DEPENDENCIES
   benchmark (~> 0.5)
   benchmark-ips (~> 2)
   memory_profiler (~> 1)
-  polyrun (>= 2.2.0)
+  polyrun (>= 2.2.9)
   railties (~> 8.1, >= 8.1.3.1)
   rake (~> 13)
   rbs (~> 3)
@@ -267,7 +267,7 @@ CHECKSUMS
   actionpack (8.1.3.1) sha256=974cb7154548e81f470b1b0f247b99cb38e87825899dca58610596e2817723d0
   actionview (8.1.3.1) sha256=2da68b8414c47b43bfbed1ce69c5afe1c04f78c267aacb5660a4cab5ca12cfb6
   activesupport (8.1.3.1) sha256=85458765f25ea48b9019c46b6bb3fa5683197bf4280d9f06710a6e8d7a831376
-  activesupport-json_logging (1.3.1)
+  activesupport-json_logging (1.3.2)
   appraisal (2.5.0) sha256=36989221be127913b0dba8d114da2001e6b2dceea7bd4951200eaba764eed3ce
   ast (2.4.3) sha256=954615157c1d6a382bc27d690d973195e79db7f55e9765ac7c481c60bdb4d383
   base64 (0.3.0) sha256=27337aeabad6ffae05c265c450490628ef3ebd4b67be58257393227588f5a97b
@@ -303,7 +303,7 @@ CHECKSUMS
   nokogiri (1.19.4-x86_64-linux-musl) sha256=17dfb7c1fa194ae02fbf7c51a7afc8d278045ab3fdacfd86f91d02d7b274470b
   parallel (2.1.0) sha256=b35258865c2e31134c5ecb708beaaf6772adf9d5efae28e93e99260877b09356
   parser (3.3.12.0) sha256=21a6d7f755d5a24dfbdc6e6b772e4e879a52e7631a88bc5a3a134606052c9828
-  polyrun (2.2.1) sha256=426672e30597b3116132f1b1be4e1875554b7ca51125c59c42a7963fe5106d25
+  polyrun (2.2.9) sha256=0ea6ea3590f3756e30fc5adb2358129ba4142cb1b86ebd7da975873444970ec3
   pp (0.6.4) sha256=dfcb0fce700c41456265922884f9fe195d7fbb0674a3578e6c0f69588e82b570
   prettyprint (0.2.0) sha256=2bc9e15581a94742064a3cc8b0fb9d45aae3d03a1baa6ef80922627a0766f193
   prism (1.9.0) sha256=7b530c6a9f92c24300014919c9dcbc055bf4cdf51ec30aed099b06cd6674ef85

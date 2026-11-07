@@ -25,6 +25,8 @@ module JsonLogging
     end
 
     def json_string?(str)
+      # Short strings cannot be JSON object/array literals with both delimiters.
+      return false if str.length < 2
       return false if str.length > Sanitizer::MAX_STRING_LENGTH
 
       (str.start_with?("{") && str.end_with?("}")) ||

@@ -18,3 +18,4 @@ spec/json_logging_payload_builder_spec.rb
 spec/json_logging_sanitizer_spec.rb
 spec/performance/benchmark_spec.rb
 spec/performance/profiling_spec.rb
+spec/release_version_check_spec.rb

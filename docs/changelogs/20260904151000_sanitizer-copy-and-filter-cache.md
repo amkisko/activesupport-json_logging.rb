@@ -2,7 +2,7 @@
 
 ## Participants
 
-Repository maintainer asked for root-cause sanitizer, encoder, context, filter, parser, and event fixes after the engineering audit.
+Andrei Makarov (@amkisko)
 
 ## Decisions
 
