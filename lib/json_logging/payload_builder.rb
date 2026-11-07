@@ -25,34 +25,42 @@ module JsonLogging
       return merge_tags_only(payload, tags: tags, sanitize_tags: sanitize_tags) if tags_only_merge?(payload, additional_context: additional_context, tags: tags)
 
       existing_context = payload["context"].is_a?(Hash) ? payload["context"] : {}
+      user_context = filtered_user_context(additional_context, sanitized: additional_context_sanitized)
+      deduped = user_context.reject { |key, _| payload.key?(key) || payload.key?(key.to_s) }
+      merged_context = existing_context.merge(deduped)
 
-      sanitized_context = if additional_context_sanitized
+      assign_tags!(payload, tags: tags, sanitize_tags: sanitize_tags) unless tags.empty?
+      assign_context!(payload, merged_context) unless merged_context.empty?
+      payload
+    end
+
+    def filtered_user_context(additional_context, sanitized:)
+      context = resolve_additional_context(additional_context, sanitized: sanitized)
+      context.except(*SYSTEM_CONTROLLED_KEYS)
+    end
+
+    def resolve_additional_context(additional_context, sanitized:)
+      if sanitized
         additional_context.is_a?(Hash) ? additional_context : {}
       elsif additional_context.is_a?(Hash) && !additional_context.empty?
         Sanitizer.sanitize_hash(additional_context)
       else
         additional_context || {}
       end
+    end
 
-      user_context_filtered = sanitized_context.except(*SYSTEM_CONTROLLED_KEYS)
+    def assign_tags!(payload, tags:, sanitize_tags:)
+      existing_tags = Array(payload["tags"])
+      prepared_tags = sanitize_tags ? tags.map { |tag| Sanitizer.sanitize_string(tag.to_s) } : tags
+      payload["tags"] = (existing_tags + prepared_tags).uniq
+    end
 
-      deduped_additional = user_context_filtered.reject { |key, _| payload.key?(key) || payload.key?(key.to_s) }
-      merged_context = existing_context.merge(deduped_additional)
-
-      unless tags.empty?
-        existing_tags = Array(payload["tags"])
-        prepared_tags = sanitize_tags ? tags.map { |tag| Sanitizer.sanitize_string(tag.to_s) } : tags
-        payload["tags"] = (existing_tags + prepared_tags).uniq
+    def assign_context!(payload, merged_context)
+      payload["context"] = if merged_context.keys.all? { |key| key.is_a?(String) }
+        merged_context
+      else
+        merged_context.transform_keys(&:to_s)
       end
-
-      unless merged_context.empty?
-        payload["context"] = if merged_context.keys.all? { |k| k.is_a?(String) }
-          merged_context
-        else
-          merged_context.transform_keys(&:to_s)
-        end
-      end
-      payload
     end
 
     def empty_additional_context?(additional_context)
