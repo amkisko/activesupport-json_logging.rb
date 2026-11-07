@@ -34,6 +34,7 @@ tree ".agents/skills" do
   pray "amkisko/changelog-update", "~> 3.0"
   pray "amkisko/claims-audit", "~> 1.2"
   pray "amkisko/rfc-process", "~> 1.2"
+  pray "amkisko/pressure-benchmarking", "~> 1.0"
 end
 
 pray "amkisko/community-security", "~> 1.2", file: "SECURITY.md"

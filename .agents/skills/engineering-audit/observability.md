@@ -16,6 +16,7 @@ Use `operational-signal-intake` when work starts from a live alert, event, trace
 - outbound mail, webhook, and third-party failures visible and separated from application faults;
 - health and readiness distinct when the platform has both;
 - pool, queue, and retry or dead-letter behaviour visible;
+- cache hits and misses, stale or rejected fills, invalidation and rebuild lag, evictions, hot keys, source amplification, stored bytes, and recovery progress visible when cached or derived state serves reads;
 - alert thresholds that fire on user impact, not on every retry;
 - distance between the latest committed item and the worker cursor visible, with unexplained waiting exposed on shared-store and worker paths.
 

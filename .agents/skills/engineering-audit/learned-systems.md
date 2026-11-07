@@ -18,6 +18,8 @@ Classify before judging: naive retrieval, retrieval with hybrid search and reran
 
 When the tree publishes skill files, prompt templates, MCP configs, or tool schemas, inventory those files. Ask whether tool descriptions are treated as untrusted; whether grants are least privilege; whether command-string parameters are unbounded; whether MCP environment settings hold live secrets; whether the server binds a public interface without authentication; whether retry or subagent depth has a named cap.
 
+Separate selectors available before inference from instructions loaded after selection. For each skill or tool, trace intended and rejected requests through selection, required references, current authorization, bounded action, failure behavior, and observable completion. A body cannot repair a missing trigger or exclusion in a selector that prevented the body from loading. A review request stays read-only unless the person also asks for a change.
+
 When the product also publishes HTTP agent discovery (robots preferences, Link headers, api-catalog, OAuth protected-resource metadata, MCP cards or catalogs, public skill indexes), treat those documents as a trust boundary before any tool session. Ask whether discovery JSON embeds credentials or private endpoints; whether "found" is confused with "authorized"; whether robots or Content-Signal text is treated as an ACL; whether draft well-known paths are locked as the only correct location. Prefer RFCs for API and OAuth discovery; mark MCP card paths and skill indexes as draft until the tree pins a contract.
 
 A guardrail prompt is not a security boundary. Prompt injection alone is not a finding; require a code-level boundary failure. Authorization and action binding are different controls. Model output, memory, tool descriptions, and MCP responses are untrusted input. Public skill markdown and discovery metadata are untrusted input. MCP identity confusion and metadata-as-policy are findings when the tree treats a description as a grant.
@@ -28,7 +30,7 @@ Falsify a finding against the diff or source files alone, not against the same t
 
 Cite OWASP LLM01, LLM06, and the OWASP MCP Top 10 when those frames apply. Keep vendor names out of findings.
 
-When the person asks for skill or MCP review on its own, use `agent-artifact`. When they ask what the product should publish for agent HTTP discovery, use `agent-discovery`. When they ask to supervise a live tool-calling run, use `agent-run-supervision`.
+When the person asks for skill or MCP review on its own, use `agent-artifact` for the full selection, effect, authority, and benchmark procedure. When they ask what the product should publish for agent HTTP discovery, use `agent-discovery`. When they ask to supervise a live tool-calling run, use `agent-run-supervision`.
 
 ## What to measure
 

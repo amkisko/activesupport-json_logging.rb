@@ -55,7 +55,7 @@ Missing coverage is not futile coverage. Also treat as findings: flaky or slow t
 
 When the audit scope includes these layers, inspect explicitly.
 
-Cache: key design, TTL correctness, stampede protection, invalidation ownership, whether misses amplify upstream load, untrusted keys, caller-controlled values in shared process state. Ask whether this cache is the source of truth or every read revalidates. Ask whether another instance can serve stale data after a write is acknowledged. Control-plane metadata and bulk bytes must not share a runtime, lock, or transport without a named reason.
+Cache and derived state: name the authoritative state, every serving copy, and whether each copy may disappear or be rebuilt. Check complete key and visibility identity, the promised read contract (validation, version, generation, or bounded staleness), write and invalidation ownership, stale-fill races, deletion replay, stampede protection, miss amplification, and cold-rebuild source load. If the store holds the only accepted copy, audit it as durable state. Control-plane metadata and bulk bytes must not share a runtime, lock, or transport without a named reason.
 
 Database: N+1 queries, unbounded result sets, missing indexes, lock contention, tenant or shard skew hotspots, extra columns written from undeclared fields. A hot path must not list or enumerate when a probe would do.
 

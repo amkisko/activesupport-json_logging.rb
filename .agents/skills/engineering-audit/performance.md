@@ -14,6 +14,8 @@ Serving: request or job latency percentiles, query count, allocation, serializat
 
 Each performance claim names the surface or endpoint, the metric, the fixture, and the measured value. Budget without a measurement is inference. Name a round-trip or byte budget, not only latency percentiles.
 
+When comparing old and new API contracts, keep contract equivalence, serving work, client request behavior, and person-visible interface behavior as separate planes. Record cache state, effective concurrency, build and asset revisions, repeated raw samples, and alternating run order. HTTP `no-store` alone does not prove a cold client run. Use `api-contract-migration` when that skill is available.
+
 ## Shapes
 
 Look for these shapes without vendor tokens. A match is only a candidate until the loop body is shown to perform storage or network IO, or a benchmark demonstrates the cost.

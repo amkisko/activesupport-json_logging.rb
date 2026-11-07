@@ -180,7 +180,8 @@ Before recommending a new package, verify with recon:
 3. tests and adapters updated for major versions;
 4. manifest floors updated when needed;
 5. vendor exceptions wrapped at boundaries;
-6. automation config matches existing ecosystems only.
+6. automation config matches existing ecosystems only;
+7. upgrade resource compare completed on isolated base and head checkouts when the change alters a resolved graph or runtime pin (install or graph storage, resident memory, CPU or stated proxy, and shipped bundle or image size when the product ships bytes); procedure in `references/upgrade-resource-compare.md`.
 
 ## Automation expectations
 

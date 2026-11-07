@@ -23,11 +23,13 @@ Use with the dependency-audit skill when adding, changing, or removing packages.
 - tighten package manifest floors when security fixes require a minimum version; lockfiles protect this repo, manifests protect downstream consumers;
 - on major upgrades, grep for adapters (HTTP mocks, test doubles, middleware, FFI shims) and run the full CI matrix;
 - delete redundant packages when a transitive or cluster dependency subsumes them; wrap remaining vendor exceptions at trust boundaries with project error types, not raw vendor exceptions in user-facing paths;
+- run the upgrade resource compare in `references/upgrade-resource-compare.md` on isolated base and head checkouts before calling a resolved graph or runtime-pin change done; automated and human upgrades use the same series;
 - list exact commands and observed results in validation output; never claim a clean audit without running it.
 
 ## Automation
 
 - gate CI on advisory checks for the ecosystems that exist in the repository; drop automated update config for ecosystems with no manifest;
-- use grouped automated update pull requests for lockfiles; human review still applies selection rules above.
+- use grouped automated update pull requests for lockfiles; human review still applies selection rules above;
+- agents reviewing automated or human upgrade pull requests gather and return the upgrade resource compare without changing the active worktree; CI may sample cheap series (install size, ship artifact size) but does not replace boot CPU and resident memory when those series matter.
 
-Full dependency audits rely on deep recon and OSINT, not only lockfile scanners. Automated advisory and outdated checks are necessary baseline; they are not sufficient for hot-path packages or for add/replace decisions.
+Full dependency audits rely on deep recon and OSINT, not only lockfile scanners. Automated advisory and outdated checks are necessary baseline; they are not sufficient for hot-path packages or for add/replace decisions. Resource claims without the upgrade compare are inference.

@@ -24,3 +24,7 @@
 *.gem
 
 .pray
+
+/benchmarks/output/
+
+/benchmarks/tmp_c_ext_probe/

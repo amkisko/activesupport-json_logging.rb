@@ -21,6 +21,8 @@ Read `engineering-audit.md` in this skill directory for dimensions, indicators, 
 
 Read the matching optional file when the product has that surface: `product-surface.md`, `privacy.md`, `performance.md`, `observability.md`, `security.md`, `contracts.md`, `learned-systems.md`, `lineage.md`. When security mode runs, also read every applicable companion named in `security.md`. Skip each file whose surface is absent and state the reason. Stay on concepts. Do not require a named framework or vendor tool.
 
+When the system has a cache or rebuildable derived state, use `durable-cache` when that skill is available. This skill owns cross-stage evidence, findings, and ranking; `durable-cache` owns the cache contract and lifecycle. Continue with the cache stage checks here when `durable-cache` is unavailable.
+
 ## Quick reference
 
 Pipeline:

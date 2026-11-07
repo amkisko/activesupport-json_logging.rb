@@ -12,6 +12,7 @@ Run this mode when the audited system publishes or consumes a protocol, API, or 
 - webhook or callback verification and replay protection;
 - destination failure recorded as completed versus retried as if our code failed;
 - backward compatibility for callers you still support;
+- when one published API request and response contract replaces another, establish per-surface equivalence, rollback, consumer migration, and old-path deletion; use `api-contract-migration` when that skill is available;
 - when primary key type is uuid, treat uuid and id as one field unless a second column exists; do not plan a numeric last resort the schema cannot hold.
 
 Authentication, object-level authorization, extra-field writes, and trusted-layer validation for each operation stay in security review mode.
