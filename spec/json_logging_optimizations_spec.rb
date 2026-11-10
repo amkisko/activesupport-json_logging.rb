@@ -616,4 +616,62 @@ RSpec.describe JsonLogging do
       end
     end
   end
+
+  describe "json 3 encode compatibility" do
+    let(:timestamp) { "2026-01-01T00:00:00.000000Z" }
+
+    around do |example|
+      had_fast_generate = JSON.respond_to?(:fast_generate)
+      if had_fast_generate
+        JSON.singleton_class.alias_method(:__json_logging_fast_generate_backup, :fast_generate)
+        JSON.singleton_class.undef_method(:fast_generate)
+      end
+      example.run
+    ensure
+      if had_fast_generate && !JSON.respond_to?(:fast_generate)
+        JSON.singleton_class.alias_method(:fast_generate, :__json_logging_fast_generate_backup)
+        JSON.singleton_class.undef_method(:__json_logging_fast_generate_backup)
+      end
+    end
+
+    it "emits simple string and large structured hash lines without JSON.fast_generate", :aggregate_failures do
+      expect(JSON).not_to respond_to(:fast_generate)
+
+      simple_line = JsonLogging::LineEncoder.build_line(
+        msg: "request completed",
+        severity: Logger::INFO,
+        timestamp: timestamp,
+        tags: [],
+        additional_context: {}
+      )
+      expect(JSON.parse(simple_line)).to eq(
+        "message" => "request completed",
+        "severity" => "INFO",
+        "timestamp" => timestamp
+      )
+
+      large_hash = {
+        user: {
+          id: 123,
+          profile: {
+            bio: "A" * 1000,
+            preferences: (1..50).to_h { |index| ["pref_#{index}", "value_#{index}"] }
+          }
+        },
+        request: {
+          path: "/api/users",
+          params: (1..20).to_h { |index| ["param_#{index}", "value_#{index}"] }
+        }
+      }
+      structured_line = JsonLogging::StructuredHashJsonEncoder.encode_line(
+        large_hash,
+        severity: "INFO",
+        timestamp: timestamp
+      )
+      payload = JSON.parse(structured_line)
+      expect(payload["severity"]).to eq("INFO")
+      expect(payload["timestamp"]).to eq(timestamp)
+      expect(payload.dig("user", "id")).to eq(123)
+    end
+  end
 end

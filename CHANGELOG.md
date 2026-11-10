@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 1.3.3 (2026-11-10)
+
+- Emit log lines with `JSON.generate` so boot and encode work under json 3, which removed `JSON.fast_generate`
+
 ## 1.3.2 (2026-11-07)
 
 - Prefer `JSON.fast_generate` on generic `to_json_line`, structured-hash encoder assembly, and `LineEncoder` fast-path lines

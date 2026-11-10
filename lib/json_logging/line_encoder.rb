@@ -83,7 +83,7 @@ module JsonLogging
     def to_json_line(payload_hash)
       compacted = payload_hash.compact
       json_payload = string_keyed_structure?(compacted) ? compacted : compacted.deep_stringify_keys
-      "#{JSON.fast_generate(json_payload)}\n"
+      "#{JSON.generate(json_payload)}\n"
     end
 
     def string_keyed_structure?(object)
@@ -106,7 +106,7 @@ module JsonLogging
 
     def simple_string_json_line(message:, severity:, timestamp:)
       sanitized_message = Sanitizer.sanitize_string(message)
-      "#{JSON.fast_generate("message" => sanitized_message, "severity" => severity, "timestamp" => timestamp)}\n"
+      "#{JSON.generate("message" => sanitized_message, "severity" => severity, "timestamp" => timestamp)}\n"
     end
 
     def tagged_simple_string_line?(message, tags, additional_context)
@@ -124,7 +124,7 @@ module JsonLogging
       else
         tags
       end
-      "#{JSON.fast_generate("message" => sanitized_message, "severity" => severity, "timestamp" => timestamp, "tags" => prepared_tags)}\n"
+      "#{JSON.generate("message" => sanitized_message, "severity" => severity, "timestamp" => timestamp, "tags" => prepared_tags)}\n"
     end
 
     def contextual_simple_string_line?(message, tags, additional_context, additional_context_sanitized:)
@@ -144,7 +144,7 @@ module JsonLogging
       }
       context = PayloadBuilder.context_payload_portion(additional_context)
       payload["context"] = context unless context.empty?
-      "#{JSON.fast_generate(payload)}\n"
+      "#{JSON.generate(payload)}\n"
     end
 
     def standalone_hash_line?(message, tags, additional_context)
@@ -165,7 +165,7 @@ module JsonLogging
       payload = Sanitizer.sanitize_hash(hash)
       payload["severity"] = severity
       payload["timestamp"] = timestamp
-      "#{JSON.fast_generate(payload)}\n"
+      "#{JSON.generate(payload)}\n"
     end
 
     def tagged_hash_line?(message, tags, additional_context)
@@ -196,7 +196,7 @@ module JsonLogging
       payload["severity"] = severity
       payload["timestamp"] = timestamp
       payload["tags"] = merged_tags
-      "#{JSON.fast_generate(payload)}\n"
+      "#{JSON.generate(payload)}\n"
     end
 
     def contextual_hash_line?(message, tags, additional_context, additional_context_sanitized:)
@@ -231,7 +231,7 @@ module JsonLogging
         existing_context = payload["context"].is_a?(Hash) ? payload["context"] : {}
         payload["context"] = existing_context.merge(merged_context)
       end
-      "#{JSON.fast_generate(payload)}\n"
+      "#{JSON.generate(payload)}\n"
     end
 
     def deep_stringify_structure(obj)

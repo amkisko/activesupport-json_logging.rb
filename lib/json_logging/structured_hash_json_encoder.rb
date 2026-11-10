@@ -65,11 +65,11 @@ module JsonLogging
     def append_json_line(tree, severity:, timestamp:, field_overrides:)
       extras = field_overrides.merge("severity" => severity, "timestamp" => timestamp)
       # rubocop:disable Rails/Blank -- encoder path must not require ActiveSupport blank?
-      return "#{JSON.fast_generate(extras)}\n" if tree.nil? || tree.empty?
+      return "#{JSON.generate(extras)}\n" if tree.nil? || tree.empty?
       # rubocop:enable Rails/Blank
 
-      body = JSON.fast_generate(tree)
-      extra_json = extras.map { |key, value| "#{JSON.fast_generate(key.to_s)}:#{JSON.fast_generate(value)}" }.join(",")
+      body = JSON.generate(tree)
+      extra_json = extras.map { |key, value| "#{JSON.generate(key.to_s)}:#{JSON.generate(value)}" }.join(",")
       "#{body.chop},#{extra_json}}\n"
     end
 
