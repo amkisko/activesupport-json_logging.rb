@@ -48,8 +48,9 @@ iterations, or spike as a substitute for a calibrated meter.
 
 - `delivery-budgets` - continuous absolute ship-path size and build-timing CI gates
 - dependency-audit upgrade resource compare - one-change base/head deltas
+- dependency-audit upgrade impact - changelog usage map and fitness reassessment after a measured dependency miss
 - engineering-audit resource and budget - utilization audit claims and candidate lists
-- this skill - calibrate, load ladder, ceiling ratchet, pressure cooker
+- this skill - calibrate, load ladder, ceiling ratchet, pressure cooker; escalate dependency fitness failures, do not decide custom replacements here
 
 ## Session failure mode to avoid
 

@@ -21,7 +21,10 @@ Skip for pure documentation or contract edits with no executable path, and say
 so. Route one-change dependency base/head deltas to dependency-audit upgrade
 resource compare. Route continuous ship-path absolute size and build-timing
 gates to `delivery-budgets`. Route utilization review claims to engineering-audit
-resource and budget mode.
+resource and budget mode. When the primary series remains inside a dependency
+after cooker rules and no high-confidence first-party candidate remains, record
+dependency fitness failure and route to dependency-audit upgrade impact
+(fitness reassessment); do not invent a custom replacement inside this skill.
 
 ## Quick reference
 
@@ -62,4 +65,5 @@ explicit one-off commands and records them in the live-work note.
 - engineering-audit resource and budget mode - utilization claims; prioritized candidates for the loop
 - engineering-audit performance mode - wait-time claims
 - dependency-audit upgrade resource compare - base/head deltas for lockfile or runtime-pin changes
+- dependency-audit upgrade impact - fitness reassessment when load shows a dependency miss
 - delivery-budgets - continuous ship-path absolute size and build-timing gates

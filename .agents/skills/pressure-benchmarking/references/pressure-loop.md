@@ -133,6 +133,17 @@ Filling N with low-ROI clone cleanups after those conditions hold is forbidden.
 An episode with N < 10 is incomplete, not an accepted pressure run. Continuous
 CI `--gate` does not replace a pressure-cooker episode.
 
+## Dependency fitness escalate
+
+When N >= 10, the gate still fails or the primary series is stuck, profiler or
+stage evidence places the cost inside a third-party package, and the
+engineering-audit list has no remaining high-confidence first-party
+candidates for that series, stop the cooker as incomplete for ceiling write
+and record `dependency fitness: fail` with the package name, series, and
+evidence. Route to dependency-audit upgrade impact fitness reassessment
+(replace, remove, vendor or thin fork, or narrow first-party). Do not open a
+custom rewrite as an optimize cycle inside this episode.
+
 ## Report contract
 
 Each episode records:

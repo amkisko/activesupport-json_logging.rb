@@ -21,15 +21,17 @@ Use with the dependency-audit skill when adding, changing, or removing packages.
 - run advisory scans on every lockfile or variant graph CI installs (root lockfile alone is not enough when matrix gemfiles, workspaces, or target-specific locks exist);
 - keep hot-path and direct runtime packages at the latest safe registry version unless a documented exception explains the pin;
 - tighten package manifest floors when security fixes require a minimum version; lockfiles protect this repo, manifests protect downstream consumers;
+- run the upgrade impact pass in `references/upgrade-impact.md` (changelog or release notes mapped to usage; must-adapt / may-adopt / do-not-adopt) before merge; tier scaling and classification live there;
 - on major upgrades, grep for adapters (HTTP mocks, test doubles, middleware, FFI shims) and run the full CI matrix;
 - delete redundant packages when a transitive or cluster dependency subsumes them; wrap remaining vendor exceptions at trust boundaries with project error types, not raw vendor exceptions in user-facing paths;
 - run the upgrade resource compare in `references/upgrade-resource-compare.md` on isolated base and head checkouts before calling a resolved graph or runtime-pin change done; automated and human upgrades use the same series;
+- when measured load or a named requirement shows the package no longer fits, run fitness reassessment in `references/upgrade-impact.md` before replace, remove, or custom code;
 - list exact commands and observed results in validation output; never claim a clean audit without running it.
 
 ## Automation
 
 - gate CI on advisory checks for the ecosystems that exist in the repository; drop automated update config for ecosystems with no manifest;
 - use grouped automated update pull requests for lockfiles; human review still applies selection rules above;
-- agents reviewing automated or human upgrade pull requests gather and return the upgrade resource compare without changing the active worktree; CI may sample cheap series (install size, ship artifact size) but does not replace boot CPU and resident memory when those series matter.
+- agents reviewing automated or human upgrade pull requests gather and return upgrade impact and the upgrade resource compare without changing the active worktree; CI may sample cheap series (install size, ship artifact size) but does not replace boot CPU and resident memory when those series matter.
 
-Full dependency audits rely on deep recon and OSINT, not only lockfile scanners. Automated advisory and outdated checks are necessary baseline; they are not sufficient for hot-path packages or for add/replace decisions. Resource claims without the upgrade compare are inference.
+Full dependency audits rely on deep recon and OSINT, not only lockfile scanners. Automated advisory and outdated checks are necessary baseline; they are not sufficient for hot-path packages or for add/replace decisions. Safe-from-version-number claims without upgrade impact are inference. Resource claims without the upgrade compare are inference.

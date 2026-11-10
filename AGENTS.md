@@ -108,9 +108,9 @@ Stop until one of these applies before adding a dependency:
 
 Run dependency-audit for direct dependency changes, graph audits, releases with hot-path package changes, and plausible dependency vulnerability or exploitation signals found during ordinary work. Keep the evidence and assessment in the live-work or dependency record.
 
-On resolved lockfile graph or runtime-pin upgrades (automated or human), gather before/after resource samples for install or graph storage, resident memory, CPU or a stated proxy, and shipped bundle or image size when the product ships bytes. The reviewing agent uses isolated checkouts and the same small consumer-owned measurement commands for both revisions. It reports the comparison and writes to a change request only when authorized. Cheaper or smaller without comparable samples is inference. Continuous absolute ship-path ceilings stay in `delivery-budgets`.
+On resolved lockfile graph or runtime-pin upgrades (automated or human), map upstream changelog or release notes to this tree's usage, then gather before/after resource samples for install or graph storage, resident memory, CPU or a stated proxy, and shipped bundle or image size when the product ships bytes. Use isolated checkouts and the same consumer-owned measure commands on both revisions. Report the comparison; write to a change request only when authorized. Cheaper or smaller without comparable samples is inference. Absolute ship-path ceilings stay in `delivery-budgets`. When measured load shows a dependency no longer meets named requirements, reassess replace, remove, or narrow first-party work through dependency-audit before custom code.
 
-Related: `dependency-issues` records upstream defects found during real work; `minimal-implementation` covers YAGNI before adding deps; `engineering-audit` covers code and pipeline review; `delivery-budgets` owns continuous size and build-timing gates.
+Related: `dependency-issues` records upstream defects found during real work; `minimal-implementation` covers YAGNI before adding deps and before custom replacement; `engineering-audit` covers code and pipeline review; `delivery-budgets` owns continuous size and build-timing gates; `pressure-benchmarking` owns load ladders and ceiling ratchet episodes, not one-change upgrade deltas.
 <!-- pray:3ac5d6ce -->
 
 <!-- pray:ad13bd27 -->
@@ -160,6 +160,7 @@ Rules:
 - match the tree's structural height; a consistent absence of a layer is a convention; do not introduce a second pattern for the same job;
 - no abstractions unless three real variations need them; drop unused public methods;
 - no new dependency when stdlib, the framework for this tree, or an installed dependency suffices;
+- when measured load or a named requirement shows an existing dependency no longer fits, reassess through dependency-audit before writing custom replacement code; custom stays last after replace, remove, and narrow first-party options;
 - no boilerplate the task did not ask for;
 - deletion over addition; boring over clever; fewest files that stay readable;
 - when a request sounds overbuilt, ask whether a simpler existing path already covers it;
@@ -174,7 +175,7 @@ Not optional even when minimizing scope:
 - anything explicitly requested in the task or ticket;
 - tests for non-trivial behavior per @spec/README.md; trivial one-liners need no new spec.
 
-Related: `preferred-stack` covers native-first language choice and proximity when no tree language owns the path yet; `keep-the-work` covers the failed place after a refusal; `dependency-policy` covers third-party registry packages; `infer-conventions` encodes how this tree writes as checks.
+Related: `preferred-stack` covers native-first language choice and proximity when no tree language owns the path yet; `keep-the-work` covers the failed place after a refusal; `dependency-policy` covers third-party registry packages, upgrade impact, and fitness reassessment before custom replacement; `infer-conventions` encodes how this tree writes as checks.
 <!-- pray:bf7304a6 -->
 
 <!-- pray:120c3507 -->

@@ -41,7 +41,7 @@ Adapt names; concepts are universal.
 - upstream source host - last push, default branch, open issues, open pull requests, release tags, contributor count;
 - advisory feeds - ecosystem advisory DB, GHSA, CVE, vendor security advisories;
 - issue and pull request search - recent security-related threads, unfixed regressions, release-blocking bugs;
-- release notes and changelog - breaking changes, security sections, migration cost;
+- release notes and changelog - breaking changes, security sections, migration cost; on upgrades, map those entries to usage per `references/upgrade-impact.md`;
 - dependency graph of the upstream package - what it pulls in; overlap with your graph;
 - maintainer identity - authors, org membership, overlap across your hot-path packages (trusted cluster vs lone maintainer);
 - license and export metadata - SPDX, COPYING, patent or export notices when relevant;
@@ -177,11 +177,19 @@ Before recommending a new package, verify with recon:
 
 1. every plausible dependency security signal after the bump is assessed; affected targets have a disposition and open assessments have Next;
 2. recon confirms upstream is actively maintained or pin is deliberate;
-3. tests and adapters updated for major versions;
-4. manifest floors updated when needed;
-5. vendor exceptions wrapped at boundaries;
-6. automation config matches existing ecosystems only;
-7. upgrade resource compare completed on isolated base and head checkouts when the change alters a resolved graph or runtime pin (install or graph storage, resident memory, CPU or stated proxy, and shipped bundle or image size when the product ships bytes); procedure in `references/upgrade-resource-compare.md`.
+3. upgrade impact completed for the tier (changelog or release notes from base through target mapped to usage; classification `patch-safe`, `adapt-needed`, or `blocked`; must-adapt work done or blocked next named); procedure in `references/upgrade-impact.md`;
+4. tests and adapters updated for major versions and for must-adapt items;
+5. manifest floors updated when needed;
+6. vendor exceptions wrapped at boundaries;
+7. automation config matches existing ecosystems only;
+8. upgrade resource compare completed on isolated base and head checkouts when the change alters a resolved graph or runtime pin (install or graph storage, resident memory, CPU or stated proxy, and shipped bundle or image size when the product ships bytes); procedure in `references/upgrade-resource-compare.md`.
+
+## Fitness checks (when measurement shows a miss)
+
+1. name the requirement and the measured or evidenced gap;
+2. confirm tuning, configuration, or an alternate registry package cannot close it;
+3. choose keep-with-exception, replace, remove, vendor or thin fork, or narrow first-party per `references/upgrade-impact.md` fitness reassessment;
+4. custom first-party code only after stop-before-add and `minimal-implementation` gates.
 
 ## Automation expectations
 

@@ -65,6 +65,8 @@ Absent a binding, the agent still runs the minimum series with explicit one-off 
 ## Related
 
 - `selection-and-alteration.md` - when altering dependencies, run this compare before calling the upgrade done;
+- `upgrade-impact.md` - changelog and usage map before or beside this compare; fitness reassessment when load shows a miss;
 - `delivery-budgets` - absolute ship-path size and build-timing gates;
 - engineering-audit resource and budget mode - utilization audit; cites these samples when present;
+- `pressure-benchmarking` - load ladder, ceiling ratchet, and pressure-cooker episodes (not a one-change delta);
 - `libyears.md` - freshness lag is not resource cost.
